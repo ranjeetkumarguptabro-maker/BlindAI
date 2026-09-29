@@ -1,0 +1,444 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+/* Begin PBXBuildFile section */
+		975988F438E3FDE626B9B0FE /* BlindAIApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2FEB281FDC0CDE10E2AA770 /* BlindAIApp.swift */; };
+		7F4BB21E8B4B2CE059FAD509 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 152D3A87DFF7600785C9B431 /* ContentView.swift */; };
+		65B8B052CDB5EB0D5AFAFBAC /* Color+BlindAI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62C1F630BB859321CCC0EC64 /* Color+BlindAI.swift */; };
+		36F4245C42FD5F08124469FA /* Typography+BlindAI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 762218A23261806793CBE184 /* Typography+BlindAI.swift */; };
+		CA907181B5A8507AD9797C08 /* BlindAISpacing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AD688AE5178C464F264BB6C /* BlindAISpacing.swift */; };
+		ACC96044749F0FE849277B21 /* AppRoute.swift in Sources */ = {isa = PBXBuildFile; fileRef = 990BE801A9D63DF9D7DBD54B /* AppRoute.swift */; };
+		1FDFB9B58E1B4E29772DF9C4 /* ActionCardItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 492AACDC0225AE9338C6D1C9 /* ActionCardItem.swift */; };
+		383DA644F04DF75D6D76B876 /* DestinationItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 984C4C0BE117E2EA6B52363C /* DestinationItem.swift */; };
+		A4BB5C1EBE51BFE6166DD2F0 /* NavigationInstruction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5AE945FA17B0CAC6C3A133AB /* NavigationInstruction.swift */; };
+		3254D9EDA6A77356C4370987 /* BlindAIHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F35FC89E83D4C48AE0088D1 /* BlindAIHeader.swift */; };
+		DBD2B70E569BF9422873B411 /* GlowingOrb.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11E112707B6F93A88027DB53 /* GlowingOrb.swift */; };
+		8E237BC46AF3A891B815C7B0 /* ActionCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8ED880F1401B117DC859C0A /* ActionCard.swift */; };
+		6147FD7EE1598769D6EA4A00 /* VoiceButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4237C6AD736369E3AD8C7030 /* VoiceButton.swift */; };
+		E461A9D49BBD4EA4A34A88A6 /* PrimaryButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC202B13F8A1246E3CC8F60B /* PrimaryButton.swift */; };
+		555A33FC08AA5630386A5197 /* SecondaryButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F294884B43C009C97E4500E /* SecondaryButton.swift */; };
+		1D67AA53483427E7D29827D1 /* SpeakerButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 783CE5F3E2B5B46CF2068876 /* SpeakerButton.swift */; };
+		BF6B1B58D0BB0127AC45926A /* NavigationInstructionCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = D622C8C2E2E430E838E2E696 /* NavigationInstructionCard.swift */; };
+		8EBB90CE1C1E66598239C563 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FE523FB7B225FB499F9F039 /* HomeView.swift */; };
+		5D9D1AB68A44A9F002961FAE /* ListeningView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64A6895688996107AAE9768A /* ListeningView.swift */; };
+		D9F133BD0AB916F7ABB65BF9 /* DestinationSearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54486E00E687D56E8896438D /* DestinationSearchView.swift */; };
+		855D191AE8C41703D1B27012 /* RoutePreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59CF686898A766E2D684A7C3 /* RoutePreviewView.swift */; };
+		702C030EAB987F2826607CCE /* ActiveNavigationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E8E26EBD638AC27DEBF9CE6 /* ActiveNavigationView.swift */; };
+		0F3A6851229B38503D69046C /* WhereAmIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A93A7037EFFC9E90F6A90B7 /* WhereAmIView.swift */; };
+		1058CD6389278266B04386BF /* HomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76EE1C44757B8C71E7E8834B /* HomeViewModel.swift */; };
+		3BEAE6939DC56BF04CEC4232 /* ListeningViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 28A637F4DE1899C804273F46 /* ListeningViewModel.swift */; };
+		ABEBF1752AA31D0EA0633A6B /* DestinationSearchViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BEE102E04006405C1C14D3F /* DestinationSearchViewModel.swift */; };
+		6882AE58255573F4C80504AD /* RoutePreviewViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6480D833A78F54DE609D952D /* RoutePreviewViewModel.swift */; };
+		303AA2499643870F77915151 /* ActiveNavigationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 011E4B46ECD7BD61C9A2BB02 /* ActiveNavigationViewModel.swift */; };
+		AD6F7BFE1253FC643CCD9B36 /* WhereAmIViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4A8958A12BBEBA3838D05C2 /* WhereAmIViewModel.swift */; };
+		89B17EA27611EEFAB6FF7C38 /* SpeechServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1CC689F7BC40C36A894FAEE1 /* SpeechServiceProtocol.swift */; };
+		819F6DEBFA10EF14DD8F36A0 /* SpeechService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F074C023E5AB86C44F5093E /* SpeechService.swift */; };
+		1FFE03448B708245F6AFF756 /* NavigationServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = A85BBCFF0E5DDFAC2A2724BD /* NavigationServiceProtocol.swift */; };
+		DA6794F18E2115AEA414BEA7 /* NavigationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8E809008591EC6B5ECF552A /* NavigationService.swift */; };
+		83394C226719051515D304D2 /* EnvironmentService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48A9F8997ABC4BEC5FB63287 /* EnvironmentService.swift */; };
+		FE6904DC3293BED728F7CFB8 /* HapticsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B39181DEC3AEB4B4D97A7DEF /* HapticsService.swift */; };
+		4A023E163F582FAF17701032 /* BlindAIBackendClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3E2EAE5234AFBEF7F18AD83 /* BlindAIBackendClient.swift */; };
+		D2D8D95CA703EDF7210D0048 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 39DF35C5B235782381DC07AE /* Assets.xcassets */; };
+		2C7CD670D2AAF2DF924F67A4 /* EnvironmentSceneItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = B57D0450185B097D8B034802 /* EnvironmentSceneItem.swift */; };
+		B21B415E33AF7E7B42624D47 /* ObstacleAlertItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA62167211BBDBD295A9B645 /* ObstacleAlertItem.swift */; };
+		C2602FEEE938F770124C6A14 /* CrosswalkStatusItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22D9A34FB490F0828D36F55F /* CrosswalkStatusItem.swift */; };
+		B22EF7417D35763AC7B1AA8E /* DescribeAroundViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AA0A15977451EDD521210B7 /* DescribeAroundViewModel.swift */; };
+		5CC4DC8D2890FC2DB8B2C8BD /* ObstacleAlertViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA3FCE26F59AD33C792AE97A /* ObstacleAlertViewModel.swift */; };
+		8B0E2D3127A2FD6D7668D153 /* CrosswalkSafetyViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38D5D548DAD9A351ADA76955 /* CrosswalkSafetyViewModel.swift */; };
+		3C89A91BB54647C0446D36BD /* DescribeAroundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 044D94B1B61D5EBC52F28B1A /* DescribeAroundView.swift */; };
+		CBDB0BC017C083271D1DC90C /* ObstacleAlertView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA2465F6B306C3FAFD73C5B3 /* ObstacleAlertView.swift */; };
+		1B577020C8BF3BCCD19F62F5 /* CrosswalkSafetyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 848914AC424FC2BAD92EACB5 /* CrosswalkSafetyView.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		E4FABDC4C6BFFC756C82A4FF /* BlindAI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BlindAI.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		F2FEB281FDC0CDE10E2AA770 /* BlindAIApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BlindAIApp.swift"; sourceTree = "<group>"; };
+		152D3A87DFF7600785C9B431 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ContentView.swift"; sourceTree = "<group>"; };
+		62C1F630BB859321CCC0EC64 /* Color+BlindAI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Color+BlindAI.swift"; sourceTree = "<group>"; };
+		762218A23261806793CBE184 /* Typography+BlindAI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Typography+BlindAI.swift"; sourceTree = "<group>"; };
+		7AD688AE5178C464F264BB6C /* BlindAISpacing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BlindAISpacing.swift"; sourceTree = "<group>"; };
+		990BE801A9D63DF9D7DBD54B /* AppRoute.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppRoute.swift"; sourceTree = "<group>"; };
+		492AACDC0225AE9338C6D1C9 /* ActionCardItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ActionCardItem.swift"; sourceTree = "<group>"; };
+		984C4C0BE117E2EA6B52363C /* DestinationItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DestinationItem.swift"; sourceTree = "<group>"; };
+		5AE945FA17B0CAC6C3A133AB /* NavigationInstruction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NavigationInstruction.swift"; sourceTree = "<group>"; };
+		0F35FC89E83D4C48AE0088D1 /* BlindAIHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BlindAIHeader.swift"; sourceTree = "<group>"; };
+		11E112707B6F93A88027DB53 /* GlowingOrb.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GlowingOrb.swift"; sourceTree = "<group>"; };
+		A8ED880F1401B117DC859C0A /* ActionCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ActionCard.swift"; sourceTree = "<group>"; };
+		4237C6AD736369E3AD8C7030 /* VoiceButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VoiceButton.swift"; sourceTree = "<group>"; };
+		BC202B13F8A1246E3CC8F60B /* PrimaryButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PrimaryButton.swift"; sourceTree = "<group>"; };
+		2F294884B43C009C97E4500E /* SecondaryButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SecondaryButton.swift"; sourceTree = "<group>"; };
+		783CE5F3E2B5B46CF2068876 /* SpeakerButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SpeakerButton.swift"; sourceTree = "<group>"; };
+		D622C8C2E2E430E838E2E696 /* NavigationInstructionCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NavigationInstructionCard.swift"; sourceTree = "<group>"; };
+		6FE523FB7B225FB499F9F039 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HomeView.swift"; sourceTree = "<group>"; };
+		64A6895688996107AAE9768A /* ListeningView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ListeningView.swift"; sourceTree = "<group>"; };
+		54486E00E687D56E8896438D /* DestinationSearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DestinationSearchView.swift"; sourceTree = "<group>"; };
+		59CF686898A766E2D684A7C3 /* RoutePreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RoutePreviewView.swift"; sourceTree = "<group>"; };
+		7E8E26EBD638AC27DEBF9CE6 /* ActiveNavigationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ActiveNavigationView.swift"; sourceTree = "<group>"; };
+		0A93A7037EFFC9E90F6A90B7 /* WhereAmIView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WhereAmIView.swift"; sourceTree = "<group>"; };
+		76EE1C44757B8C71E7E8834B /* HomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HomeViewModel.swift"; sourceTree = "<group>"; };
+		28A637F4DE1899C804273F46 /* ListeningViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ListeningViewModel.swift"; sourceTree = "<group>"; };
+		7BEE102E04006405C1C14D3F /* DestinationSearchViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DestinationSearchViewModel.swift"; sourceTree = "<group>"; };
+		6480D833A78F54DE609D952D /* RoutePreviewViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RoutePreviewViewModel.swift"; sourceTree = "<group>"; };
+		011E4B46ECD7BD61C9A2BB02 /* ActiveNavigationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ActiveNavigationViewModel.swift"; sourceTree = "<group>"; };
+		E4A8958A12BBEBA3838D05C2 /* WhereAmIViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WhereAmIViewModel.swift"; sourceTree = "<group>"; };
+		1CC689F7BC40C36A894FAEE1 /* SpeechServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SpeechServiceProtocol.swift"; sourceTree = "<group>"; };
+		8F074C023E5AB86C44F5093E /* SpeechService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SpeechService.swift"; sourceTree = "<group>"; };
+		A85BBCFF0E5DDFAC2A2724BD /* NavigationServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NavigationServiceProtocol.swift"; sourceTree = "<group>"; };
+		F8E809008591EC6B5ECF552A /* NavigationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NavigationService.swift"; sourceTree = "<group>"; };
+		48A9F8997ABC4BEC5FB63287 /* EnvironmentService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EnvironmentService.swift"; sourceTree = "<group>"; };
+		B39181DEC3AEB4B4D97A7DEF /* HapticsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HapticsService.swift"; sourceTree = "<group>"; };
+		B3E2EAE5234AFBEF7F18AD83 /* BlindAIBackendClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BlindAIBackendClient.swift"; sourceTree = "<group>"; };
+		39DF35C5B235782381DC07AE /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Assets.xcassets"; sourceTree = "<group>"; };
+		5E4978EFF3D1173E79C6DB22 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Info.plist"; sourceTree = "<group>"; };
+		B57D0450185B097D8B034802 /* EnvironmentSceneItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EnvironmentSceneItem.swift"; sourceTree = "<group>"; };
+		EA62167211BBDBD295A9B645 /* ObstacleAlertItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ObstacleAlertItem.swift"; sourceTree = "<group>"; };
+		22D9A34FB490F0828D36F55F /* CrosswalkStatusItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CrosswalkStatusItem.swift"; sourceTree = "<group>"; };
+		0AA0A15977451EDD521210B7 /* DescribeAroundViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DescribeAroundViewModel.swift"; sourceTree = "<group>"; };
+		BA3FCE26F59AD33C792AE97A /* ObstacleAlertViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ObstacleAlertViewModel.swift"; sourceTree = "<group>"; };
+		38D5D548DAD9A351ADA76955 /* CrosswalkSafetyViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CrosswalkSafetyViewModel.swift"; sourceTree = "<group>"; };
+		044D94B1B61D5EBC52F28B1A /* DescribeAroundView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DescribeAroundView.swift"; sourceTree = "<group>"; };
+		EA2465F6B306C3FAFD73C5B3 /* ObstacleAlertView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ObstacleAlertView.swift"; sourceTree = "<group>"; };
+		848914AC424FC2BAD92EACB5 /* CrosswalkSafetyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CrosswalkSafetyView.swift"; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		29B2D46AA747A59804D46E1F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		FE910D29D648D8F2EA669AEF /* App */ = {
+			isa = PBXGroup;
+			children = (
+				F2FEB281FDC0CDE10E2AA770 /* BlindAIApp.swift */,
+				152D3A87DFF7600785C9B431 /* ContentView.swift */,
+			);
+			path = "App";
+			sourceTree = "<group>";
+		};
+		75C76AD4A8285D8ACA888B61 /* DesignSystem */ = {
+			isa = PBXGroup;
+			children = (
+				62C1F630BB859321CCC0EC64 /* Color+BlindAI.swift */,
+				762218A23261806793CBE184 /* Typography+BlindAI.swift */,
+				7AD688AE5178C464F264BB6C /* BlindAISpacing.swift */,
+			);
+			path = "DesignSystem";
+			sourceTree = "<group>";
+		};
+		9CF43B31E8845D861542A38E /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				990BE801A9D63DF9D7DBD54B /* AppRoute.swift */,
+				492AACDC0225AE9338C6D1C9 /* ActionCardItem.swift */,
+				984C4C0BE117E2EA6B52363C /* DestinationItem.swift */,
+				5AE945FA17B0CAC6C3A133AB /* NavigationInstruction.swift */,
+							B57D0450185B097D8B034802 /* EnvironmentSceneItem.swift */,
+				EA62167211BBDBD295A9B645 /* ObstacleAlertItem.swift */,
+				22D9A34FB490F0828D36F55F /* CrosswalkStatusItem.swift */,
+);
+			path = "Models";
+			sourceTree = "<group>";
+		};
+		4724C3FAA6DC593B05F661BF /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				0F35FC89E83D4C48AE0088D1 /* BlindAIHeader.swift */,
+				11E112707B6F93A88027DB53 /* GlowingOrb.swift */,
+				A8ED880F1401B117DC859C0A /* ActionCard.swift */,
+				4237C6AD736369E3AD8C7030 /* VoiceButton.swift */,
+				BC202B13F8A1246E3CC8F60B /* PrimaryButton.swift */,
+				2F294884B43C009C97E4500E /* SecondaryButton.swift */,
+				783CE5F3E2B5B46CF2068876 /* SpeakerButton.swift */,
+				D622C8C2E2E430E838E2E696 /* NavigationInstructionCard.swift */,
+			);
+			path = "Components";
+			sourceTree = "<group>";
+		};
+		C454586A1F4E28C340BDC1AD /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				6FE523FB7B225FB499F9F039 /* HomeView.swift */,
+				64A6895688996107AAE9768A /* ListeningView.swift */,
+				54486E00E687D56E8896438D /* DestinationSearchView.swift */,
+				59CF686898A766E2D684A7C3 /* RoutePreviewView.swift */,
+				7E8E26EBD638AC27DEBF9CE6 /* ActiveNavigationView.swift */,
+				0A93A7037EFFC9E90F6A90B7 /* WhereAmIView.swift */,
+							044D94B1B61D5EBC52F28B1A /* DescribeAroundView.swift */,
+				EA2465F6B306C3FAFD73C5B3 /* ObstacleAlertView.swift */,
+				848914AC424FC2BAD92EACB5 /* CrosswalkSafetyView.swift */,
+);
+			path = "Views";
+			sourceTree = "<group>";
+		};
+		420CEB417186B52ECF642348 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				76EE1C44757B8C71E7E8834B /* HomeViewModel.swift */,
+				28A637F4DE1899C804273F46 /* ListeningViewModel.swift */,
+				7BEE102E04006405C1C14D3F /* DestinationSearchViewModel.swift */,
+				6480D833A78F54DE609D952D /* RoutePreviewViewModel.swift */,
+				011E4B46ECD7BD61C9A2BB02 /* ActiveNavigationViewModel.swift */,
+				E4A8958A12BBEBA3838D05C2 /* WhereAmIViewModel.swift */,
+							0AA0A15977451EDD521210B7 /* DescribeAroundViewModel.swift */,
+				BA3FCE26F59AD33C792AE97A /* ObstacleAlertViewModel.swift */,
+				38D5D548DAD9A351ADA76955 /* CrosswalkSafetyViewModel.swift */,
+);
+			path = "ViewModels";
+			sourceTree = "<group>";
+		};
+		564EAF51B7DD4639ADD9B985 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				1CC689F7BC40C36A894FAEE1 /* SpeechServiceProtocol.swift */,
+				8F074C023E5AB86C44F5093E /* SpeechService.swift */,
+				A85BBCFF0E5DDFAC2A2724BD /* NavigationServiceProtocol.swift */,
+				F8E809008591EC6B5ECF552A /* NavigationService.swift */,
+				48A9F8997ABC4BEC5FB63287 /* EnvironmentService.swift */,
+				B39181DEC3AEB4B4D97A7DEF /* HapticsService.swift */,
+				B3E2EAE5234AFBEF7F18AD83 /* BlindAIBackendClient.swift */,
+			);
+			path = "Services";
+			sourceTree = "<group>";
+		};
+		45B877375D6D6297BAAF2860 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				39DF35C5B235782381DC07AE /* Assets.xcassets */,
+				5E4978EFF3D1173E79C6DB22 /* Info.plist */,
+			);
+			path = "Resources";
+			sourceTree = "<group>";
+		};
+		B82FF00FDA830B7C097D24B0 /* BlindAI */ = {
+			isa = PBXGroup;
+			children = (
+				FE910D29D648D8F2EA669AEF /* App */,
+				4724C3FAA6DC593B05F661BF /* Components */,
+				75C76AD4A8285D8ACA888B61 /* DesignSystem */,
+				9CF43B31E8845D861542A38E /* Models */,
+				45B877375D6D6297BAAF2860 /* Resources */,
+				564EAF51B7DD4639ADD9B985 /* Services */,
+				420CEB417186B52ECF642348 /* ViewModels */,
+				C454586A1F4E28C340BDC1AD /* Views */,
+			);
+			path = BlindAI;
+			sourceTree = "<group>";
+		};
+		9A76A62D587AD0C58292763F /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				E4FABDC4C6BFFC756C82A4FF /* BlindAI.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		4DEBE42ADE09F246194C4766 = {
+			isa = PBXGroup;
+			children = (
+				B82FF00FDA830B7C097D24B0 /* BlindAI */,
+				9A76A62D587AD0C58292763F /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		E50999B6EB832F76B8CDBBB1 /* BlindAI */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DDC96F7C1D62EA89141E06E0;
+			buildPhases = (
+				E7209FB05162B7572F88D05E /* Sources */,
+				29B2D46AA747A59804D46E1F /* Frameworks */,
+				66F8606E9F0A136E2228EBCB /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = BlindAI;
+			productName = BlindAI;
+			productReference = E4FABDC4C6BFFC756C82A4FF /* BlindAI.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		56E608B8ED6BA67ADCC5A565 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1600;
+				LastUpgradeCheck = 1600;
+				TargetAttributes = {
+					E50999B6EB832F76B8CDBBB1 = {
+						CreatedOnToolsVersion = 16.0;
+					};
+				};
+			};
+			buildConfigurationList = 4623F89214148A3820E2F59A;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (en, Base);
+			mainGroup = 4DEBE42ADE09F246194C4766;
+			productRefGroup = 9A76A62D587AD0C58292763F /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				E50999B6EB832F76B8CDBBB1 /* BlindAI */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		66F8606E9F0A136E2228EBCB /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D2D8D95CA703EDF7210D0048 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		E7209FB05162B7572F88D05E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				975988F438E3FDE626B9B0FE /* BlindAIApp.swift in Sources */,
+				7F4BB21E8B4B2CE059FAD509 /* ContentView.swift in Sources */,
+				65B8B052CDB5EB0D5AFAFBAC /* Color+BlindAI.swift in Sources */,
+				36F4245C42FD5F08124469FA /* Typography+BlindAI.swift in Sources */,
+				CA907181B5A8507AD9797C08 /* BlindAISpacing.swift in Sources */,
+				ACC96044749F0FE849277B21 /* AppRoute.swift in Sources */,
+				1FDFB9B58E1B4E29772DF9C4 /* ActionCardItem.swift in Sources */,
+				383DA644F04DF75D6D76B876 /* DestinationItem.swift in Sources */,
+				A4BB5C1EBE51BFE6166DD2F0 /* NavigationInstruction.swift in Sources */,
+				3254D9EDA6A77356C4370987 /* BlindAIHeader.swift in Sources */,
+				DBD2B70E569BF9422873B411 /* GlowingOrb.swift in Sources */,
+				8E237BC46AF3A891B815C7B0 /* ActionCard.swift in Sources */,
+				6147FD7EE1598769D6EA4A00 /* VoiceButton.swift in Sources */,
+				E461A9D49BBD4EA4A34A88A6 /* PrimaryButton.swift in Sources */,
+				555A33FC08AA5630386A5197 /* SecondaryButton.swift in Sources */,
+				1D67AA53483427E7D29827D1 /* SpeakerButton.swift in Sources */,
+				BF6B1B58D0BB0127AC45926A /* NavigationInstructionCard.swift in Sources */,
+				8EBB90CE1C1E66598239C563 /* HomeView.swift in Sources */,
+				5D9D1AB68A44A9F002961FAE /* ListeningView.swift in Sources */,
+				D9F133BD0AB916F7ABB65BF9 /* DestinationSearchView.swift in Sources */,
+				855D191AE8C41703D1B27012 /* RoutePreviewView.swift in Sources */,
+				702C030EAB987F2826607CCE /* ActiveNavigationView.swift in Sources */,
+				0F3A6851229B38503D69046C /* WhereAmIView.swift in Sources */,
+				1058CD6389278266B04386BF /* HomeViewModel.swift in Sources */,
+				3BEAE6939DC56BF04CEC4232 /* ListeningViewModel.swift in Sources */,
+				ABEBF1752AA31D0EA0633A6B /* DestinationSearchViewModel.swift in Sources */,
+				6882AE58255573F4C80504AD /* RoutePreviewViewModel.swift in Sources */,
+				303AA2499643870F77915151 /* ActiveNavigationViewModel.swift in Sources */,
+				AD6F7BFE1253FC643CCD9B36 /* WhereAmIViewModel.swift in Sources */,
+				89B17EA27611EEFAB6FF7C38 /* SpeechServiceProtocol.swift in Sources */,
+				819F6DEBFA10EF14DD8F36A0 /* SpeechService.swift in Sources */,
+				1FFE03448B708245F6AFF756 /* NavigationServiceProtocol.swift in Sources */,
+				DA6794F18E2115AEA414BEA7 /* NavigationService.swift in Sources */,
+				83394C226719051515D304D2 /* EnvironmentService.swift in Sources */,
+				FE6904DC3293BED728F7CFB8 /* HapticsService.swift in Sources */,
+				4A023E163F582FAF17701032 /* BlindAIBackendClient.swift in Sources */,
+							2C7CD670D2AAF2DF924F67A4 /* EnvironmentSceneItem.swift in Sources */,
+				B21B415E33AF7E7B42624D47 /* ObstacleAlertItem.swift in Sources */,
+				C2602FEEE938F770124C6A14 /* CrosswalkStatusItem.swift in Sources */,
+				B22EF7417D35763AC7B1AA8E /* DescribeAroundViewModel.swift in Sources */,
+				5CC4DC8D2890FC2DB8B2C8BD /* ObstacleAlertViewModel.swift in Sources */,
+				8B0E2D3127A2FD6D7668D153 /* CrosswalkSafetyViewModel.swift in Sources */,
+				3C89A91BB54647C0446D36BD /* DescribeAroundView.swift in Sources */,
+				CBDB0BC017C083271D1DC90C /* ObstacleAlertView.swift in Sources */,
+				1B577020C8BF3BCCD19F62F5 /* CrosswalkSafetyView.swift in Sources */,
+);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		381719601BF57419E038C5F4 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		C12C5BE685ACDC8E7E8020CA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+		21FC0252F88F0933ACFCFD5D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = BlindAI/Resources/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.blindai.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1";
+			};
+			name = Debug;
+		};
+		04441EF25972B14D15F61E24 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = BlindAI/Resources/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.blindai.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		4623F89214148A3820E2F59A = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				381719601BF57419E038C5F4,
+				C12C5BE685ACDC8E7E8020CA,
+			);
+			defaultConfigurationName = Release;
+		};
+		DDC96F7C1D62EA89141E06E0 = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				21FC0252F88F0933ACFCFD5D,
+				04441EF25972B14D15F61E24,
+			);
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 56E608B8ED6BA67ADCC5A565;
+}

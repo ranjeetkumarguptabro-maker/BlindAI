@@ -1,0 +1,18 @@
+{
+  "name": "blind-ai-backend",
+  "version": "1.0.0",
+  "description": "Blind AI Assistant Backend with Modular Gemini AI Provider",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node --env-file=.env src/server.js",
+    "dev": "node --watch --env-file=.env src/server.js"
+  },
+  "keywords": [
+    "blind-ai",
+    "gemini",
+    "accessibility",
+    "assistive-navigation"
+  ],
+  "author": "Blind AI Team",
+  "license": "MIT"
+}
