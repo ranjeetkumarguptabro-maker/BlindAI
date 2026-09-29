@@ -1,6 +1,7 @@
 const http = require("http");
 const env = require("./config/env");
 const aiService = require("./services/ai/aiService");
+const supabaseClient = require("./services/db/supabaseClient");
 const environmentController = require("./controllers/environmentController");
 const voiceController = require("./controllers/voiceController");
 const routesController = require("./controllers/routesController");
@@ -51,6 +52,7 @@ const server = http.createServer(async (req, res) => {
         service: "Blind AI Backend",
         aiProvider: aiService.activeProviderName,
         geminiConfigured: !!env.geminiApiKey,
+        supabaseConfigured: !!env.supabaseKey,
         timestamp: new Date().toISOString()
       });
     }
@@ -100,6 +102,14 @@ const server = http.createServer(async (req, res) => {
     if (pathname.startsWith("/api/v1/navigation/sessions/") && pathname.endsWith("/events") && req.method === "POST") {
       const eventData = await readBody();
       console.log("[Backend] Recorded obstacle/navigation event:", eventData);
+      
+      // Persist to Supabase if configured
+      try {
+        await supabaseClient.recordObstacleEvent(eventData);
+      } catch (dbErr) {
+        console.warn("[Backend] Supabase log warning:", dbErr.message);
+      }
+
       return sendJson(201, {
         status: "success",
         message: "Obstacle event recorded",
@@ -128,6 +138,7 @@ server.listen(env.port, () => {
   console.log(`🚀 Blind AI Backend listening on port ${env.port}`);
   console.log(`🤖 Active AI Provider: ${aiService.activeProviderName}`);
   console.log(`🔑 Gemini API Key configured: ${env.geminiApiKey ? "YES (from GEMINI_API_KEY environment variable)" : "NO"}`);
+  console.log(`🗄️  Supabase Key configured: ${env.supabaseKey ? "YES (from SUPABASE_KEY environment variable)" : "NO"}`);
   console.log(`📱 Base URL: http://localhost:${env.port}/api/v1`);
   console.log(`=================================================\n`);
 });

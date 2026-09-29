@@ -7,11 +7,11 @@ A retrofit assistive smart-navigation application engineered specifically for bl
 ## 🔒 Security & AI Configuration Architecture
 
 Per strict security and architectural requirements:
-1. **Zero Client-Side Keys**: The Gemini API key is **NEVER** hardcoded in the Swift iOS client, HTML, or committed to GitHub.
-2. **Backend Environment Variable**: The key is stored exclusively as `GEMINI_API_KEY` inside `backend/.env`.
+1. **Zero Client-Side Keys**: The Gemini API key and Supabase keys are **NEVER** hardcoded in the Swift iOS client, HTML, or committed to GitHub.
+2. **Backend Environment Variables**: Secrets are stored exclusively as `GEMINI_API_KEY` and `SUPABASE_KEY` inside `backend/.env`.
 3. **Git-Ignored Secrets**: `backend/.env` and all `.env*` files are strictly excluded via `.gitignore`.
-4. **Backend Proxy Pattern**: The iOS app communicates strictly with our backend API server (`/api/v1`), which manages authentication and communicates securely with Google Gemini.
-5. **Modular AI Provider**: The backend implements an `AIProviderInterface` pattern so Google Gemini can be seamlessly swapped or augmented with other models (Anthropic Claude, OpenAI, local on-device LLMs) without touching client code.
+4. **Backend Proxy Pattern**: The iOS app communicates strictly with our backend API server (`/api/v1`), which manages authentication, queries Supabase, and communicates securely with Google Gemini.
+5. **Modular Services**: The backend implements an `AIProviderInterface` pattern for Gemini and a lightweight `SupabaseClient` for persisting navigation sessions, obstacle logs, and user settings.
 
 ```
 ┌─────────────────────────────────┐
