@@ -1,4 +1,6 @@
 const http = require("http");
+const fs = require("fs");
+const path = require("path");
 const env = require("./config/env");
 const aiService = require("./services/ai/aiService");
 const supabaseClient = require("./services/db/supabaseClient");
@@ -45,6 +47,34 @@ const server = http.createServer(async (req, res) => {
   });
 
   try {
+    // 0. Interactive Web Simulator (Root /)
+    if ((pathname === "/" || pathname === "/preview" || pathname === "/index.html") && req.method === "GET") {
+      const previewPath = path.resolve(__dirname, "../../preview.html");
+      if (fs.existsSync(previewPath)) {
+        const html = fs.readFileSync(previewPath, "utf8");
+        res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
+        res.end(html);
+        return;
+      }
+    }
+
+    // Static assets in /docs/
+    if (pathname.startsWith("/docs/") && req.method === "GET") {
+      const docFilePath = path.resolve(__dirname, "../../", pathname.replace(/^\//, ""));
+      if (fs.existsSync(docFilePath) && fs.statSync(docFilePath).isFile()) {
+        const ext = path.extname(docFilePath).toLowerCase();
+        const mimeTypes = {
+          ".png": "image/png",
+          ".jpg": "image/jpeg",
+          ".jpeg": "image/jpeg",
+          ".svg": "image/svg+xml"
+        };
+        res.writeHead(200, { "Content-Type": mimeTypes[ext] || "application/octet-stream" });
+        fs.createReadStream(docFilePath).pipe(res);
+        return;
+      }
+    }
+
     // Health Check
     if (pathname === "/health" || pathname === "/api/v1/health") {
       return sendJson(200, {
