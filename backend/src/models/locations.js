@@ -27,7 +27,7 @@ const LOCATIONS = [
     ],
     description: "Main university campus with faculty centers, lecture halls, and laboratories.",
     waypoints: [
-      { sequence: 1, instruction: "Walk towards Vanšu tilts", distanceMeters: 320, maneuver: "Head straight", icon: "arrow.up" },
+      { sequence: 1, instruction: "Walk towards Vanšu tilts", distanceMeters: 160, maneuver: "Head straight", icon: "arrow.up" },
       { sequence: 2, instruction: "Cross Vanšu tilts (bridge)", distanceMeters: 730, maneuver: "Cross bridge", icon: "arrow.turn.up.left" },
       { sequence: 3, instruction: "Turn right on Ķīpsalas iela", distanceMeters: 120, maneuver: "Turn right", icon: "↱" },
       { sequence: 4, instruction: "Continue straight along Paula Valdena iela", distanceMeters: 80, maneuver: "Head straight", icon: "arrow.up" },

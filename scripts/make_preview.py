@@ -527,36 +527,41 @@ html_content = f"""<!DOCTYPE html>
 
               <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-md flex flex-col items-center text-center relative overflow-hidden" role="region" aria-label="Current Navigation Step" aria-live="assertive">
                 <span id="nav-step-label" class="text-xs font-bold text-orange-600 uppercase tracking-widest mb-1">
-                  Navigation • Step 1 of 4
+                  Navigation • Step 1 of 6
                 </span>
                 <h2 id="nav-instruction-text" class="text-2xl font-bold text-slate-900 tracking-tight leading-snug mb-2">
-                  Turn right on Ķīpsalas iela
+                  Walk towards Vanšu tilts
                 </h2>
                 
                 <!-- Large Distance Number -->
                 <div class="my-2 flex items-baseline justify-center space-x-1" aria-label="Distance remaining">
-                  <span id="nav-distance-num" class="text-6xl font-black text-slate-900 tracking-tight">120</span>
+                  <span id="nav-distance-num" class="text-6xl font-black text-slate-900 tracking-tight">160</span>
                   <span class="text-lg font-bold text-slate-600">meters</span>
                 </div>
 
                 <!-- Maneuver Direction Banner -->
                 <div class="w-full mt-3 bg-slate-50 border border-slate-200 rounded-2xl py-3 px-4 flex items-center justify-center space-x-3 text-slate-700">
                   <div id="nav-maneuver-icon" class="w-8 h-8 rounded-full bg-orange-500 text-white flex items-center justify-center font-bold text-base" aria-hidden="true">
-                    ↱
+                    ↑
                   </div>
-                  <span id="nav-maneuver-text" class="font-bold text-sm text-slate-800">Turn right in 120m</span>
+                  <span id="nav-maneuver-text" class="font-bold text-sm text-slate-800">Head straight</span>
                 </div>
               </div>
 
               <!-- Quick safety triggers -->
               <div class="flex justify-center gap-2 mt-3" role="group" aria-label="Simulation test triggers">
-                <button onclick="navigateTo('obstacleAlert')" aria-label="Simulate obstacle hazard detection" class="px-3 py-1.5 bg-red-100 text-red-800 hover:bg-red-200 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
+                <button onclick="navigateTo('obstacleAlert')" aria-label="Simulate obstacle hazard detection" class="px-3 py-1.5 bg-red-100 text-red-800 hover:bg-red-200 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm active:scale-95">
                   <span aria-hidden="true">⚠️</span> Simulate Obstacle
                 </button>
-                <button onclick="navigateTo('crosswalkSafety')" aria-label="Simulate approaching crosswalk quiet mode" class="px-3 py-1.5 bg-amber-100 text-amber-900 hover:bg-amber-200 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
+                <button onclick="navigateTo('crosswalkSafety')" aria-label="Simulate approaching crosswalk quiet mode" class="px-3 py-1.5 bg-amber-100 text-amber-900 hover:bg-amber-200 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm active:scale-95">
                   <span aria-hidden="true">🚶</span> Simulate Crosswalk
                 </button>
               </div>
+
+              <!-- Auto-Trigger Status Notice -->
+              <p class="text-[11px] text-slate-700 text-center mt-2 font-medium">
+                Auto-triggers: Obstacle at 40–50m walked • Traffic after +20m
+              </p>
             </div>
 
             <!-- Navigation Controls -->
@@ -970,6 +975,18 @@ html_content = f"""<!DOCTYPE html>
 
     const rtuWaypoints = [
       {{
+        instruction: "Walk towards Vanšu tilts",
+        distance: 160,
+        maneuver: "Head straight",
+        icon: "↑"
+      }},
+      {{
+        instruction: "Cross Vanšu tilts (bridge)",
+        distance: 730,
+        maneuver: "Cross bridge",
+        icon: "↰"
+      }},
+      {{
         instruction: "Turn right on Ķīpsalas iela",
         distance: 120,
         maneuver: "Turn right in 120m",
@@ -996,7 +1013,7 @@ html_content = f"""<!DOCTYPE html>
     ];
 
     let currentDestinationTitle = "Riga Technical University (RTU)";
-    let currentDestinationSub = "Ķīpsala Campus • 2.4 km • 28 min • 8 waypoints";
+    let currentDestinationSub = "Ķīpsala Campus • 2.4 km • 28 min • 6 waypoints";
     let currentWaypoints = [...rtuWaypoints];
 
     const clientLocationsCatalog = [
@@ -1010,6 +1027,8 @@ html_content = f"""<!DOCTYPE html>
         estimatedMinutes: 28,
         aliases: ["rtu", "riga technical university", "campus", "kipsala campus", "kipsala", "university", "cif", "technical university", "faculty", "main campus"],
         waypoints: [
+          {{ instruction: "Walk towards Vanšu tilts", distance: 160, maneuver: "Head straight", icon: "↑" }},
+          {{ instruction: "Cross Vanšu tilts (bridge)", distance: 730, maneuver: "Cross bridge", icon: "↰" }},
           {{ instruction: "Turn right on Ķīpsalas iela", distance: 120, maneuver: "Turn right in 120m", icon: "↱" }},
           {{ instruction: "Continue straight along Paula Valdena iela", distance: 80, maneuver: "Continue straight", icon: "↑" }},
           {{ instruction: "Approaching pedestrian crossing at Zunda quay", distance: 30, maneuver: "Crosswalk ahead", icon: "🚶" }},
@@ -1613,13 +1632,22 @@ html_content = f"""<!DOCTYPE html>
       startNavigationRoute(currentDestinationTitle);
     }}
 
-    // Active Navigation Lifecycle
+    // Active Navigation Lifecycle & Safety Event Triggers
+    let stepWalkedMeters = 0;
+    let obstacleTriggeredThisStep = false;
+    let trafficTriggeredThisStep = false;
+    let metersSinceObstacle = 0;
+
     function startNavigationRoute(destName) {{
       const targetName = destName || currentDestinationTitle || 'Riga Technical University';
       navigateTo('activeNavigation');
       triggerHaptic([80, 40, 80]);
       currentWaypointIdx = 0;
-      currentDistance = currentWaypoints[0] ? currentWaypoints[0].distance : 100;
+      currentDistance = currentWaypoints[0] ? currentWaypoints[0].distance : 160;
+      stepWalkedMeters = 0;
+      obstacleTriggeredThisStep = false;
+      trafficTriggeredThisStep = false;
+      metersSinceObstacle = 0;
       renderActiveWaypoint();
 
       const initialInstruction = currentWaypoints[0] ? currentWaypoints[0].instruction : 'Head toward destination';
@@ -1645,35 +1673,60 @@ html_content = f"""<!DOCTYPE html>
 
       if (currentDistance > 10) {{
         currentDistance -= 10;
+        stepWalkedMeters += 10;
         document.getElementById('nav-distance-num').innerText = currentDistance;
+        const currentManeuver = currentWaypoints[currentWaypointIdx]?.maneuver || 'Head straight';
+        document.getElementById('nav-maneuver-text').innerText = currentDistance > 0 ? `${{currentManeuver}} in ${{currentDistance}}m` : currentManeuver;
 
-        // Auto safety trigger 1: Construction barrier obstacle at 80m
-        if (currentDistance === 80) {{
+        // Auto Safety Trigger 1: After walking for 40-50m in starting, show obstacle alert
+        if (!obstacleTriggeredThisStep && (stepWalkedMeters >= 40 && stepWalkedMeters <= 50)) {{
+          obstacleTriggeredThisStep = true;
+          metersSinceObstacle = 0;
           triggerHaptic([100, 100, 150]);
-          setTimeout(() => navigateTo('obstacleAlert'), 800);
+          speakText("Warning: Obstacle ahead. Two meters ahead, construction barrier on right. Pathway is clear on left.");
+          setTimeout(() => navigateTo('obstacleAlert'), 750);
           return;
         }}
 
-        // Auto safety trigger 2: Crosswalk at 30m
-        if (currentDistance === 30) {{
+        // Auto Safety Trigger 2: After walking 20m further (or after obstacle), show traffic / crosswalk alert
+        if (obstacleTriggeredThisStep && !trafficTriggeredThisStep) {{
+          metersSinceObstacle += 10;
+          if (metersSinceObstacle >= 20) {{
+            trafficTriggeredThisStep = true;
+            triggerHaptic([80, 60, 80]);
+            speakText("Approaching crosswalk. Listen for traffic.");
+            setTimeout(() => navigateTo('crosswalkSafety'), 750);
+            return;
+          }}
+        }}
+
+        // Secondary crosswalk safety fallback at 20m remaining
+        if (!trafficTriggeredThisStep && currentDistance <= 20) {{
+          trafficTriggeredThisStep = true;
           triggerHaptic([80, 60, 80]);
-          setTimeout(() => navigateTo('crosswalkSafety'), 800);
+          speakText("Approaching crosswalk. Listen for traffic.");
+          setTimeout(() => navigateTo('crosswalkSafety'), 750);
           return;
         }}
 
         if (currentDistance === 50) {{
           triggerHaptic([50]);
-          speakText(`50 meters to next turn.`);
+          speakText(`50 meters remaining.`);
         }}
       }} else {{
         // Next waypoint
         currentWaypointIdx++;
         if (currentWaypointIdx < currentWaypoints.length) {{
           currentDistance = currentWaypoints[currentWaypointIdx].distance;
+          stepWalkedMeters = 0;
+          obstacleTriggeredThisStep = false;
+          trafficTriggeredThisStep = false;
+          metersSinceObstacle = 0;
           renderActiveWaypoint();
           speakText(currentWaypoints[currentWaypointIdx].instruction);
         }} else {{
           clearInterval(navigationInterval);
+          navigationInterval = null;
           speakText(`You have arrived at ${{currentDestinationTitle}}. Navigation complete.`);
           triggerHaptic([120, 60, 120, 60, 200]);
           setTimeout(() => navigateTo('home'), 3500);
@@ -1689,7 +1742,14 @@ html_content = f"""<!DOCTYPE html>
 
     function stopNavigationRoute() {{
       triggerHaptic([100]);
-      if (navigationInterval) clearInterval(navigationInterval);
+      if (navigationInterval) {{
+        clearInterval(navigationInterval);
+        navigationInterval = null;
+      }}
+      stepWalkedMeters = 0;
+      obstacleTriggeredThisStep = false;
+      trafficTriggeredThisStep = false;
+      metersSinceObstacle = 0;
       speakText("Navigation stopped.");
       navigateTo('home');
     }}
@@ -1729,6 +1789,9 @@ html_content = f"""<!DOCTYPE html>
 
       setTimeout(() => {{
         navigateTo('activeNavigation');
+        if (autoWalkEnabled && !navigationInterval) {{
+          navigationInterval = setInterval(progressWalking, 2200);
+        }}
       }}, 400);
     }}
 
@@ -1737,6 +1800,9 @@ html_content = f"""<!DOCTYPE html>
       speakText("Crosswalk completed. Resuming route.");
       setTimeout(() => {{
         navigateTo('activeNavigation');
+        if (autoWalkEnabled && !navigationInterval) {{
+          navigationInterval = setInterval(progressWalking, 2200);
+        }}
       }}, 400);
     }}
 
