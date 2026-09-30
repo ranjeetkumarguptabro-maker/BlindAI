@@ -8,6 +8,29 @@ const environmentController = require("./controllers/environmentController");
 const voiceController = require("./controllers/voiceController");
 const routesController = require("./controllers/routesController");
 
+// Valid frontend application routes (SPA serving)
+const VALID_FRONTEND_ROUTES = new Set([
+  "/",
+  "/preview",
+  "/index.html",
+  "/home",
+  "/listening",
+  "/destinationSearch",
+  "/destination-search",
+  "/routePreview",
+  "/route-preview",
+  "/activeNavigation",
+  "/active-navigation",
+  "/whereAmI",
+  "/where-am-i",
+  "/describeAround",
+  "/describe-around",
+  "/obstacleAlert",
+  "/obstacle-alert",
+  "/crosswalkSafety",
+  "/crosswalk-safety"
+]);
+
 /**
  * Dependency-free, lightweight HTTP API server for Blind AI Backend
  */
@@ -47,8 +70,8 @@ const server = http.createServer(async (req, res) => {
   });
 
   try {
-    // 0. Interactive Web Simulator (Root /)
-    if ((pathname === "/" || pathname === "/preview" || pathname === "/index.html") && req.method === "GET") {
+    // 0. Interactive Web Simulator & Valid Frontend Application Routes (SPA)
+    if (VALID_FRONTEND_ROUTES.has(pathname) && req.method === "GET") {
       const previewPath = path.resolve(__dirname, "../../preview.html");
       if (fs.existsSync(previewPath)) {
         const html = fs.readFileSync(previewPath, "utf8");

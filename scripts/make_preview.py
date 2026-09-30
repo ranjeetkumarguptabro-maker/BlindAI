@@ -906,47 +906,110 @@ html_content = f"""<!DOCTYPE html>
       }}
     ];
 
-    // Navigation state router
-    function navigateTo(route) {{
-      activeRoute = route;
+    // Resolves a canonical route name from a path, hash, or query identifier
+    function resolveRouteName(identifier) {{
+      if (!identifier) return 'home';
+      const clean = identifier.replace(/^[\\/#\\?]+/, '').replace(/^route=/, '').trim();
+      if (!clean || clean === 'home' || clean === 'preview' || clean === 'index.html') {{
+        return 'home';
+      }}
+      const normalized = clean.toLowerCase().replace(/-/g, '');
+      for (const s of allScreens) {{
+        if (s.toLowerCase() === normalized) {{
+          return s;
+        }}
+      }}
+      return null;
+    }}
+
+    // Determines the initial route on startup or reload based on window.location
+    function getInitialRoute() {{
+      // 1. Check hash (#/route or #route) - useful for file preview or hash deep-links
+      if (window.location.hash) {{
+        const hashRoute = resolveRouteName(window.location.hash);
+        if (hashRoute && hashRoute !== 'home') return hashRoute;
+      }}
+
+      // 2. Check query param (?route=...)
+      try {{
+        const params = new URLSearchParams(window.location.search);
+        const queryRoute = params.get('route');
+        if (queryRoute) {{
+          const resolved = resolveRouteName(queryRoute);
+          if (resolved && resolved !== 'home') return resolved;
+        }}
+      }} catch (e) {{}}
+
+      // 3. Check pathname (when served via HTTP/HTTPS, e.g. /destinationSearch or /)
+      if (window.location.protocol && window.location.protocol.startsWith('http')) {{
+        const pathRoute = resolveRouteName(window.location.pathname);
+        if (pathRoute) return pathRoute;
+      }}
+
+      // Default root is always 'home'
+      return 'home';
+    }}
+
+    // Navigation state router with browser history synchronization
+    function navigateTo(route, updateHistory = true) {{
+      const resolved = resolveRouteName(route);
+      const targetRoute = (resolved && allScreens.includes(resolved)) ? resolved : 'home';
+      activeRoute = targetRoute;
+
       const selector = document.getElementById('screen-selector');
-      if (selector) selector.value = route;
+      if (selector) selector.value = targetRoute;
 
       allScreens.forEach(s => {{
         const el = document.getElementById('screen-' + s);
         if (el) el.classList.add('hidden');
       }});
 
-      const target = document.getElementById('screen-' + route);
+      const target = document.getElementById('screen-' + targetRoute);
       if (target) target.classList.remove('hidden');
+
+      // Synchronize browser address bar and history
+      if (updateHistory && typeof history !== 'undefined') {{
+        const targetPath = targetRoute === 'home' ? '/' : '/' + targetRoute;
+        if (window.location.protocol.startsWith('http')) {{
+          if (window.location.pathname !== targetPath) {{
+            history.pushState({{ route: targetRoute }}, '', targetPath);
+          }}
+        }} else {{
+          // file:// protocol fallback using hash
+          const targetHash = targetRoute === 'home' ? '' : '#' + targetRoute;
+          if (window.location.hash !== targetHash) {{
+            history.pushState({{ route: targetRoute }}, '', targetHash || window.location.pathname);
+          }}
+        }}
+      }}
 
       // Update instructions and voice announcements
       const tip = document.getElementById('instruction-tip');
 
-      if (route === 'home') {{
+      if (targetRoute === 'home') {{
         tip.innerHTML = "Tap <strong>Describe what's around me</strong> or <strong>Start navigation</strong>";
         speakText("Blind AI home. How can I help you today?");
-      }} else if (route === 'listening') {{
+      }} else if (targetRoute === 'listening') {{
         tip.innerHTML = "Listening actively... Say <strong>'Take me to RTU'</strong> or <strong>'Describe around me'</strong>";
         startVoiceCapture();
-      }} else if (route === 'destinationSearch') {{
+      }} else if (targetRoute === 'destinationSearch') {{
         tip.innerHTML = "Select a destination like <strong>Riga Technical University</strong> or speak";
         speakText("Where would you like to go? You can select Riga Technical University, Ķīpsala Campus.");
-      }} else if (route === 'routePreview') {{
+      }} else if (targetRoute === 'routePreview') {{
         tip.innerHTML = "Route preview to <strong>RTU Ķīpsala</strong>. Tap <strong>Start navigation</strong> to begin";
         speakText("Route preview to Riga Technical University, Ķīpsala. 2.4 kilometers, 28 minutes, 8 waypoints.");
-      }} else if (route === 'activeNavigation') {{
+      }} else if (targetRoute === 'activeNavigation') {{
         tip.innerHTML = "Active walking navigation with live countdown. Test safety events below.";
-      }} else if (route === 'whereAmI') {{
+      }} else if (targetRoute === 'whereAmI') {{
         tip.innerHTML = "Current location and orientation near <strong>RTU Ķīpsala Campus</strong>";
         speakText("Where am I? You are at Riga Technical University, Ķīpsala Campus in Riga, Latvia. Facing east.");
-      }} else if (route === 'describeAround') {{
+      }} else if (targetRoute === 'describeAround') {{
         tip.innerHTML = "Perception scene: <strong>RTU Campus</strong>. Tap <strong>Repeat</strong> to hear again";
         speakText("Here's what I see: Sidewalk ahead is clear. Riga Technical University main entrance on the left. Bicycle rack 3 meters ahead on right. People walking nearby. It is sunny and bright.");
-      }} else if (route === 'obstacleAlert') {{
+      }} else if (targetRoute === 'obstacleAlert') {{
         tip.innerHTML = "Warning: <strong>Obstacle ahead</strong>. Tap <strong>I Understand</strong> to resume";
         speakText("Obstacle ahead. Two meters ahead, construction barrier on right.");
-      }} else if (route === 'crosswalkSafety') {{
+      }} else if (targetRoute === 'crosswalkSafety') {{
         tip.innerHTML = "Crosswalk quiet mode active. Tap waveform card when across to resume.";
         speakText("Approaching crosswalk. Listen for traffic.");
       }}
@@ -1269,9 +1332,27 @@ html_content = f"""<!DOCTYPE html>
       }});
     }}
 
+    // Browser Back / Forward buttons handling
+    window.addEventListener('popstate', (event) => {{
+      const targetRoute = (event.state && event.state.route) ? event.state.route : getInitialRoute();
+      navigateTo(targetRoute, false);
+    }});
+
     // Initialize on load
     window.addEventListener('DOMContentLoaded', () => {{
-      navigateTo('describeAround'); // Start on Screen 7 so user sees the new screen immediately!
+      const initialRoute = getInitialRoute();
+      navigateTo(initialRoute, false);
+
+      // Ensure initial history state matches the current URL
+      if (typeof history !== 'undefined' && history.replaceState) {{
+        const targetPath = initialRoute === 'home' ? '/' : '/' + initialRoute;
+        if (window.location.protocol.startsWith('http')) {{
+          history.replaceState({{ route: initialRoute }}, '', targetPath);
+        }} else {{
+          const targetHash = initialRoute === 'home' ? '' : '#' + initialRoute;
+          history.replaceState({{ route: initialRoute }}, '', targetHash || window.location.pathname);
+        }}
+      }}
     }});
   </script>
 </body>
