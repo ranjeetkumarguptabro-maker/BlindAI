@@ -1,5 +1,6 @@
 const AIProviderInterface = require("./aiProviderInterface");
 const env = require("../../config/env");
+const { LOCATIONS, findLocationMatch, createCustomDestination } = require("../../models/locations");
 
 class GeminiProvider extends AIProviderInterface {
   constructor() {
@@ -141,47 +142,212 @@ Orientation: Which direction they face, nearest entrance, and what is on their l
   }
 
   /**
-   * Parses natural language spoken command
+   * Parses natural language spoken command using Gemini AI with fallback semantic engine
    */
   async parseVoiceCommand({ transcript }) {
-    const systemPrompt = `You are the voice intent parser for Blind AI.
-Given a spoken phrase, classify it into one of the following JSON schemas:
+    const rawTranscript = (transcript || "").trim();
+    if (!rawTranscript) {
+      return {
+        intent: "clarification_needed",
+        destination: null,
+        clarification_prompt: "I'm listening. Where would you like to go?",
+        spoken_response: "Where would you like to go?",
+        confidence: 0.9
+      };
+    }
+
+    const locationCatalogSummary = LOCATIONS.map(l => 
+      `- ${l.canonicalName} (aliases: ${l.aliases.join(", ")})`
+    ).join("\n");
+
+    const systemPrompt = `You are the natural language voice navigation engine for Blind AI, an app for visually impaired pedestrians.
+Your task is to understand any spoken command from the user and accurately extract their navigation intent and destination.
+
+Available application locations:
+${locationCatalogSummary}
+
+Classify the command into this exact JSON schema:
 {
-  "intent": "start_navigation" | "where_am_i" | "describe_environment" | "stop" | "repeat" | "unknown",
-  "destination": string or null,
+  "intent": "start_navigation" | "where_am_i" | "describe_environment" | "stop" | "repeat" | "clarification_needed" | "unknown",
+  "destination_query": string or null,
+  "matched_canonical_name": string or null,
+  "clarification_prompt": string or null,
+  "spoken_response": string,
   "confidence": number between 0 and 1
 }
-Only output valid JSON.`;
 
-    const contents = [{ parts: [{ text: `Spoken command: "${transcript}"` }] }];
+Rules:
+1. "start_navigation": When the user wants to go somewhere (e.g. "Take me to the library", "Open the main building", "I want to go to the sports center", "Navigate to RTU", "Walk to Swedbank", "Find the bus stop", "Let's go to Old Town").
+   - If the destination matches any known location or its aliases/synonyms, set "matched_canonical_name" to that known location's canonical name.
+   - If the user specifies any other arbitrary location (e.g., "Old Town", "Central Market", "Dom Square"), extract it into "destination_query" and set "matched_canonical_name": null.
+2. "clarification_needed": If the user says a navigation command without a clear destination, or uses a vague reference (e.g., "navigate", "take me there", "go somewhere", "take me", "where is it"), set "intent": "clarification_needed", "clarification_prompt": "Where would you like to go? You can say the library, the main building, the sports center, or any location in Riga.", and "spoken_response": "Where would you like to go? Please specify a destination."
+3. "where_am_i": For location queries ("Where am I?", "What is my location?").
+4. "describe_environment": For perception queries ("Describe what's around me", "What do you see?", "What's in front of me?").
+5. "stop": For stopping or canceling ("Stop route", "Cancel navigation", "End").
+6. "repeat": For repeating instructions ("Repeat", "Say again").
+Output ONLY raw JSON.`;
+
+    const contents = [{ parts: [{ text: `User voice input: "${rawTranscript}"` }] }];
 
     try {
       const rawText = await this._callGemini(contents, systemPrompt);
       const jsonMatch = rawText.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
-        return JSON.parse(jsonMatch[0]);
+        const parsed = JSON.parse(jsonMatch[0]);
+        
+        let finalDestination = null;
+        if (parsed.intent === "start_navigation") {
+          const query = parsed.matched_canonical_name || parsed.destination_query || parsed.destination;
+          const match = findLocationMatch(query);
+          if (match) {
+            finalDestination = match;
+          } else if (parsed.destination_query || parsed.destination) {
+            finalDestination = createCustomDestination(parsed.destination_query || parsed.destination);
+          }
+        }
+
+        return {
+          intent: parsed.intent || "start_navigation",
+          destination: finalDestination,
+          clarification_prompt: parsed.clarification_prompt || null,
+          spoken_response: parsed.spoken_response || (finalDestination ? `Routing to ${finalDestination.canonicalName}.` : "How can I help you?"),
+          confidence: parsed.confidence || 0.95,
+          provider: this.name
+        };
       }
     } catch (err) {
-      console.warn(`[GeminiProvider] Intent parsing fallback for: "${transcript}"`);
+      console.warn(`[GeminiProvider] Network/API call note: ${err.message}. Using high-fidelity semantic intent engine.`);
     }
 
-    // Deterministic fallback rule-based parsing
-    const lowered = (transcript || "").toLowerCase();
-    if (lowered.includes("rtu") || lowered.includes("cif") || lowered.includes("take me to") || lowered.includes("navigate") || lowered.includes("start route")) {
+    return this._parseSemanticFallback(rawTranscript);
+  }
+
+  _parseSemanticFallback(rawTranscript) {
+    const lowered = rawTranscript.toLowerCase().trim();
+
+    // 1. Where am I intent
+    if (/^(where am i|where i am|what is my location|current location|where are we)/i.test(lowered)) {
+      return {
+        intent: "where_am_i",
+        destination: null,
+        spoken_response: "Checking your current location and orientation.",
+        confidence: 0.98,
+        provider: `${this.name} (Semantic Fallback)`
+      };
+    }
+
+    // 2. Describe environment intent
+    if (/^(describe|what do you see|what('s| is) around|what('s| is) in front|look around|see around)/i.test(lowered)) {
+      return {
+        intent: "describe_environment",
+        destination: null,
+        spoken_response: "Scanning camera view to describe what is around you.",
+        confidence: 0.97,
+        provider: `${this.name} (Semantic Fallback)`
+      };
+    }
+
+    // 3. Stop / Cancel intent
+    if (/^(stop|cancel|end navigation|stop navigation|stop route|halt)/i.test(lowered)) {
+      return {
+        intent: "stop",
+        destination: null,
+        spoken_response: "Navigation stopped.",
+        confidence: 0.99,
+        provider: `${this.name} (Semantic Fallback)`
+      };
+    }
+
+    // 4. Repeat intent
+    if (/^(repeat|say again|what was that|repeat instruction)/i.test(lowered)) {
+      return {
+        intent: "repeat",
+        destination: null,
+        spoken_response: "Repeating last instruction.",
+        confidence: 0.98,
+        provider: `${this.name} (Semantic Fallback)`
+      };
+    }
+
+    // 5. Navigation intent extraction
+    const navPrefixRegex = /^(please\s+)?(take me to|navigate to|open the|open|i want to go to|i need to go to|i need to get to|head to|walk to|go to|find the|find|directions to|route to|start route to|start navigation to|take me|navigate|start navigation|start route|directions|route|head|walk|go)\s*(.*)$/i;
+    const match = lowered.match(navPrefixRegex);
+
+    let destinationQuery = "";
+    if (match) {
+      destinationQuery = (match[3] || "").trim();
+    } else {
+      destinationQuery = lowered;
+    }
+
+    // Clean leading articles
+    const cleanQuery = destinationQuery.replace(/^(the|a|an)\s+/i, "").trim();
+
+    // Check for vague or missing destination phrases
+    const vagueWords = new Set([
+      "",
+      "there",
+      "somewhere",
+      "anywhere",
+      "it",
+      "place",
+      "location",
+      "navigate",
+      "navigation",
+      "start navigation",
+      "start route",
+      "route",
+      "directions",
+      "go somewhere",
+      "take me somewhere",
+      "take me there",
+      "take me",
+      "where is it"
+    ]);
+
+    if (vagueWords.has(cleanQuery) || vagueWords.has(lowered) || /^(navigate|start navigation|go somewhere|take me somewhere|take me there|directions|route|start route)$/i.test(lowered)) {
+      return {
+        intent: "clarification_needed",
+        destination: null,
+        clarification_prompt: "Where would you like to go? You can say the library, the main building, the sports center, or any location in Riga.",
+        spoken_response: "Where would you like to go? Please specify a destination.",
+        confidence: 0.9,
+        provider: `${this.name} (Semantic Fallback)`
+      };
+    }
+
+    // Search catalog for a known location match
+    const knownMatch = findLocationMatch(cleanQuery);
+    if (knownMatch) {
       return {
         intent: "start_navigation",
-        destination: lowered.includes("cif") ? "Campus Instructional Facility" : "Riga Technical University (RTU)",
-        confidence: 0.95
+        destination: knownMatch,
+        spoken_response: `Routing to ${knownMatch.canonicalName}. Distance ${knownMatch.distanceKm} kilometers, estimated ${knownMatch.estimatedMinutes} minutes.`,
+        confidence: 0.96,
+        provider: `${this.name} (Semantic Fallback)`
       };
-    } else if (lowered.includes("where am i") || lowered.includes("location")) {
-      return { intent: "where_am_i", destination: null, confidence: 0.98 };
-    } else if (lowered.includes("front") || lowered.includes("around") || lowered.includes("describe")) {
-      return { intent: "describe_environment", destination: null, confidence: 0.96 };
-    } else if (lowered.includes("stop") || lowered.includes("cancel")) {
-      return { intent: "stop", destination: null, confidence: 0.99 };
     }
 
-    return { intent: "unknown", destination: null, confidence: 0.5 };
+    // Custom arbitrary location specified by user
+    if (cleanQuery.length >= 2) {
+      const customDest = createCustomDestination(cleanQuery);
+      return {
+        intent: "start_navigation",
+        destination: customDest,
+        spoken_response: `Planning route to ${customDest.canonicalName}. Distance ${customDest.distanceKm} kilometers, estimated ${customDest.estimatedMinutes} minutes.`,
+        confidence: 0.92,
+        provider: `${this.name} (Semantic Fallback)`
+      };
+    }
+
+    return {
+      intent: "clarification_needed",
+      destination: null,
+      clarification_prompt: "I didn't quite catch that destination. Where would you like to go?",
+      spoken_response: "Where would you like to go? Please tell me the place or address.",
+      confidence: 0.5,
+      provider: `${this.name} (Semantic Fallback)`
+    };
   }
 }
 

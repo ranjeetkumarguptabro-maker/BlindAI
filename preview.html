@@ -306,17 +306,43 @@
               <p id="live-transcript" aria-live="polite" class="text-sm text-slate-600 text-center mt-2 px-6 italic min-h-[3rem]">
                 “Take me to Riga Technical University”
               </p>
+              <div class="mt-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-50 border border-orange-200 text-[11px] font-semibold text-orange-700">
+                <span class="w-2 h-2 rounded-full bg-orange-500 animate-pulse"></span>
+                <span>Powered by Gemini AI</span>
+              </div>
             </div>
 
-            <div class="flex flex-col gap-3">
-              <div class="flex justify-center gap-2" role="group" aria-label="Suggested voice phrases">
-                <button onclick="handleVoiceInput('Take me to RTU')" aria-label="Simulate voice input: Take me to RTU" class="px-3 py-1.5 rounded-full bg-white border border-slate-200 text-xs font-medium text-slate-700 shadow-sm hover:bg-slate-50">
-                  Say: "Take me to RTU"
+            <div class="flex flex-col gap-2.5">
+              <!-- Voice phrase simulation chips -->
+              <div class="flex flex-wrap justify-center gap-1.5" role="group" aria-label="Suggested voice phrases">
+                <button onclick="handleVoiceInput('Take me to the library')" aria-label="Simulate: Take me to the library" class="px-2.5 py-1 rounded-full bg-white border border-slate-200 text-[11px] font-medium text-slate-700 shadow-sm hover:bg-slate-50 transition active:scale-95">
+                  “Take me to the library”
                 </button>
-                <button onclick="handleVoiceInput('Describe what is around me')" aria-label="Simulate voice input: Describe around me" class="px-3 py-1.5 rounded-full bg-white border border-slate-200 text-xs font-medium text-slate-700 shadow-sm hover:bg-slate-50">
-                  Say: "Describe around me"
+                <button onclick="handleVoiceInput('Open the main building')" aria-label="Simulate: Open the main building" class="px-2.5 py-1 rounded-full bg-white border border-slate-200 text-[11px] font-medium text-slate-700 shadow-sm hover:bg-slate-50 transition active:scale-95">
+                  “Open main building”
+                </button>
+                <button onclick="handleVoiceInput('I want to go to the sports center')" aria-label="Simulate: I want to go to the sports center" class="px-2.5 py-1 rounded-full bg-white border border-slate-200 text-[11px] font-medium text-slate-700 shadow-sm hover:bg-slate-50 transition active:scale-95">
+                  “Go to sports center”
+                </button>
+                <button onclick="handleVoiceInput('Take me to RTU')" aria-label="Simulate: Take me to RTU" class="px-2.5 py-1 rounded-full bg-white border border-slate-200 text-[11px] font-medium text-slate-700 shadow-sm hover:bg-slate-50 transition active:scale-95">
+                  “Take me to RTU”
+                </button>
+                <button onclick="handleVoiceInput('Take me to Old Town')" aria-label="Simulate: Take me to Old Town" class="px-2.5 py-1 rounded-full bg-white border border-slate-200 text-[11px] font-medium text-slate-700 shadow-sm hover:bg-slate-50 transition active:scale-95">
+                  “Take me to Old Town”
+                </button>
+                <button onclick="handleVoiceInput('Take me there')" aria-label="Simulate: Take me there (clarification test)" class="px-2.5 py-1 rounded-full bg-amber-50 border border-amber-200 text-[11px] font-medium text-amber-800 shadow-sm hover:bg-amber-100 transition active:scale-95" title="Tests clarification prompt">
+                  “Take me there” (Clarify)
                 </button>
               </div>
+
+              <!-- Test input for any natural-language destination or command -->
+              <form onsubmit="event.preventDefault(); const inp = document.getElementById('voice-sim-input'); if (inp && inp.value.trim()) { handleVoiceInput(inp.value.trim()); inp.value = ''; }" class="flex items-center gap-1.5 px-1">
+                <label for="voice-sim-input" class="sr-only">Type any voice command or destination for Gemini AI</label>
+                <input type="text" id="voice-sim-input" placeholder="Type any destination (e.g. library, Old Town, Paris)..." class="flex-1 bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-amber-500 shadow-sm">
+                <button type="submit" class="px-3 py-2 rounded-xl bg-slate-900 text-white text-xs font-semibold hover:bg-black transition active:scale-95">
+                  Send
+                </button>
+              </form>
 
               <div class="flex justify-center">
                 <button onclick="navigateTo('home')" aria-label="Cancel voice listening and return home" class="w-14 h-14 rounded-full bg-red-500 text-white flex items-center justify-center shadow-lg hover:bg-red-600 transition active:scale-95">
@@ -459,7 +485,7 @@
 
             <!-- Route Actions -->
             <div class="flex flex-col space-y-2.5 pt-1">
-              <button onclick="startNavigationRoute('Riga Technical University')" aria-label="Start walking navigation to Riga Technical University" class="w-full py-4 rounded-2xl bg-black text-white font-bold text-base shadow-md hover:bg-neutral-800 transition active:scale-[0.99] flex items-center justify-center space-x-2">
+              <button onclick="startCurrentNavigation()" id="start-nav-btn" aria-label="Start walking navigation to selected destination" class="w-full py-4 rounded-2xl bg-black text-white font-bold text-base shadow-md hover:bg-neutral-800 transition active:scale-[0.99] flex items-center justify-center space-x-2">
                 <span>Start navigation</span>
                 <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
               </button>
@@ -958,6 +984,312 @@
       }
     ];
 
+    let currentDestinationTitle = "Riga Technical University (RTU)";
+    let currentDestinationSub = "Ķīpsala Campus • 2.4 km • 28 min • 8 waypoints";
+    let currentWaypoints = [...rtuWaypoints];
+
+    const clientLocationsCatalog = [
+      {
+        id: "rtu-campus",
+        canonicalName: "Riga Technical University (RTU)",
+        shortName: "RTU Campus",
+        subtitle: "Ķīpsala Campus, Paula Valdena iela 1",
+        category: "Campus",
+        distanceKm: 2.4,
+        estimatedMinutes: 28,
+        aliases: ["rtu", "riga technical university", "campus", "kipsala campus", "kipsala", "university", "cif", "technical university", "faculty", "main campus"],
+        waypoints: [
+          { instruction: "Turn right on Ķīpsalas iela", distance: 120, maneuver: "Turn right in 120m", icon: "↱" },
+          { instruction: "Continue straight along Paula Valdena iela", distance: 80, maneuver: "Continue straight", icon: "↑" },
+          { instruction: "Approaching pedestrian crossing at Zunda quay", distance: 30, maneuver: "Crosswalk ahead", icon: "🚶" },
+          { instruction: "Arrival: RTU Main Entrance", distance: 0, maneuver: "Destination reached", icon: "★" }
+        ]
+      },
+      {
+        id: "rtu-library",
+        canonicalName: "RTU Scientific Library",
+        shortName: "Library",
+        subtitle: "Paula Valdena iela 5, Ķīpsala",
+        category: "Library",
+        distanceKm: 1.3,
+        estimatedMinutes: 16,
+        aliases: ["library", "the library", "scientific library", "rtu library", "study hall", "reading room", "central library", "books"],
+        waypoints: [
+          { instruction: "Walk north on Paula Valdena iela", distance: 90, maneuver: "Continue straight", icon: "↑" },
+          { instruction: "Turn left towards Scientific Library portico", distance: 40, maneuver: "Turn left in 40m", icon: "↰" },
+          { instruction: "Ascend accessible entrance ramp", distance: 10, maneuver: "Ramp directly ahead", icon: "↑" },
+          { instruction: "Arrival: RTU Scientific Library", distance: 0, maneuver: "Destination reached", icon: "★" }
+        ]
+      },
+      {
+        id: "rtu-main-building",
+        canonicalName: "RTU Main Building & Administration",
+        shortName: "Main Building",
+        subtitle: "Kaļķu iela 1 / Ķīpsala Center",
+        category: "Campus",
+        distanceKm: 0.9,
+        estimatedMinutes: 11,
+        aliases: ["main building", "the main building", "administration", "admin building", "central building", "rectorate", "dean's office", "headquarters", "open main building", "open the main building"],
+        waypoints: [
+          { instruction: "Follow paved pathway towards central courtyard", distance: 70, maneuver: "Head straight", icon: "↑" },
+          { instruction: "Turn right toward administrative portico", distance: 30, maneuver: "Turn right in 30m", icon: "↱" },
+          { instruction: "Arrival: RTU Main Building Entrance", distance: 0, maneuver: "Destination reached", icon: "★" }
+        ]
+      },
+      {
+        id: "rtu-sports-center",
+        canonicalName: "RTU Ķīpsala Sports Center & Pool",
+        shortName: "Sports Center",
+        subtitle: "Ķīpsalas iela 5, Ķīpsala",
+        category: "Sports",
+        distanceKm: 0.7,
+        estimatedMinutes: 9,
+        aliases: ["sports center", "the sports center", "swimming pool", "gym", "rtu sports", "sports club", "fitness", "arena", "kipsala pool"],
+        waypoints: [
+          { instruction: "Walk south along Ķīpsalas iela sidewalk", distance: 60, maneuver: "Continue straight", icon: "↑" },
+          { instruction: "Cross tactile driveway entrance", distance: 20, maneuver: "Caution: driveway crossing", icon: "🚶" },
+          { instruction: "Arrival: Sports Center & Swimming Pool", distance: 0, maneuver: "Destination reached", icon: "★" }
+        ]
+      },
+      {
+        id: "rtu-student-hostel",
+        canonicalName: "RTU Student Hostel",
+        shortName: "Hostel",
+        subtitle: "Āzenes iela 22, Ķīpsala",
+        category: "Dormitory",
+        distanceKm: 1.1,
+        estimatedMinutes: 14,
+        aliases: ["student hostel", "hostel", "dormitory", "dorms", "student residence", "azenes"],
+        waypoints: [
+          { instruction: "Follow Āzenes iela westward", distance: 110, maneuver: "Head straight", icon: "↑" },
+          { instruction: "Turn left into hostel entrance walkway", distance: 25, maneuver: "Turn left", icon: "↰" },
+          { instruction: "Arrival: RTU Student Hostel", distance: 0, maneuver: "Destination reached", icon: "★" }
+        ]
+      },
+      {
+        id: "rtu-cafeteria",
+        canonicalName: "RTU Central Cafeteria",
+        shortName: "Cafeteria",
+        subtitle: "Paula Valdena iela 1 / 1st Floor",
+        category: "Dining",
+        distanceKm: 0.3,
+        estimatedMinutes: 4,
+        aliases: ["cafeteria", "canteen", "lunch", "food court", "cafe", "dining"],
+        waypoints: [
+          { instruction: "Enter student union atrium and take hallway left", distance: 30, maneuver: "Follow hallway left", icon: "↰" },
+          { instruction: "Arrival: RTU Central Cafeteria", distance: 0, maneuver: "Destination reached", icon: "★" }
+        ]
+      },
+      {
+        id: "swedbank-building",
+        canonicalName: "Swedbank Central Building",
+        shortName: "Swedbank",
+        subtitle: "Balasta dambis 15, Riga",
+        category: "Commercial",
+        distanceKm: 1.8,
+        estimatedMinutes: 21,
+        aliases: ["swedbank", "swedbank building", "balasta dambis", "bank"],
+        waypoints: [
+          { instruction: "Head south along Balasta dambis waterfront promenade", distance: 140, maneuver: "Continue along waterfront", icon: "↑" },
+          { instruction: "Turn right onto Swedbank pedestrian plaza", distance: 40, maneuver: "Turn right", icon: "↱" },
+          { instruction: "Arrival: Swedbank Central Building", distance: 0, maneuver: "Destination reached", icon: "★" }
+        ]
+      },
+      {
+        id: "riga-central-station",
+        canonicalName: "Rīga Central Station",
+        shortName: "Central Station",
+        subtitle: "Stacijas laukums, Rīga",
+        category: "Transit",
+        distanceKm: 3.1,
+        estimatedMinutes: 38,
+        aliases: ["central station", "riga central station", "train station", "railway station", "trains", "railway", "station"],
+        waypoints: [
+          { instruction: "Cross Vanšu tilts towards City Center", distance: 200, maneuver: "Head straight across bridge", icon: "↑" },
+          { instruction: "Continue along 13. Janvāra iela", distance: 150, maneuver: "Head straight", icon: "↑" },
+          { instruction: "Arrival: Rīga Central Station Main Concourse", distance: 0, maneuver: "Destination reached", icon: "★" }
+        ]
+      },
+      {
+        id: "kipsala-transit-stop",
+        canonicalName: "Ķīpsala Transit Stop",
+        shortName: "Bus Stop",
+        subtitle: "Krišjāņa Valdemāra iela, Ķīpsala",
+        category: "Transit",
+        distanceKm: 0.4,
+        estimatedMinutes: 5,
+        aliases: ["bus stop", "the bus stop", "transit stop", "public transport", "trolleybus stop", "kipsala bus", "bus"],
+        waypoints: [
+          { instruction: "Walk west toward Krišjāņa Valdemāra iela", distance: 40, maneuver: "Head straight", icon: "↑" },
+          { instruction: "Arrival: Ķīpsala Transit Shelter", distance: 0, maneuver: "Destination reached", icon: "★" }
+        ]
+      }
+    ];
+
+    function findClientLocationMatch(queryText) {
+      if (!queryText) return null;
+      const clean = queryText.toLowerCase().trim();
+
+      // 1. Direct alias match
+      for (const loc of clientLocationsCatalog) {
+        for (const alias of loc.aliases) {
+          if (clean === alias) return loc;
+        }
+      }
+
+      // 2. Whole-word alias match
+      for (const loc of clientLocationsCatalog) {
+        for (const alias of loc.aliases) {
+          const re = new RegExp('\b' + alias.replace(/[.*+?^${}()|[\]\\]/g, '\$&') + '\b', 'i');
+          if (re.test(clean)) return loc;
+        }
+      }
+
+      // 3. Majority token match
+      const tokens = clean.split(/\s+/).filter(t => t.length > 2);
+      if (tokens.length === 0) return null;
+
+      let best = null;
+      let highest = 0;
+      for (const loc of clientLocationsCatalog) {
+        let score = 0;
+        const allToks = new Set([
+          ...loc.canonicalName.toLowerCase().split(/\s+/),
+          ...loc.aliases.flatMap(a => a.split(/\s+/))
+        ]);
+        for (const t of tokens) {
+          if (allToks.has(t)) score++;
+        }
+        if (score > highest) {
+          highest = score;
+          best = loc;
+        }
+      }
+
+      if (tokens.length === 1 && highest >= 1) return best;
+      if (tokens.length > 1 && highest >= Math.ceil(tokens.length * 0.6)) return best;
+      return null;
+    }
+
+    function createClientCustomDestination(rawName) {
+      const formatted = rawName.replace(/^to\s+/i, '').replace(/^(the|a|an)\s+/i, '').trim();
+      const title = formatted.charAt(0).toUpperCase() + formatted.slice(1);
+      return {
+        id: "custom-" + Date.now(),
+        canonicalName: title,
+        shortName: title,
+        subtitle: `${title} • 2.6 km • 32 min • 6 waypoints`,
+        category: "Custom Place",
+        distanceKm: 2.6,
+        estimatedMinutes: 32,
+        waypoints: [
+          { instruction: `Head toward ${title}`, distance: 100, maneuver: "Head straight", icon: "↑" },
+          { instruction: `Continue along pedestrian pathway to ${title}`, distance: 120, maneuver: "Head straight", icon: "↑" },
+          { instruction: `Arrival: ${title}`, distance: 0, maneuver: "Destination reached", icon: "★" }
+        ]
+      };
+    }
+
+    function parseVoiceIntentLocalFallback(rawTranscript) {
+      const lowered = (rawTranscript || "").toLowerCase().trim();
+      if (/^(where am i|where i am|what is my location|current location|where are we)/i.test(lowered)) {
+        return {
+          intent: "where_am_i",
+          destination: null,
+          spoken_response: "Checking your current location and orientation.",
+          confidence: 0.98
+        };
+      }
+      if (/^(describe|what do you see|what('s| is) around|what('s| is) in front|look around|see around)/i.test(lowered)) {
+        return {
+          intent: "describe_environment",
+          destination: null,
+          spoken_response: "Scanning camera view to describe what is around you.",
+          confidence: 0.97
+        };
+      }
+      if (/^(stop|cancel|end navigation|stop navigation|stop route|halt)/i.test(lowered)) {
+        return {
+          intent: "stop",
+          destination: null,
+          spoken_response: "Navigation stopped.",
+          confidence: 0.99
+        };
+      }
+      if (/^(repeat|say again|what was that|repeat instruction)/i.test(lowered)) {
+        return {
+          intent: "repeat",
+          destination: null,
+          spoken_response: "Repeating last instruction.",
+          confidence: 0.98
+        };
+      }
+
+      const navPrefixRegex = /^(please\s+)?(take me to|navigate to|open the|open|i want to go to|i need to go to|i need to get to|head to|walk to|go to|find the|find|directions to|route to|start route to|start navigation to|take me|navigate|start navigation|start route|directions|route|head|walk|go)\s*(.*)$/i;
+      const match = lowered.match(navPrefixRegex);
+      let destQuery = match ? (match[3] || "").trim() : lowered;
+      const clean = destQuery.replace(/^(the|a|an)\s+/i, "").trim();
+
+      const vagueWords = new Set([
+        "",
+        "there",
+        "somewhere",
+        "anywhere",
+        "it",
+        "place",
+        "location",
+        "navigate",
+        "navigation",
+        "start navigation",
+        "start route",
+        "route",
+        "directions",
+        "go somewhere",
+        "take me somewhere",
+        "take me there",
+        "take me",
+        "where is it"
+      ]);
+
+      if (vagueWords.has(clean) || vagueWords.has(lowered) || /^(navigate|start navigation|go somewhere|take me somewhere|take me there|directions|route|start route)$/i.test(lowered)) {
+        return {
+          intent: "clarification_needed",
+          destination: null,
+          clarification_prompt: "Where would you like to go? You can say the library, the main building, the sports center, or any location in Riga.",
+          spoken_response: "Where would you like to go? Please specify a destination.",
+          confidence: 0.9
+        };
+      }
+
+      const known = findClientLocationMatch(clean);
+      if (known) {
+        return {
+          intent: "start_navigation",
+          destination: known,
+          spoken_response: `Routing to ${known.canonicalName}. Distance ${known.distanceKm} kilometers, estimated ${known.estimatedMinutes} minutes.`,
+          confidence: 0.96
+        };
+      }
+
+      if (clean.length >= 2) {
+        const custom = createClientCustomDestination(clean);
+        return {
+          intent: "start_navigation",
+          destination: custom,
+          spoken_response: `Planning route to ${custom.canonicalName}. Distance ${custom.distanceKm} kilometers, estimated ${custom.estimatedMinutes} minutes.`,
+          confidence: 0.92
+        };
+      }
+
+      return {
+        intent: "clarification_needed",
+        destination: null,
+        clarification_prompt: "I didn't quite catch that destination. Where would you like to go?",
+        spoken_response: "Where would you like to go? Please tell me the place or address.",
+        confidence: 0.5
+      };
+    }
+
     // Screen Reader Announcer Helper (WCAG Live Region)
     function announceToScreenReader(message) {
       const announcer = document.getElementById('a11y-announcer');
@@ -1109,8 +1441,21 @@
 
     function selectDestination(title, sub) {
       triggerHaptic([60]);
+      currentDestinationTitle = title;
+      currentDestinationSub = sub + " • 2.4 km • 28 min • 8 waypoints";
+      const match = (typeof findClientLocationMatch === 'function') ? findClientLocationMatch(title) : null;
+      if (match && match.waypoints) {
+        currentWaypoints = match.waypoints.map(w => ({
+          instruction: w.instruction,
+          distance: w.distanceMeters !== undefined ? w.distanceMeters : (w.distance || 80),
+          maneuver: w.maneuver || 'Head straight',
+          icon: (w.icon === 'arrow.up' || w.icon === '↑') ? '↑' : (w.icon === '↱' ? '↱' : (w.icon === '↰' || w.icon === 'arrow.turn.up.left' ? '↰' : (w.icon === '🚶' ? '🚶' : '★')))
+        }));
+      }
       document.getElementById('preview-destination-title').innerText = title;
-      document.getElementById('preview-destination-sub').innerText = sub + " • 2.4 km • 28 min • 8 waypoints";
+      document.getElementById('preview-destination-sub').innerText = currentDestinationSub;
+      const startBtn = document.getElementById('start-nav-btn');
+      if (startBtn) startBtn.setAttribute('aria-label', `Start walking navigation to ${title}`);
       navigateTo('routePreview');
     }
 
@@ -1149,37 +1494,125 @@
       }
     }
 
-    function handleVoiceInput(rawText) {
-      const t = rawText.toLowerCase();
-      document.getElementById('live-transcript').innerText = '“' + rawText + '”';
+    async function handleVoiceInput(rawText) {
+      if (!rawText || !rawText.trim()) return;
+      const trimmed = rawText.trim();
+      document.getElementById('live-transcript').innerText = '“' + trimmed + '”';
+      document.getElementById('listening-title').innerText = "Gemini is analyzing...";
+      announceToScreenReader(`Voice input: "${trimmed}". Analyzing with Gemini AI.`);
+      triggerHaptic([30]);
 
-      if (t.includes('rtu') || t.includes('cif') || t.includes('kipsala') || t.includes('take me to') || t.includes('navigate') || t.includes('start route')) {
-        document.getElementById('listening-title').innerText = "Routing to RTU...";
+      let result = null;
+      try {
+        const resp = await fetch('/api/v1/voice/intent', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ transcript: trimmed })
+        });
+        if (resp.ok) {
+          const json = await resp.json();
+          if (json && json.status === 'success' && json.data) {
+            result = json.data;
+          }
+        }
+      } catch (err) {
+        console.warn("[Voice] Server fetch error, using local Gemini model fallback:", err);
+      }
+
+      // Offline or network fallback
+      if (!result) {
+        result = parseVoiceIntentLocalFallback(trimmed);
+      }
+
+      applyVoiceIntentResult(result, trimmed);
+    }
+
+    function applyVoiceIntentResult(result, rawText) {
+      const intent = result.intent || 'start_navigation';
+
+      if (intent === 'start_navigation') {
+        const dest = result.destination || {
+          canonicalName: 'Riga Technical University (RTU)',
+          shortName: 'RTU Campus',
+          subtitle: 'Ķīpsala Campus, Paula Valdena iela 1',
+          distanceKm: 2.4,
+          estimatedMinutes: 28,
+          waypoints: rtuWaypoints
+        };
+
+        currentDestinationTitle = dest.canonicalName || dest.shortName || 'Custom Destination';
+        currentDestinationSub = (dest.subtitle || dest.canonicalName) + ' • ' + (dest.distanceKm || '2.4') + ' km • ' + (dest.estimatedMinutes || '28') + ' min';
+
+        document.getElementById('preview-destination-title').innerText = currentDestinationTitle;
+        document.getElementById('preview-destination-sub').innerText = currentDestinationSub;
+        const startBtn = document.getElementById('start-nav-btn');
+        if (startBtn) startBtn.setAttribute('aria-label', `Start walking navigation to ${currentDestinationTitle}`);
+
+        if (dest.waypoints && dest.waypoints.length) {
+          currentWaypoints = dest.waypoints.map(w => ({
+            instruction: w.instruction,
+            distance: w.distanceMeters !== undefined ? w.distanceMeters : (w.distance || 80),
+            maneuver: w.maneuver || 'Head straight',
+            icon: (w.icon === 'arrow.up' || w.icon === '↑') ? '↑' : (w.icon === '↱' ? '↱' : (w.icon === '↰' || w.icon === 'arrow.turn.up.left' ? '↰' : (w.icon === '🚶' ? '🚶' : '★')))
+          }));
+        } else {
+          currentWaypoints = [
+            { instruction: 'Head toward ' + currentDestinationTitle, distance: 90, maneuver: 'Head straight', icon: '↑' },
+            { instruction: 'Continue along pedestrian walkway to ' + currentDestinationTitle, distance: 70, maneuver: 'Continue straight', icon: '↑' },
+            { instruction: 'Arrival: ' + currentDestinationTitle, distance: 0, maneuver: 'Destination reached', icon: '★' }
+          ];
+        }
+
+        document.getElementById('listening-title').innerText = `Routing to ${dest.shortName || dest.canonicalName}...`;
+        announceToScreenReader(`Routing to ${currentDestinationTitle}. Estimated walking time ${dest.estimatedMinutes || 28} minutes.`);
+        speakText(result.spoken_response || `Routing to ${currentDestinationTitle}.`);
         triggerHaptic([80, 40, 80]);
+
         setTimeout(() => {
           navigateTo('routePreview');
-        }, 900);
-      } else if (t.includes('where am i') || t.includes('location')) {
-        setTimeout(() => navigateTo('whereAmI'), 600);
-      } else if (t.includes('front') || t.includes('around') || t.includes('describe') || t.includes('see')) {
-        setTimeout(() => navigateTo('describeAround'), 600);
-      } else if (t.includes('stop') || t.includes('cancel')) {
-        navigateTo('home');
+        }, 950);
+      } else if (intent === 'clarification_needed') {
+        const clarifPrompt = result.clarification_prompt || "Where would you like to go? You can say the library, the main building, or any location.";
+        document.getElementById('listening-title').innerText = "Where would you like to go?";
+        document.getElementById('live-transcript').innerText = `“${clarifPrompt}”`;
+        speakText(result.spoken_response || clarifPrompt);
+        announceToScreenReader(clarifPrompt);
+        triggerHaptic([60, 40]);
+      } else if (intent === 'where_am_i') {
+        document.getElementById('listening-title').innerText = "Checking location...";
+        speakText(result.spoken_response || "Checking your current location and orientation.");
+        triggerHaptic([60]);
+        setTimeout(() => navigateTo('whereAmI'), 700);
+      } else if (intent === 'describe_environment') {
+        document.getElementById('listening-title').innerText = "Scanning environment...";
+        speakText(result.spoken_response || "Scanning surroundings with camera.");
+        triggerHaptic([60]);
+        setTimeout(() => navigateTo('describeAround'), 700);
+      } else if (intent === 'stop') {
+        stopNavigationRoute();
+      } else if (intent === 'repeat') {
+        repeatCurrentStep();
       } else {
-        speakText("I heard: " + rawText);
+        speakText(result.spoken_response || ("I heard: " + rawText));
         setTimeout(() => navigateTo('home'), 1500);
       }
     }
 
+    function startCurrentNavigation() {
+      startNavigationRoute(currentDestinationTitle);
+    }
+
     // Active Navigation Lifecycle
     function startNavigationRoute(destName) {
+      const targetName = destName || currentDestinationTitle || 'Riga Technical University';
       navigateTo('activeNavigation');
       triggerHaptic([80, 40, 80]);
       currentWaypointIdx = 0;
-      currentDistance = rtuWaypoints[0].distance;
+      currentDistance = currentWaypoints[0] ? currentWaypoints[0].distance : 100;
       renderActiveWaypoint();
 
-      speakText(`Starting walking route to ${destName}. ${rtuWaypoints[0].instruction} in ${currentDistance} meters.`);
+      const initialInstruction = currentWaypoints[0] ? currentWaypoints[0].instruction : 'Head toward destination';
+      speakText(`Starting walking route to ${targetName}. ${initialInstruction} in ${currentDistance} meters.`);
 
       if (navigationInterval) clearInterval(navigationInterval);
       if (autoWalkEnabled) {
@@ -1188,8 +1621,8 @@
     }
 
     function renderActiveWaypoint() {
-      const wp = rtuWaypoints[currentWaypointIdx];
-      document.getElementById('nav-step-label').innerText = `Navigation • Step ${currentWaypointIdx + 1} of ${rtuWaypoints.length}`;
+      const wp = currentWaypoints[currentWaypointIdx] || { instruction: 'Continue toward destination', maneuver: 'Continue straight', icon: '↑' };
+      document.getElementById('nav-step-label').innerText = `Navigation • Step ${currentWaypointIdx + 1} of ${currentWaypoints.length}`;
       document.getElementById('nav-instruction-text').innerText = wp.instruction;
       document.getElementById('nav-distance-num').innerText = currentDistance;
       document.getElementById('nav-maneuver-text').innerText = wp.maneuver;
@@ -1224,13 +1657,13 @@
       } else {
         // Next waypoint
         currentWaypointIdx++;
-        if (currentWaypointIdx < rtuWaypoints.length) {
-          currentDistance = rtuWaypoints[currentWaypointIdx].distance;
+        if (currentWaypointIdx < currentWaypoints.length) {
+          currentDistance = currentWaypoints[currentWaypointIdx].distance;
           renderActiveWaypoint();
-          speakText(rtuWaypoints[currentWaypointIdx].instruction);
+          speakText(currentWaypoints[currentWaypointIdx].instruction);
         } else {
           clearInterval(navigationInterval);
-          speakText("You have arrived at Riga Technical University. Navigation complete.");
+          speakText(`You have arrived at ${currentDestinationTitle}. Navigation complete.`);
           triggerHaptic([120, 60, 120, 60, 200]);
           setTimeout(() => navigateTo('home'), 3500);
         }
@@ -1239,7 +1672,7 @@
 
     function repeatCurrentStep() {
       triggerHaptic([40]);
-      const wp = rtuWaypoints[currentWaypointIdx];
+      const wp = currentWaypoints[currentWaypointIdx] || { instruction: 'Continue along pathway' };
       speakText(`${wp.instruction}. ${currentDistance} meters remaining.`);
     }
 
@@ -1252,7 +1685,7 @@
 
     function speakRouteOverview() {
       triggerHaptic([40]);
-      speakText("Route overview: Follow Paula Valdena iela across Ķīpsala. Distance 2.4 kilometers. Estimated time 28 minutes. Sidewalk condition is clear.");
+      speakText(`Route overview to ${currentDestinationTitle}. ${currentDestinationSub}. Sidewalk condition is clear.`);
     }
 
     // Safety Screen Actions
