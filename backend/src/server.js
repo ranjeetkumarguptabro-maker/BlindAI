@@ -34,7 +34,7 @@ const VALID_FRONTEND_ROUTES = new Set([
 /**
  * Dependency-free, lightweight HTTP API server for Blind AI Backend
  */
-const server = http.createServer(async (req, res) => {
+const requestHandler = async (req, res) => {
   // CORS Headers
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
@@ -72,29 +72,47 @@ const server = http.createServer(async (req, res) => {
   try {
     // 0. Interactive Web Simulator & Valid Frontend Application Routes (SPA)
     if (VALID_FRONTEND_ROUTES.has(pathname) && req.method === "GET") {
-      const previewPath = path.resolve(__dirname, "../../preview.html");
-      if (fs.existsSync(previewPath)) {
-        const html = fs.readFileSync(previewPath, "utf8");
-        res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
-        res.end(html);
-        return;
+      const candidatePaths = [
+        path.resolve(__dirname, "../../index.html"),
+        path.resolve(__dirname, "../../preview.html"),
+        path.resolve(__dirname, "../preview.html"),
+        path.resolve(__dirname, "../public/index.html"),
+        path.resolve(process.cwd(), "index.html"),
+        path.resolve(process.cwd(), "preview.html"),
+        path.resolve(process.cwd(), "public/index.html")
+      ];
+      for (const p of candidatePaths) {
+        if (fs.existsSync(p) && fs.statSync(p).isFile()) {
+          const html = fs.readFileSync(p, "utf8");
+          res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
+          res.end(html);
+          return;
+        }
       }
     }
 
     // Static assets in /docs/
     if (pathname.startsWith("/docs/") && req.method === "GET") {
-      const docFilePath = path.resolve(__dirname, "../../", pathname.replace(/^\//, ""));
-      if (fs.existsSync(docFilePath) && fs.statSync(docFilePath).isFile()) {
-        const ext = path.extname(docFilePath).toLowerCase();
-        const mimeTypes = {
-          ".png": "image/png",
-          ".jpg": "image/jpeg",
-          ".jpeg": "image/jpeg",
-          ".svg": "image/svg+xml"
-        };
-        res.writeHead(200, { "Content-Type": mimeTypes[ext] || "application/octet-stream" });
-        fs.createReadStream(docFilePath).pipe(res);
-        return;
+      const subPath = pathname.replace(/^\//, "");
+      const docCandidates = [
+        path.resolve(__dirname, "../../", subPath),
+        path.resolve(__dirname, "../", subPath),
+        path.resolve(process.cwd(), subPath),
+        path.resolve(process.cwd(), "public", subPath)
+      ];
+      for (const docFilePath of docCandidates) {
+        if (fs.existsSync(docFilePath) && fs.statSync(docFilePath).isFile()) {
+          const ext = path.extname(docFilePath).toLowerCase();
+          const mimeTypes = {
+            ".png": "image/png",
+            ".jpg": "image/jpeg",
+            ".jpeg": "image/jpeg",
+            ".svg": "image/svg+xml"
+          };
+          res.writeHead(200, { "Content-Type": mimeTypes[ext] || "application/octet-stream" });
+          fs.createReadStream(docFilePath).pipe(res);
+          return;
+        }
       }
     }
 
@@ -184,16 +202,21 @@ const server = http.createServer(async (req, res) => {
       message: err.message || "Internal server error"
     });
   }
-});
+};
 
-server.listen(env.port, () => {
-  console.log(`\n=================================================`);
-  console.log(`🚀 Blind AI Backend listening on port ${env.port}`);
-  console.log(`🤖 Active AI Provider: ${aiService.activeProviderName}`);
-  console.log(`🔑 Gemini API Key configured: ${env.geminiApiKey ? "YES (from GEMINI_API_KEY environment variable)" : "NO"}`);
-  console.log(`🗄️  Supabase Key configured: ${env.supabaseKey ? "YES (from SUPABASE_KEY environment variable)" : "NO"}`);
-  console.log(`📱 Base URL: http://localhost:${env.port}/api/v1`);
-  console.log(`=================================================\n`);
-});
+const server = http.createServer(requestHandler);
 
-module.exports = server;
+if (require.main === module) {
+  server.listen(env.port, () => {
+    console.log(`\n=================================================`);
+    console.log(`🚀 Blind AI Backend listening on port ${env.port}`);
+    console.log(`🤖 Active AI Provider: ${aiService.activeProviderName}`);
+    console.log(`🔑 Gemini API Key configured: ${env.geminiApiKey ? "YES (from GEMINI_API_KEY environment variable)" : "NO"}`);
+    console.log(`🗄️  Supabase Key configured: ${env.supabaseKey ? "YES (from SUPABASE_KEY environment variable)" : "NO"}`);
+    console.log(`📱 Base URL: http://localhost:${env.port}/api/v1`);
+    console.log(`=================================================\n`);
+  });
+}
+
+requestHandler.server = server;
+module.exports = requestHandler;

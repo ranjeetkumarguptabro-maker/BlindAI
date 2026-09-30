@@ -2006,11 +2006,22 @@ html_content = f"""<!DOCTYPE html>
 </body>
 </html>"""
 
+os.makedirs('backend/public', exist_ok=True)
+
 with open('preview.html', 'w') as f:
+    f.write(html_content)
+
+with open('index.html', 'w') as f:
+    f.write(html_content)
+
+with open('backend/preview.html', 'w') as f:
+    f.write(html_content)
+
+with open('backend/public/index.html', 'w') as f:
     f.write(html_content)
 
 artifact_path = '/Users/ranjeet/.gemini/antigravity/brain/c5f01990-a932-4376-b981-a9dfcbedd688/blind_ai_simulator.html'
 with open(artifact_path, 'w') as f:
     f.write(html_content)
 
-print('Generated accessible preview.html and blind_ai_simulator.html successfully!')
+print('Generated accessible preview.html, index.html, and simulator artifacts successfully!')

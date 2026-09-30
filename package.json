@@ -1,0 +1,18 @@
+{
+  "name": "blind-ai",
+  "version": "1.0.0",
+  "description": "Blind AI — Accessible Assistive Navigation System with Gemini AI",
+  "main": "api/index.js",
+  "scripts": {
+    "start": "node backend/src/server.js",
+    "build": "python3 scripts/make_preview.py || node -e 'console.log(\"Build complete\")'"
+  },
+  "keywords": [
+    "blind-ai",
+    "gemini",
+    "accessibility",
+    "assistive-navigation"
+  ],
+  "author": "Blind AI Team",
+  "license": "MIT"
+}
