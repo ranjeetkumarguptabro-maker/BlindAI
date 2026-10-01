@@ -13,6 +13,8 @@ const VALID_FRONTEND_ROUTES = new Set([
   "/",
   "/preview",
   "/index.html",
+  "/public/index.html",
+  "/preview.html",
   "/home",
   "/listening",
   "/destinationSearch",
@@ -104,6 +106,7 @@ const requestHandler = async (req, res) => {
       const candidatePaths = [
         path.resolve(__dirname, "../../index.html"),
         path.resolve(__dirname, "../../preview.html"),
+        path.resolve(__dirname, "../index.html"),
         path.resolve(__dirname, "../preview.html"),
         path.resolve(__dirname, "../public/index.html"),
         path.resolve(process.cwd(), "index.html"),
