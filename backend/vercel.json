@@ -1,9 +1,8 @@
 {
   "version": 2,
   "rewrites": [
-    { "source": "/health", "destination": "/api/health.js" },
-    { "source": "/api/(.*)", "destination": "/api/$1" },
+    { "source": "/health", "destination": "/api/health" },
     { "source": "/docs/(.*)", "destination": "/docs/$1" },
-    { "source": "/(.*)", "destination": "/index.html" }
+    { "source": "/((?!api/|docs/|_vercel/).*)", "destination": "/index.html" }
   ]
 }
