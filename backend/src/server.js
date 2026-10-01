@@ -48,16 +48,34 @@ const requestHandler = async (req, res) => {
 
   // Parse URL & Query
   const parsedUrl = new URL(req.url, `http://${req.headers.host || "localhost"}`);
-  const pathname = parsedUrl.pathname;
+  let pathname = parsedUrl.pathname;
+
+  // Resolve true route if forwarded via Vercel serverless rewrites
+  const forwardedPath = req.headers["x-matched-path"]
+    || req.headers["x-vercel-matched-path"]
+    || parsedUrl.searchParams.get("url")
+    || parsedUrl.searchParams.get("path");
+
+  if (forwardedPath && (pathname === "/api/index.js" || pathname === "/api" || pathname === "/src/server.js" || pathname === "/api/")) {
+    pathname = forwardedPath.split("?")[0];
+  }
 
   // JSON helper
   const sendJson = (statusCode, data) => {
     res.writeHead(statusCode, { "Content-Type": "application/json" });
-    res.end(JSON.stringify(data));
+    if (req.method === "HEAD") {
+      res.end();
+    } else {
+      res.end(JSON.stringify(data));
+    }
   };
 
   // Helper to read JSON request body
   const readBody = () => new Promise((resolve) => {
+    if (req.method === "HEAD" || req.method === "GET") {
+      resolve({});
+      return;
+    }
     let body = "";
     req.on("data", chunk => { body += chunk; });
     req.on("end", () => {
@@ -71,7 +89,7 @@ const requestHandler = async (req, res) => {
 
   try {
     // 0. Interactive Web Simulator & Valid Frontend Application Routes (SPA)
-    if (VALID_FRONTEND_ROUTES.has(pathname) && req.method === "GET") {
+    if (VALID_FRONTEND_ROUTES.has(pathname) && (req.method === "GET" || req.method === "HEAD")) {
       const candidatePaths = [
         path.resolve(__dirname, "../../index.html"),
         path.resolve(__dirname, "../../preview.html"),
@@ -85,7 +103,11 @@ const requestHandler = async (req, res) => {
         if (fs.existsSync(p) && fs.statSync(p).isFile()) {
           const html = fs.readFileSync(p, "utf8");
           res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
-          res.end(html);
+          if (req.method === "HEAD") {
+            res.end();
+          } else {
+            res.end(html);
+          }
           return;
         }
       }
