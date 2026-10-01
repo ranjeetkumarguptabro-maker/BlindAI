@@ -5,12 +5,15 @@ import Combine
 public final class ObstacleAlertViewModel: ObservableObject {
     @Published public var hazard: ObstacleAlertItem = ObstacleAlertItem.defaultHazard
     @Published public var isAcknowledged: Bool = false
+    @Published public var dangerLevel: DetectedObstacle.DangerLevel = .danger
     
     public var onNavigateToRoute: ((AppRoute) -> Void)?
     public var onObstacleAcknowledged: (() -> Void)?
     
     private let speechService = SpeechService.shared
     private let hapticsService = HapticsService.shared
+    private let dangerSystem = ObstacleDangerSystem.shared
+    private var cancellables = Set<AnyCancellable>()
     
     public init(
         hazard: ObstacleAlertItem = ObstacleAlertItem.defaultHazard,
@@ -18,22 +21,50 @@ public final class ObstacleAlertViewModel: ObservableObject {
     ) {
         self.hazard = hazard
         self.onNavigateToRoute = onNavigateToRoute
+        bindDangerSystem()
+    }
+    
+    private func bindDangerSystem() {
+        dangerSystem.$activeHazard
+            .receive(on: DispatchQueue.main)
+            .compactMap { $0 }
+            .sink { [weak self] newHazard in
+                self?.hazard = newHazard
+                self?.isAcknowledged = false
+            }
+            .store(in: &cancellables)
+            
+        dangerSystem.$dangerLevel
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] level in
+                self?.dangerLevel = level
+            }
+            .store(in: &cancellables)
     }
     
     public func handleOnAppear() {
-        // Announce obstacle distance first, then object and side as specified in requirements
-        hapticsService.warning()
-        speechService.speak("Obstacle ahead. Two meters ahead, construction barrier on right.")
+        // Announce obstacle distance, object, and guidance
+        if dangerLevel == .critical {
+            hapticsService.notification(type: .error)
+            hapticsService.impact(style: .heavy)
+            speechService.speak("Stop. Obstacle directly ahead.")
+        } else {
+            hapticsService.warning()
+            let announcement = "\(hazard.title). \(hazard.subtitle) \(hazard.guidance)"
+            speechService.speak(announcement)
+        }
     }
     
     public func repeatAlert() {
         hapticsService.impact(style: .medium)
-        speechService.speak("Two meters ahead, construction barrier on right. Stay on the left.")
+        let alertText = "\(hazard.subtitle). \(hazard.guidance)"
+        speechService.speak(alertText)
     }
     
     public func acknowledgeObstacle() {
         hapticsService.success()
         isAcknowledged = true
+        dangerSystem.clearActiveAlert()
         speechService.speak("Obstacle acknowledged. Resuming path.")
         onObstacleAcknowledged?()
         
@@ -41,9 +72,9 @@ public final class ObstacleAlertViewModel: ObservableObject {
         Task {
             _ = try? await BlindAIBackendClient.shared.logObstacleEvent(
                 type: self.hazard.type,
-                lane: "right",
+                lane: self.hazard.sideText,
                 distanceMeters: self.hazard.distanceMeters,
-                severity: "warning"
+                severity: self.dangerLevel.rawValue
             )
         }
         
@@ -56,11 +87,12 @@ public final class ObstacleAlertViewModel: ObservableObject {
     public func handleBackTapped() {
         hapticsService.impact(style: .light)
         speechService.stop()
+        dangerSystem.clearActiveAlert()
         onNavigateToRoute?(.activeNavigation)
     }
     
     public func handleSettingsTapped() {
         hapticsService.selection()
-        speechService.speak("Obstacle detection sensitivity: High. Voice alerts: Enabled.")
+        speechService.speak("Obstacle detection sensitivity: High. LiDAR frame semantics: sceneDepth active. Voice alerts: Enabled.")
     }
 }

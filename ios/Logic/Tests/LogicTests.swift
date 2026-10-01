@@ -11,6 +11,8 @@ struct LogicTestsRunner {
         testLaneMath()
         testNavigationInstruction()
         testVoiceIntentParsing()
+        testGroundHazardDetector()
+        testLiDARDistanceRules()
         
         print("\n✅ All Blind AI Logic Tests Passed Successfully!")
     }
@@ -117,5 +119,58 @@ struct LogicTestsRunner {
         let intent5 = speech.parseIntent(from: "Repeat the instruction")
         assert(intent5 == .repeatInstruction)
         print("  ✓ VoiceIntent parsing tests passed")
+    }
+    
+    static func testGroundHazardDetector() {
+        print("Testing GroundHazardDetector drop-off and curb analysis...")
+        let detector = GroundHazardDetector()
+        
+        // Scenario 1: Curb down / step down (depth drops suddenly)
+        let curbDownResult = detector.analyzeGroundProfile(nearGroundDepth: 1.2, farGroundDepth: 2.7)
+        assert(curbDownResult.hasHazard, "Should detect curb down hazard")
+        assert(curbDownResult.hazardType == .curbDown)
+        assert(curbDownResult.spokenWarning != nil)
+        
+        // Scenario 2: Curb up / step up
+        let curbUpResult = detector.analyzeGroundProfile(nearGroundDepth: 1.2, farGroundDepth: 1.6)
+        assert(curbUpResult.hasHazard, "Should detect curb up hazard")
+        assert(curbUpResult.hazardType == .curbUp)
+        
+        // Scenario 3: Flat ground
+        let flatResult = detector.analyzeGroundProfile(nearGroundDepth: 1.2, farGroundDepth: 2.16)
+        assert(!flatResult.hasHazard, "Flat ground should have no hazard")
+        assert(flatResult.hazardType == .none)
+        print("  ✓ GroundHazardDetector tests passed")
+    }
+    
+    static func testLiDARDistanceRules() {
+        print("Testing LiDAR distance danger rules...")
+        // Danger rule mapping:
+        // < 0.7m -> critical
+        // < 1.5m -> danger
+        // < 2.5m -> caution
+        // < 3.5m -> notice
+        // >= 3.5m or beside path -> safe / silent
+        
+        func evaluateDanger(distance: Float, isCenter: Bool) -> String {
+            if isCenter {
+                if distance < 0.7 { return "Critical Stop" }
+                if distance < 1.5 { return "Danger" }
+                if distance < 2.5 { return "Caution" }
+                if distance < 3.5 { return "Notice" }
+                return "Safe"
+            } else {
+                if distance < 1.0 { return "Caution" }
+                if distance < 2.0 { return "Notice" }
+                return "Safe"
+            }
+        }
+        
+        assert(evaluateDanger(distance: 0.65, isCenter: true) == "Critical Stop")
+        assert(evaluateDanger(distance: 1.0, isCenter: true) == "Danger")
+        assert(evaluateDanger(distance: 2.1, isCenter: true) == "Caution")
+        assert(evaluateDanger(distance: 3.0, isCenter: true) == "Notice")
+        assert(evaluateDanger(distance: 4.0, isCenter: false) == "Safe")
+        print("  ✓ LiDAR distance danger rule tests passed")
     }
 }

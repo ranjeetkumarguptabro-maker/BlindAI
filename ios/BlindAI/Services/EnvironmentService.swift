@@ -64,6 +64,23 @@ public final class EnvironmentService: ObservableObject {
     }
     
     public func describeEnvironment(completion: @escaping (String) -> Void) {
+        // If LiDAR currently detects an obstacle in front of user, announce immediate spatial details
+        if let obstacle = ARKitLiDARScannerService.shared.nearestObstacle {
+            let roundedMeters = Int(round(obstacle.distanceMeters))
+            let distText = roundedMeters <= 1 ? "one meter" : "\(roundedMeters) meters"
+            let sideText: String
+            switch obstacle.lane {
+            case .left: sideText = "on your left"
+            case .right: sideText = "on your right"
+            case .center: sideText = "directly ahead"
+            }
+            let liveDescription = "There is a \(obstacle.label.lowercased()) approximately \(distText) ahead \(sideText)."
+            DispatchQueue.main.async {
+                completion(liveDescription)
+            }
+            return
+        }
+        
         Task {
             do {
                 let description = try await backendClient.describeEnvironment()

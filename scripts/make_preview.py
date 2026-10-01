@@ -193,13 +193,14 @@ html_content = f"""<!DOCTYPE html>
   <main id="main-content" class="max-w-7xl mx-auto flex items-center justify-center">
 
     <!-- VIEW 1: INTERACTIVE SINGLE PHONE SIMULATOR -->
-    <div id="view-interactive" role="tabpanel" aria-labelledby="btn-tab-interactive" class="flex flex-col items-center">
-      <div class="flex items-center gap-2 mb-2 text-xs text-slate-600" aria-live="polite">
-        <span class="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse" aria-hidden="true"></span>
-        <span id="instruction-tip">Tap <strong>Describe what's around me</strong> or <strong>Start navigation</strong></span>
-      </div>
+    <div id="view-interactive" role="tabpanel" aria-labelledby="btn-tab-interactive" class="flex flex-col lg:flex-row items-center lg:items-start justify-center gap-6 w-full">
+      <div class="flex flex-col items-center">
+        <div class="flex items-center gap-2 mb-2 text-xs text-slate-600" aria-live="polite">
+          <span class="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse" aria-hidden="true"></span>
+          <span id="instruction-tip">Tap <strong>Describe what's around me</strong> or <strong>Start navigation</strong></span>
+        </div>
 
-      <div class="iphone-frame flex flex-col justify-between" id="phone-container">
+        <div class="iphone-frame flex flex-col justify-between" id="phone-container">
         <!-- Status Bar (Decorative Simulated Device Chrome) -->
         <div class="pt-3 px-7 flex justify-between items-center text-xs font-semibold text-black z-30" aria-hidden="true">
           <span>9:41</span>
@@ -326,17 +327,17 @@ html_content = f"""<!DOCTYPE html>
             <div class="flex flex-col gap-2.5">
               <!-- Voice phrase simulation chips -->
               <div class="flex flex-wrap justify-center gap-1.5" role="group" aria-label="Suggested voice phrases">
-                <button onclick="handleVoiceInput('Take me to the library')" aria-label="Simulate: Take me to the library" class="px-2.5 py-1 rounded-full bg-white border border-slate-200 text-[11px] font-medium text-slate-700 shadow-sm hover:bg-slate-50 transition active:scale-95">
-                  “Take me to the library”
+                <button onclick="handleVoiceInput('What is in front of me?')" aria-label="Simulate: What is in front of me?" class="px-2.5 py-1 rounded-full bg-orange-50 border border-orange-200 text-[11px] font-semibold text-orange-900 shadow-sm hover:bg-orange-100 transition active:scale-95">
+                  “What is in front of me?”
                 </button>
-                <button onclick="handleVoiceInput('Open the main building')" aria-label="Simulate: Open the main building" class="px-2.5 py-1 rounded-full bg-white border border-slate-200 text-[11px] font-medium text-slate-700 shadow-sm hover:bg-slate-50 transition active:scale-95">
-                  “Open main building”
-                </button>
-                <button onclick="handleVoiceInput('I want to go to the sports center')" aria-label="Simulate: I want to go to the sports center" class="px-2.5 py-1 rounded-full bg-white border border-slate-200 text-[11px] font-medium text-slate-700 shadow-sm hover:bg-slate-50 transition active:scale-95">
-                  “Go to sports center”
+                <button onclick="handleVoiceInput('Where am I?')" aria-label="Simulate: Where am I?" class="px-2.5 py-1 rounded-full bg-blue-50 border border-blue-200 text-[11px] font-semibold text-blue-900 shadow-sm hover:bg-blue-100 transition active:scale-95">
+                  “Where am I?”
                 </button>
                 <button onclick="handleVoiceInput('Take me to RTU')" aria-label="Simulate: Take me to RTU" class="px-2.5 py-1 rounded-full bg-white border border-slate-200 text-[11px] font-medium text-slate-700 shadow-sm hover:bg-slate-50 transition active:scale-95">
                   “Take me to RTU”
+                </button>
+                <button onclick="handleVoiceInput('Take me to the library')" aria-label="Simulate: Take me to the library" class="px-2.5 py-1 rounded-full bg-white border border-slate-200 text-[11px] font-medium text-slate-700 shadow-sm hover:bg-slate-50 transition active:scale-95">
+                  “Take me to the library”
                 </button>
                 <button onclick="handleVoiceInput('Take me to Old Town')" aria-label="Simulate: Take me to Old Town" class="px-2.5 py-1 rounded-full bg-white border border-slate-200 text-[11px] font-medium text-slate-700 shadow-sm hover:bg-slate-50 transition active:scale-95">
                   “Take me to Old Town”
@@ -737,30 +738,36 @@ html_content = f"""<!DOCTYPE html>
             </div>
 
             <!-- Top Warning Alert Banner (role="alert" for immediate screen reader announcement) -->
-            <div role="alert" aria-live="assertive" class="mt-2 bg-[#FEECEC] border border-red-200 rounded-3xl p-4 flex items-center space-x-3.5 shadow-sm">
-              <div class="w-11 h-11 text-red-600 flex items-center justify-center flex-shrink-0" aria-hidden="true">
-                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 fill-red-600" viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>
+            <div id="obstacle-alert-banner" role="alert" aria-live="assertive" class="mt-2 bg-[#FEECEC] border border-red-200 rounded-3xl p-4 flex items-center space-x-3.5 shadow-sm transition-colors">
+              <div id="obstacle-banner-icon" class="w-11 h-11 text-red-600 flex items-center justify-center flex-shrink-0" aria-hidden="true">
+                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 fill-current" viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>
               </div>
               <div class="flex flex-col">
-                <h2 class="text-xl font-bold text-red-600 leading-tight">Obstacle ahead</h2>
-                <p class="text-xs text-slate-800 font-medium leading-relaxed mt-0.5">
+                <h2 id="obstacle-screen-title" class="text-xl font-bold text-red-600 leading-tight">Obstacle ahead</h2>
+                <p id="obstacle-screen-subtitle" class="text-xs text-slate-800 font-medium leading-relaxed mt-0.5">
                   Two meters ahead,<br>construction barrier on right.
                 </p>
               </div>
             </div>
 
-            <!-- Camera View with AR Path and Barrier Highlight -->
+            <!-- Camera View with AR Path, LiDAR Depth Map Canvas, and Barrier Highlight -->
             <div class="flex-1 my-3 relative rounded-3xl overflow-hidden border border-slate-200 shadow-inner flex flex-col justify-end p-3.5">
-              <img src="{img_obstacle}" alt="Camera scene showing sidewalk ahead with a high-visibility orange construction barrier on the right side two meters forward" class="absolute inset-0 w-full h-full object-cover">
+              <img src="{img_obstacle}" alt="Camera scene showing sidewalk ahead with a high-visibility orange construction barrier" class="absolute inset-0 w-full h-full object-cover">
+              
+              <!-- Canvas for dynamic LiDAR Depth & Vision Bounding Box Overlay -->
+              <canvas id="lidar-depth-canvas" class="absolute inset-0 w-full h-full pointer-events-none z-5"></canvas>
               
               <!-- Floating Obstacle Detail Card -->
               <div class="relative z-10 bg-white/95 backdrop-blur-md rounded-2xl p-3.5 border border-slate-100 shadow-md flex items-center space-x-3">
-                <div class="w-10 h-10 rounded-full bg-orange-100 text-orange-500 flex items-center justify-center text-xl flex-shrink-0" role="img" aria-label="Hazard barrier icon">
+                <div id="obstacle-card-icon" class="w-10 h-10 rounded-full bg-orange-100 text-orange-500 flex items-center justify-center text-xl flex-shrink-0" role="img" aria-label="Hazard icon">
                   🚧
                 </div>
-                <div class="flex flex-col">
-                  <h3 class="font-bold text-slate-900 text-sm leading-tight">Construction barrier</h3>
-                  <p class="text-xs text-slate-600 mt-0.5">On the right, 2 meters ahead.</p>
+                <div class="flex flex-col flex-1">
+                  <div class="flex items-center justify-between">
+                    <h3 id="obstacle-card-title" class="font-bold text-slate-900 text-sm leading-tight">Construction barrier</h3>
+                    <span id="obstacle-card-dist-badge" class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700">2.0m</span>
+                  </div>
+                  <p id="obstacle-card-sub" class="text-xs text-slate-600 mt-0.5">On the right, 2 meters ahead.</p>
                 </div>
               </div>
             </div>
@@ -848,6 +855,118 @@ html_content = f"""<!DOCTYPE html>
           <div class="w-32 h-1 bg-neutral-400 rounded-full"></div>
         </div>
       </div>
+      </div>
+
+      <!-- Right Side: LiDAR & Camera Sensor Fusion Dashboard -->
+      <aside aria-label="iPhone LiDAR Scanner and Danger System" class="w-full max-w-sm bg-white rounded-3xl p-5 shadow-sm border border-slate-200 flex flex-col space-y-4">
+        <!-- Header with LiDAR badge -->
+        <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+          <div class="flex items-center gap-2.5">
+            <div class="w-9 h-9 rounded-2xl bg-orange-500 text-white flex items-center justify-center font-bold text-sm shadow-sm" aria-hidden="true">
+              📡
+            </div>
+            <div>
+              <h2 class="text-sm font-bold text-slate-900 leading-tight">iPhone LiDAR + Camera</h2>
+              <span class="text-[11px] text-slate-500 font-medium">ARKit sceneDepth • Vision Fusion</span>
+            </div>
+          </div>
+          <span id="lidar-status-badge" class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
+            LiDAR Active
+          </span>
+        </div>
+
+        <!-- Real-time Distance & Danger Gauge -->
+        <div class="bg-slate-50 border border-slate-200/80 rounded-2xl p-3.5 flex flex-col space-y-2.5">
+          <div class="flex items-center justify-between text-xs">
+            <span class="text-slate-500 font-semibold uppercase tracking-wider text-[10px]">Real-time Proximity</span>
+            <span id="lidar-confidence-tag" class="text-slate-600 font-medium text-[11px]">Confidence: 98% (High)</span>
+          </div>
+          <div class="flex items-baseline justify-between">
+            <div class="flex items-baseline gap-1">
+              <span id="lidar-live-dist-val" class="text-3xl font-extrabold text-slate-900">2.1</span>
+              <span class="text-sm font-bold text-slate-500">meters</span>
+            </div>
+            <span id="lidar-danger-pill" class="px-3 py-1 rounded-xl text-xs font-bold bg-amber-100 text-amber-800 border border-amber-300">
+              Caution (In Path)
+            </span>
+          </div>
+
+          <!-- Distance slider -->
+          <div class="space-y-1 pt-1">
+            <div class="flex justify-between text-[11px] font-medium text-slate-500">
+              <span class="font-bold text-red-600">&lt;0.7m (Stop)</span>
+              <span>1.5m</span>
+              <span>3.0m</span>
+              <span class="text-emerald-700">5.0m (Clear)</span>
+            </div>
+            <input type="range" id="lidar-slider" min="0.4" max="5.0" step="0.1" value="2.1" oninput="handleLidarSlider(this.value)" class="w-full accent-orange-500 cursor-pointer" aria-label="Adjust obstacle distance in meters">
+          </div>
+        </div>
+
+        <!-- Identified Object & Corridor Position -->
+        <div class="grid grid-cols-2 gap-2 text-xs">
+          <div class="bg-slate-50 border border-slate-200 p-2.5 rounded-xl">
+            <span class="text-slate-500 block text-[10px] uppercase font-bold mb-1">Identified Object</span>
+            <select id="lidar-object-select" onchange="handleLidarObjectChange(this.value)" class="bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-800 p-1 w-full focus:ring-1 focus:ring-amber-500">
+              <option value="Chair">Chair (In path)</option>
+              <option value="Person">Person (Moving)</option>
+              <option value="Construction barrier">Construction barrier</option>
+              <option value="Car">Car</option>
+              <option value="Bicycle">Bicycle</option>
+              <option value="Bench">Bench</option>
+              <option value="Trash bin">Trash bin</option>
+              <option value="Tree">Tree</option>
+              <option value="Pole">Pole</option>
+              <option value="Stairs">Stairs</option>
+              <option value="Table">Table</option>
+              <option value="Wall">Wall</option>
+            </select>
+          </div>
+          <div class="bg-slate-50 border border-slate-200 p-2.5 rounded-xl">
+            <span class="text-slate-500 block text-[10px] uppercase font-bold mb-1">Lateral Lane</span>
+            <select id="lidar-lane-select" onchange="handleLidarLaneChange(this.value)" class="bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-800 p-1 w-full focus:ring-1 focus:ring-amber-500">
+              <option value="center">Center (Walking Path)</option>
+              <option value="left">Left Lane</option>
+              <option value="right">Right Lane</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Test Safety Scenarios (Exact Match to User Specs) -->
+        <div class="space-y-1.5">
+          <span class="text-[11px] font-bold text-slate-600 uppercase tracking-wider block">Test Safety Scenarios</span>
+          <div class="grid grid-cols-1 gap-1.5">
+            <button type="button" onclick="testLidarScenario(4.0, 'Beside path', 'right', 'Safe')" class="w-full py-2 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-medium text-xs flex items-center justify-between transition active:scale-95">
+              <span><strong>4 m</strong> Beside path</span>
+              <span class="text-slate-500 font-semibold text-[11px]">Usually silent</span>
+            </button>
+            <button type="button" onclick="testLidarScenario(3.0, 'Object', 'center', 'Notice')" class="w-full py-2 px-3 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-900 font-medium text-xs flex items-center justify-between border border-blue-200 transition active:scale-95">
+              <span><strong>3 m</strong> Object ahead</span>
+              <span class="font-bold text-[11px]">“Object ahead.”</span>
+            </button>
+            <button type="button" onclick="testLidarScenario(2.1, 'Chair', 'center', 'Caution')" class="w-full py-2 px-3 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 font-medium text-xs flex items-center justify-between border border-amber-200 transition active:scale-95">
+              <span><strong>2 m</strong> Object in path</span>
+              <span class="font-bold text-[11px]">“Chair ahead, 2 meters.”</span>
+            </button>
+            <button type="button" onclick="testLidarScenario(1.0, 'Obstacle', 'center', 'Danger')" class="w-full py-2 px-3 rounded-xl bg-orange-50 hover:bg-orange-100 text-orange-900 font-medium text-xs flex items-center justify-between border border-orange-200 transition active:scale-95">
+              <span><strong>1 m</strong> Dangerous</span>
+              <span class="font-bold text-[11px]">“Obstacle ahead, 1 meter.”</span>
+            </button>
+            <button type="button" onclick="testLidarScenario(0.65, 'Obstacle', 'center', 'Critical')" class="w-full py-2 px-3 rounded-xl bg-red-100 hover:bg-red-200 text-red-900 font-bold text-xs flex items-center justify-between border border-red-300 transition active:scale-95">
+              <span><strong>&lt;0.7 m</strong> Very close</span>
+              <span class="font-bold text-[11px]">“Stop. Obstacle directly ahead.”</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- LiDAR Depth Map Visualization Toggle -->
+        <div class="pt-2 border-t border-slate-100 flex items-center justify-between">
+          <span class="text-xs text-slate-700 font-medium">LiDAR Depth Map Heatmap</span>
+          <button type="button" onclick="toggleLidarDepthHeatmap()" id="lidar-depth-toggle" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-200 text-slate-700 hover:bg-slate-300 transition">
+            Overlay: OFF
+          </button>
+        </div>
+      </aside>
     </div>
 
     <!-- VIEW 2: ALL 9 SCREENS SIDE-BY-SIDE GALLERY (Cloned Visual Previews - Hidden from Assistive Tech to avoid duplicate IDs) -->
@@ -1220,21 +1339,319 @@ html_content = f"""<!DOCTYPE html>
       }};
     }}
 
+    // LiDAR & Camera Sensor Fusion Simulation State
+    let currentLidarDistance = 2.1;
+    let currentLidarObject = 'Chair';
+    let currentLidarLane = 'center'; // 'left', 'center', 'right'
+    let currentLidarDanger = 'Caution';
+    let lidarDepthHeatmapActive = false;
+
+    function getLidarSceneDescription() {{
+      if (currentLidarDistance <= 3.5) {{
+        const rounded = Math.round(currentLidarDistance);
+        const distWord = rounded <= 1 ? "one meter" : `${{rounded}} meters`;
+        const sideWord = currentLidarLane === 'center' ? 'directly ahead' : (currentLidarLane === 'left' ? 'ahead on your left' : 'ahead on your right');
+        return `There is a ${{currentLidarObject.toLowerCase()}} approximately ${{distWord}} ${{sideWord}}.`;
+      }}
+      return "Pedestrian pathway clear directly ahead. Sidewalk continues for 41 meters. No immediate obstacles detected in your lane.";
+    }}
+
+    function evaluateLidarDanger(dist, lane, label) {{
+      const objName = label || currentLidarObject || 'Obstacle';
+      if (lane === 'center') {{
+        if (dist < 0.75) {{
+          return {{
+            level: 'Critical Stop',
+            class: 'bg-red-600 text-white border-red-700 animate-pulse',
+            bannerBg: 'bg-red-100 border-red-400',
+            bannerText: 'text-red-700',
+            title: 'Stop. Obstacle directly ahead',
+            subtitle: `${{objName}} less than 0.7m ahead. Halt immediately.`,
+            guidance: 'Clear path before proceeding.',
+            spoken: 'Stop. Obstacle directly ahead.',
+            haptic: [150, 80, 200, 80, 250],
+            isCritical: true
+          }};
+        }} else if (dist < 1.45) {{
+          return {{
+            level: 'Danger',
+            class: 'bg-orange-500 text-white border-orange-600',
+            bannerBg: 'bg-orange-50 border-orange-300',
+            bannerText: 'text-orange-700',
+            title: 'Obstacle ahead, 1 meter',
+            subtitle: `${{objName}} 1 meter ahead in walking path.`,
+            guidance: 'Keep left.',
+            spoken: 'Obstacle ahead, 1 meter.',
+            haptic: [100, 80, 150],
+            isCritical: false
+          }};
+        }} else if (dist < 2.45) {{
+          const sideText = lane === 'center' ? 'ahead' : (lane === 'left' ? 'ahead on left' : 'ahead on right');
+          return {{
+            level: 'Caution',
+            class: 'bg-amber-100 text-amber-800 border-amber-300',
+            bannerBg: 'bg-[#FEECEC] border-red-200',
+            bannerText: 'text-red-600',
+            title: `${{objName}} ahead`,
+            subtitle: `${{objName}} ahead, 2 meters.`,
+            guidance: 'Keep left.',
+            spoken: `${{objName}} ahead, 2 meters. Keep left.`,
+            haptic: [80, 60],
+            isCritical: false
+          }};
+        }} else if (dist < 3.45) {{
+          return {{
+            level: 'Notice',
+            class: 'bg-blue-100 text-blue-800 border-blue-200',
+            bannerBg: 'bg-blue-50 border-blue-200',
+            bannerText: 'text-blue-700',
+            title: 'Object ahead',
+            subtitle: `${{objName}} ahead, 3 meters.`,
+            guidance: 'Path clear for 2 meters.',
+            spoken: 'Object ahead.',
+            haptic: [50],
+            isCritical: false
+          }};
+        }} else {{
+          return {{
+            level: 'Safe',
+            class: 'bg-emerald-100 text-emerald-800 border-emerald-300',
+            bannerBg: 'bg-emerald-50 border-emerald-200',
+            bannerText: 'text-emerald-700',
+            title: 'Clear path',
+            subtitle: 'No immediate obstacles detected.',
+            guidance: 'Continue forward.',
+            spoken: '', // Silent per requirement: "4m beside path: Usually silent"
+            haptic: [],
+            isCritical: false
+          }};
+        }}
+      }} else {{
+        // Beside path (left or right)
+        if (dist < 1.0) {{
+          return {{
+            level: 'Caution',
+            class: 'bg-amber-100 text-amber-800 border-amber-300',
+            bannerBg: 'bg-amber-50 border-amber-200',
+            bannerText: 'text-amber-700',
+            title: `${{objName}} beside path`,
+            subtitle: `${{dist.toFixed(1)}}m on ${{lane}}.`,
+            guidance: 'Maintain center path.',
+            spoken: `${{objName}} beside path, 1 meter.`,
+            haptic: [60],
+            isCritical: false
+          }};
+        }} else if (dist < 2.0) {{
+          return {{
+            level: 'Notice',
+            class: 'bg-blue-100 text-blue-800 border-blue-200',
+            bannerBg: 'bg-blue-50 border-blue-200',
+            bannerText: 'text-blue-700',
+            title: `${{objName}} on ${{lane}}`,
+            subtitle: `${{dist.toFixed(1)}}m on ${{lane}}.`,
+            guidance: 'Path clear.',
+            spoken: `${{objName}} beside path.`,
+            haptic: [40],
+            isCritical: false
+          }};
+        }} else {{
+          // 4m beside path: silent
+          return {{
+            level: 'Safe (Beside Path)',
+            class: 'bg-slate-100 text-slate-700 border-slate-200',
+            bannerBg: 'bg-slate-50 border-slate-200',
+            bannerText: 'text-slate-600',
+            title: 'Beside path',
+            subtitle: `${{objName}} 4 meters beside path.`,
+            guidance: 'Safe.',
+            spoken: '', // Silent per requirement
+            haptic: [],
+            isCritical: false
+          }};
+        }}
+      }}
+    }}
+
+    function updateLidarState(distance, objectLabel, lane, triggerAlert = true) {{
+      currentLidarDistance = parseFloat(distance);
+      if (objectLabel) currentLidarObject = objectLabel;
+      if (lane) currentLidarLane = lane;
+
+      const evalResult = evaluateLidarDanger(currentLidarDistance, currentLidarLane, currentLidarObject);
+      currentLidarDanger = evalResult.level;
+
+      // Update Dashboard elements
+      const distEl = document.getElementById('lidar-live-dist-val');
+      if (distEl) distEl.innerText = currentLidarDistance.toFixed(1);
+
+      const sliderEl = document.getElementById('lidar-slider');
+      if (sliderEl && Math.abs(parseFloat(sliderEl.value) - currentLidarDistance) > 0.05) {{
+        sliderEl.value = currentLidarDistance;
+      }}
+
+      const pillEl = document.getElementById('lidar-danger-pill');
+      if (pillEl) {{
+        pillEl.className = 'px-3 py-1 rounded-xl text-xs font-bold border transition-colors ' + evalResult.class;
+        pillEl.innerText = evalResult.level;
+      }}
+
+      const objSelect = document.getElementById('lidar-object-select');
+      if (objSelect && objSelect.value !== currentLidarObject) {{
+        objSelect.value = currentLidarObject;
+      }}
+
+      const laneSelect = document.getElementById('lidar-lane-select');
+      if (laneSelect && laneSelect.value !== currentLidarLane) {{
+        laneSelect.value = currentLidarLane;
+      }}
+
+      // Update Screen 8 elements if open
+      const screenTitle = document.getElementById('obstacle-screen-title');
+      if (screenTitle) {{
+        screenTitle.innerText = evalResult.title;
+        screenTitle.className = 'text-xl font-bold leading-tight ' + evalResult.bannerText;
+      }}
+
+      const screenSub = document.getElementById('obstacle-screen-subtitle');
+      if (screenSub) {{
+        screenSub.innerHTML = `${{evalResult.subtitle}}<br><span class="text-slate-600">${{evalResult.guidance}}</span>`;
+      }}
+
+      const bannerBox = document.getElementById('obstacle-alert-banner');
+      if (bannerBox) {{
+        bannerBox.className = 'mt-2 rounded-3xl p-4 flex items-center space-x-3.5 shadow-sm transition-colors ' + evalResult.bannerBg;
+      }}
+
+      const cardTitle = document.getElementById('obstacle-card-title');
+      if (cardTitle) cardTitle.innerText = currentLidarObject;
+
+      const cardSub = document.getElementById('obstacle-card-sub');
+      if (cardSub) {{
+        cardSub.innerText = `${{currentLidarLane === 'center' ? 'Directly ahead' : 'On ' + currentLidarLane}}, ${{currentLidarDistance.toFixed(1)}}m.`;
+      }}
+
+      const cardDistBadge = document.getElementById('obstacle-card-dist-badge');
+      if (cardDistBadge) {{
+        cardDistBadge.innerText = currentLidarDistance.toFixed(1) + 'm';
+      }}
+
+      const cardIcon = document.getElementById('obstacle-card-icon');
+      if (cardIcon) {{
+        const icons = {{
+          'Chair': '🪑', 'Person': '🚶', 'Car': '🚗', 'Bicycle': '🚲',
+          'Construction barrier': '🚧', 'Trash bin': '🗑️', 'Bench': '🪵',
+          'Tree': '🌳', 'Pole': '💈', 'Stairs': '🪜', 'Table': '🪑', 'Wall': '🧱'
+        }};
+        cardIcon.innerText = icons[currentLidarObject] || '⚠️';
+      }}
+
+      drawLidarOverlay();
+
+      if (triggerAlert) {{
+        if (evalResult.haptic && evalResult.haptic.length) {{
+          triggerHaptic(evalResult.haptic);
+        }}
+        if (evalResult.spoken) {{
+          speakText(evalResult.spoken);
+        }}
+        if (evalResult.level === 'Critical Stop' || evalResult.level === 'Danger') {{
+          if (activeRoute !== 'obstacleAlert') {{
+            navigateTo('obstacleAlert');
+          }}
+        }}
+      }}
+    }}
+
+    function testLidarScenario(distance, objectLabel, lane, dangerName) {{
+      updateLidarState(distance, objectLabel, lane, true);
+    }}
+
+    function handleLidarSlider(val) {{
+      updateLidarState(val, currentLidarObject, currentLidarLane, false);
+    }}
+
+    function handleLidarObjectChange(val) {{
+      updateLidarState(currentLidarDistance, val, currentLidarLane, false);
+    }}
+
+    function handleLidarLaneChange(val) {{
+      updateLidarState(currentLidarDistance, currentLidarObject, val, false);
+    }}
+
+    function toggleLidarDepthHeatmap() {{
+      lidarDepthHeatmapActive = !lidarDepthHeatmapActive;
+      const btn = document.getElementById('lidar-depth-toggle');
+      if (btn) {{
+        btn.innerText = lidarDepthHeatmapActive ? 'Overlay: ON' : 'Overlay: OFF';
+        btn.className = lidarDepthHeatmapActive ? 'px-2.5 py-1 rounded-lg text-xs font-semibold bg-orange-500 text-white shadow-sm' : 'px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-200 text-slate-700 hover:bg-slate-300';
+      }}
+      drawLidarOverlay();
+    }}
+
+    function drawLidarOverlay() {{
+      const canvas = document.getElementById('lidar-depth-canvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      canvas.width = canvas.clientWidth || 300;
+      canvas.height = canvas.clientHeight || 360;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      if (lidarDepthHeatmapActive) {{
+        const gradient = ctx.createLinearGradient(0, canvas.height, 0, 0);
+        gradient.addColorStop(0, 'rgba(239, 68, 68, 0.45)');
+        gradient.addColorStop(0.3, 'rgba(245, 158, 11, 0.35)');
+        gradient.addColorStop(0.6, 'rgba(16, 185, 129, 0.25)');
+        gradient.addColorStop(1.0, 'rgba(59, 130, 246, 0.20)');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+        ctx.lineWidth = 1;
+        ctx.setLineDash([4, 4]);
+        [0.25, 0.5, 0.75].forEach(yFactor => {{
+          ctx.beginPath();
+          ctx.moveTo(0, canvas.height * yFactor);
+          ctx.lineTo(canvas.width, canvas.height * yFactor);
+          ctx.stroke();
+        }});
+        ctx.setLineDash([]);
+      }}
+
+      if (currentLidarDistance <= 3.5) {{
+        const boxWidth = canvas.width * 0.52;
+        const boxHeight = canvas.height * 0.38;
+        let boxX = (canvas.width - boxWidth) / 2;
+        if (currentLidarLane === 'left') boxX = canvas.width * 0.05;
+        if (currentLidarLane === 'right') boxX = canvas.width * 0.43;
+        const boxY = canvas.height * 0.38;
+
+        ctx.strokeStyle = currentLidarDistance < 0.75 ? '#DC2626' : (currentLidarDistance < 1.45 ? '#EA580C' : '#D97706');
+        ctx.lineWidth = 3;
+        ctx.strokeRect(boxX, boxY, boxWidth, boxHeight);
+
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.85)';
+        ctx.fillRect(boxX, boxY - 22, boxWidth, 22);
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = 'bold 11px sans-serif';
+        ctx.fillText(`${{currentLidarObject}} • ${{currentLidarDistance.toFixed(1)}}m (98% conf)`, boxX + 6, boxY - 6);
+      }}
+    }}
+
     function parseVoiceIntentLocalFallback(rawTranscript) {{
       const lowered = (rawTranscript || "").toLowerCase().trim();
       if (/^(where am i|where i am|what is my location|current location|where are we)/i.test(lowered)) {{
         return {{
           intent: "where_am_i",
           destination: null,
-          spoken_response: "Checking your current location and orientation.",
+          spoken_response: "You are near Riga Technical University, Kipsala Campus.",
           confidence: 0.98
         }};
       }}
-      if (/^(describe|what do you see|what('s| is) around|what('s| is) in front|look around|see around)/i.test(lowered)) {{
+      if (/^(what('s| is) in front of me|what('s| is) in front|describe|what do you see|what('s| is) around|look around|see around)/i.test(lowered)) {{
         return {{
           intent: "describe_environment",
           destination: null,
-          spoken_response: "Scanning camera view to describe what is around you.",
+          spoken_response: getLidarSceneDescription(),
           confidence: 0.97
         }};
       }}
@@ -1438,10 +1855,11 @@ html_content = f"""<!DOCTYPE html>
         speakText("Where am I? You are at Riga Technical University, Ķīpsala Campus in Riga, Latvia. Facing east.");
       }} else if (targetRoute === 'describeAround') {{
         tip.innerHTML = "Perception scene: <strong>RTU Campus</strong>. Tap <strong>Repeat</strong> to hear again";
-        speakText("Here's what I see: Sidewalk ahead is clear. Riga Technical University main entrance on the left. Bicycle rack 3 meters ahead on right. People walking nearby. It is sunny and bright.");
+        speakText(getLidarSceneDescription());
       }} else if (targetRoute === 'obstacleAlert') {{
         tip.innerHTML = "Warning: <strong>Obstacle ahead</strong>. Tap <strong>I Understand</strong> to resume";
-        speakText("Warning: Obstacle ahead. Two meters ahead, construction barrier on right. Pathway is clear on left.");
+        const evalResult = evaluateLidarDanger(currentLidarDistance, currentLidarLane, currentLidarObject);
+        speakText(evalResult.spoken || "Warning: Obstacle ahead. Two meters ahead, construction barrier on right. Pathway is clear on left.");
       }} else if (targetRoute === 'crosswalkSafety') {{
         tip.innerHTML = "Crosswalk quiet mode active. Tap waveform card when across to resume.";
         speakText("Approaching pedestrian crosswalk. Quiet mode active. Listen for traffic.");
@@ -1762,26 +2180,28 @@ html_content = f"""<!DOCTYPE html>
     // Safety Screen Actions
     function repeatSceneDescription() {{
       triggerHaptic([40]);
-      speakText("Here's what I see: Sidewalk ahead is clear. Riga Technical University main entrance on the left. Bicycle rack 3 meters ahead on right. People walking nearby. It is sunny and bright.");
+      speakText(getLidarSceneDescription());
     }}
 
     function repeatObstacleWarning() {{
       triggerHaptic([40]);
-      speakText("Warning: Two meters ahead, construction barrier on right. Stay on the left pathway.");
+      const evalResult = evaluateLidarDanger(currentLidarDistance, currentLidarLane, currentLidarObject);
+      speakText(evalResult.spoken || `Warning: ${{currentLidarObject}} ahead, ${{currentLidarDistance.toFixed(1)}} meters.`);
     }}
 
     function acknowledgeObstacle() {{
       triggerHaptic([60, 40]);
       speakText("Obstacle acknowledged. Resuming path.");
+      updateLidarState(4.0, 'Clear Path', 'center', false);
       
       try {{
-        fetch('http://localhost:3000/api/v1/navigation/sessions/default/events', {{
+        fetch('/api/v1/navigation/sessions/default/events', {{
           method: 'POST',
           headers: {{ 'Content-Type': 'application/json' }},
           body: JSON.stringify({{
-            obstacle_type: 'construction_barrier',
-            lane: 'right',
-            distance_meters: 2.0,
+            obstacle_type: currentLidarObject.toLowerCase().replace(/ /g, '_'),
+            lane: currentLidarLane,
+            distance_meters: currentLidarDistance,
             action_taken: 'avoid_left'
           }})
         }}).catch(() => {{}});

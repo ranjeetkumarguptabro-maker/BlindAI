@@ -70,6 +70,9 @@ public final class NavigationService: NSObject, NavigationServiceProtocol, Obser
         stateMachine.transition(to: .walking)
         hapticsService.notification(type: .success)
         
+        // Start continuous LiDAR scanning along the walking path
+        ARKitLiDARScannerService.shared.startScanning()
+        
         // Announce route start
         let initialPrompt = "Starting walking route to \(routeName). \(currentInstruction.mainInstruction) in \(remainingDistanceMeters) meters."
         speechService.speak(initialPrompt)
@@ -81,6 +84,9 @@ public final class NavigationService: NSObject, NavigationServiceProtocol, Obser
     public func stopRoute() {
         simulationTimer?.invalidate()
         simulationTimer = nil
+        
+        // Stop LiDAR scanning when navigation ends
+        ARKitLiDARScannerService.shared.stopScanning()
         
         isNavigating = false
         stateMachine.transition(to: .idle)

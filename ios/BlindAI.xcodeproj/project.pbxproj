@@ -42,6 +42,9 @@
 		83394C226719051515D304D2 /* EnvironmentService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48A9F8997ABC4BEC5FB63287 /* EnvironmentService.swift */; };
 		FE6904DC3293BED728F7CFB8 /* HapticsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B39181DEC3AEB4B4D97A7DEF /* HapticsService.swift */; };
 		4A023E163F582FAF17701032 /* BlindAIBackendClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3E2EAE5234AFBEF7F18AD83 /* BlindAIBackendClient.swift */; };
+		B00111111111111111111111 /* ARKitLiDARScannerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00111111111111111111111 /* ARKitLiDARScannerService.swift */; };
+		B00222222222222222222222 /* VisionObjectDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00222222222222222222222 /* VisionObjectDetector.swift */; };
+		B00333333333333333333333 /* ObstacleDangerSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00333333333333333333333 /* ObstacleDangerSystem.swift */; };
 		D2D8D95CA703EDF7210D0048 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 39DF35C5B235782381DC07AE /* Assets.xcassets */; };
 		2C7CD670D2AAF2DF924F67A4 /* EnvironmentSceneItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = B57D0450185B097D8B034802 /* EnvironmentSceneItem.swift */; };
 		B21B415E33AF7E7B42624D47 /* ObstacleAlertItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA62167211BBDBD295A9B645 /* ObstacleAlertItem.swift */; };
@@ -92,6 +95,9 @@
 		48A9F8997ABC4BEC5FB63287 /* EnvironmentService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EnvironmentService.swift"; sourceTree = "<group>"; };
 		B39181DEC3AEB4B4D97A7DEF /* HapticsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HapticsService.swift"; sourceTree = "<group>"; };
 		B3E2EAE5234AFBEF7F18AD83 /* BlindAIBackendClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BlindAIBackendClient.swift"; sourceTree = "<group>"; };
+		A00111111111111111111111 /* ARKitLiDARScannerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ARKitLiDARScannerService.swift"; sourceTree = "<group>"; };
+		A00222222222222222222222 /* VisionObjectDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VisionObjectDetector.swift"; sourceTree = "<group>"; };
+		A00333333333333333333333 /* ObstacleDangerSystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ObstacleDangerSystem.swift"; sourceTree = "<group>"; };
 		39DF35C5B235782381DC07AE /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Assets.xcassets"; sourceTree = "<group>"; };
 		5E4978EFF3D1173E79C6DB22 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Info.plist"; sourceTree = "<group>"; };
 		B57D0450185B097D8B034802 /* EnvironmentSceneItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EnvironmentSceneItem.swift"; sourceTree = "<group>"; };
@@ -206,6 +212,9 @@
 				48A9F8997ABC4BEC5FB63287 /* EnvironmentService.swift */,
 				B39181DEC3AEB4B4D97A7DEF /* HapticsService.swift */,
 				B3E2EAE5234AFBEF7F18AD83 /* BlindAIBackendClient.swift */,
+				A00111111111111111111111 /* ARKitLiDARScannerService.swift */,
+				A00222222222222222222222 /* VisionObjectDetector.swift */,
+				A00333333333333333333333 /* ObstacleDangerSystem.swift */,
 			);
 			path = "Services";
 			sourceTree = "<group>";
@@ -352,6 +361,9 @@
 				83394C226719051515D304D2 /* EnvironmentService.swift in Sources */,
 				FE6904DC3293BED728F7CFB8 /* HapticsService.swift in Sources */,
 				4A023E163F582FAF17701032 /* BlindAIBackendClient.swift in Sources */,
+				B00111111111111111111111 /* ARKitLiDARScannerService.swift in Sources */,
+				B00222222222222222222222 /* VisionObjectDetector.swift in Sources */,
+				B00333333333333333333333 /* ObstacleDangerSystem.swift in Sources */,
 							2C7CD670D2AAF2DF924F67A4 /* EnvironmentSceneItem.swift in Sources */,
 				B21B415E33AF7E7B42624D47 /* ObstacleAlertItem.swift in Sources */,
 				C2602FEEE938F770124C6A14 /* CrosswalkStatusItem.swift in Sources */,

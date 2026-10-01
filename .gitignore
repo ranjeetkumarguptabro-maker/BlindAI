@@ -19,6 +19,8 @@ yarn-error.log*
 
 # Xcode & Swift
 build/
+.build/
+.cache/
 DerivedData/
 *.xcworkspace
 xcuserdata/
