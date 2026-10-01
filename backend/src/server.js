@@ -50,14 +50,25 @@ const requestHandler = async (req, res) => {
   const parsedUrl = new URL(req.url, `http://${req.headers.host || "localhost"}`);
   let pathname = parsedUrl.pathname;
 
-  // Resolve true route if forwarded via Vercel serverless rewrites
-  const forwardedPath = req.headers["x-matched-path"]
-    || req.headers["x-vercel-matched-path"]
-    || parsedUrl.searchParams.get("url")
-    || parsedUrl.searchParams.get("path");
+  // Resolve true route if forwarded via Vercel serverless rewrites or catch-all parameters
+  let vercelTarget = null;
+  if (req.query) {
+    if (req.query.url) vercelTarget = req.query.url;
+    else if (req.query.path && typeof req.query.path === "string") vercelTarget = req.query.path;
+    else if (Array.isArray(req.query.slug)) vercelTarget = "/api/" + req.query.slug.join("/");
+    else if (Array.isArray(req.query.path)) vercelTarget = "/api/" + req.query.path.join("/");
+  }
+  if (!vercelTarget) {
+    vercelTarget = req.headers["x-matched-path"]
+      || req.headers["x-vercel-matched-path"]
+      || req.headers["x-forwarded-url"]
+      || req.headers["x-forwarded-uri"]
+      || parsedUrl.searchParams.get("url")
+      || parsedUrl.searchParams.get("path");
+  }
 
-  if (forwardedPath && (pathname === "/api/index.js" || pathname === "/api" || pathname === "/src/server.js" || pathname === "/api/")) {
-    pathname = forwardedPath.split("?")[0];
+  if (vercelTarget) {
+    pathname = vercelTarget.split("?")[0];
   }
 
   // JSON helper
@@ -139,7 +150,14 @@ const requestHandler = async (req, res) => {
     }
 
     // Health Check
-    if (pathname === "/health" || pathname === "/api/v1/health") {
+    if (
+      pathname === "/health" ||
+      pathname === "/api/health" ||
+      pathname === "/api/v1/health" ||
+      pathname === "/api/index.js" ||
+      pathname === "/api" ||
+      pathname === "/api/"
+    ) {
       return sendJson(200, {
         status: "ok",
         service: "Blind AI Backend",
