@@ -104,22 +104,55 @@ html_content = f"""<!DOCTYPE html>
     }}
     
     .iphone-frame {{
-      width: 380px;
-      height: 780px;
-      border-radius: 50px;
-      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.25), 0 0 0 10px #1E1E1E, 0 0 0 12px #2A2A2A;
+      width: 100%;
+      max-width: 420px;
+      height: 100vh;
+      height: 100dvh;
+      max-height: 860px;
+      border-radius: 0;
+      box-shadow: none;
       overflow: hidden;
       position: relative;
       background-color: #F8F8F9;
       user-select: none;
-      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+    }}
+    @media (min-width: 640px) {{
+      .iphone-frame {{
+        border-radius: 38px;
+        box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.08);
+        height: 844px;
+      }}
+    }}
+    
+    /* Simulator developer chrome hidden by default so ONLY mobile inside content shows */
+    .simulator-chrome {{
+      display: none !important;
+    }}
+    body.show-simulator .simulator-chrome {{
+      display: flex !important;
+    }}
+    body.show-simulator header.simulator-chrome {{
+      display: flex !important;
+    }}
+    body.show-simulator aside.simulator-chrome {{
+      display: flex !important;
+    }}
+    body.show-simulator div.simulator-chrome {{
+      display: flex !important;
+    }}
+    @media (max-width: 639px) {{
+      #device-status-bar, #device-home-bar {{
+        display: none !important;
+      }}
     }}
     
     .no-scrollbar::-webkit-scrollbar {{ display: none; }}
     .no-scrollbar {{ -ms-overflow-style: none; scrollbar-width: none; }}
   </style>
 </head>
-<body class="bg-slate-100 text-slate-900 font-sans antialiased min-h-screen p-3 md:p-6">
+<body class="bg-slate-100 text-slate-900 font-sans antialiased min-h-screen p-0 md:p-6 flex flex-col items-center justify-center">
 
   <!-- Skip Navigation Link (WCAG 2.2 SC 2.4.1 Bypass Blocks) -->
   <a href="#screen-viewport" class="sr-only focus:not-sr-only bg-amber-600 text-white font-bold rounded-xl shadow-xl top-3 left-3 focus:outline-none focus:ring-4 focus:ring-amber-300">
@@ -129,8 +162,8 @@ html_content = f"""<!DOCTYPE html>
   <!-- Persistent ARIA Live Region for Screen Readers -->
   <div id="a11y-announcer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
 
-  <!-- Top Toolbar / Header Landmark -->
-  <header class="max-w-7xl mx-auto mb-5 bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex flex-wrap items-center justify-between gap-4" role="banner">
+  <!-- Top Toolbar / Header Landmark (Simulator Chrome - Hidden by default) -->
+  <header class="simulator-chrome max-w-7xl mx-auto mb-5 bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex-wrap items-center justify-between gap-4" role="banner">
     <div class="flex items-center gap-3">
       <div class="w-10 h-10 rounded-full orb-3d flex items-center justify-center text-white font-bold text-xs shadow-md" aria-hidden="true">
         AI
@@ -190,19 +223,19 @@ html_content = f"""<!DOCTYPE html>
   </header>
 
   <!-- Main Landmark -->
-  <main id="main-content" class="max-w-7xl mx-auto flex items-center justify-center">
+  <main id="main-content" class="w-full flex items-center justify-center">
 
     <!-- VIEW 1: INTERACTIVE SINGLE PHONE SIMULATOR -->
     <div id="view-interactive" role="tabpanel" aria-labelledby="btn-tab-interactive" class="flex flex-col lg:flex-row items-center lg:items-start justify-center gap-6 w-full">
-      <div class="flex flex-col items-center">
-        <div class="flex items-center gap-2 mb-2 text-xs text-slate-600" aria-live="polite">
+      <div class="flex flex-col items-center w-full">
+        <div class="simulator-chrome flex items-center gap-2 mb-2 text-xs text-slate-600" aria-live="polite">
           <span class="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse" aria-hidden="true"></span>
           <span id="instruction-tip">Tap <strong>Describe what's around me</strong> or <strong>Start navigation</strong></span>
         </div>
 
         <div class="iphone-frame flex flex-col justify-between" id="phone-container">
         <!-- Status Bar (Decorative Simulated Device Chrome) -->
-        <div class="pt-3 px-7 flex justify-between items-center text-xs font-semibold text-black z-30" aria-hidden="true">
+        <div id="device-status-bar" class="pt-3 px-7 flex justify-between items-center text-xs font-semibold text-black z-30" aria-hidden="true">
           <span>9:41</span>
           <!-- Dynamic Island -->
           <div class="w-24 h-6 bg-black rounded-full flex items-center justify-end pr-2">
@@ -851,14 +884,14 @@ html_content = f"""<!DOCTYPE html>
         </section>
 
         <!-- Home Bar Indicator (Decorative) -->
-        <div class="pb-2 flex justify-center z-30" aria-hidden="true">
+        <div id="device-home-bar" class="pb-2 flex justify-center z-30" aria-hidden="true">
           <div class="w-32 h-1 bg-neutral-400 rounded-full"></div>
         </div>
       </div>
       </div>
 
-      <!-- Right Side: LiDAR & Camera Sensor Fusion Dashboard -->
-      <aside aria-label="iPhone LiDAR Scanner and Danger System" class="w-full max-w-sm bg-white rounded-3xl p-5 shadow-sm border border-slate-200 flex flex-col space-y-4">
+      <!-- Right Side: LiDAR & Camera Sensor Fusion Dashboard (Simulator Chrome - Hidden by default) -->
+      <aside aria-label="iPhone LiDAR Scanner and Danger System" class="simulator-chrome w-full max-w-sm bg-white rounded-3xl p-5 shadow-sm border border-slate-200 flex flex-col space-y-4">
         <!-- Header with LiDAR badge -->
         <div class="flex items-center justify-between pb-3 border-b border-slate-100">
           <div class="flex items-center gap-2.5">
@@ -2408,6 +2441,13 @@ html_content = f"""<!DOCTYPE html>
 
     // Initialize on load
     window.addEventListener('DOMContentLoaded', () => {{
+      try {{
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('simulator') === 'true' || urlParams.get('dev') === 'true' || window.location.hash === '#dev') {{
+          document.body.classList.add('show-simulator');
+        }}
+      }} catch (e) {{}}
+
       const initialRoute = getInitialRoute();
       navigateTo(initialRoute, false);
 

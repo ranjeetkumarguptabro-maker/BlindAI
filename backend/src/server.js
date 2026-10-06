@@ -250,15 +250,32 @@ const requestHandler = async (req, res) => {
 const server = http.createServer(requestHandler);
 
 if (require.main === module) {
-  server.listen(env.port, () => {
-    console.log(`\n=================================================`);
-    console.log(`🚀 Blind AI Backend listening on port ${env.port}`);
-    console.log(`🤖 Active AI Provider: ${aiService.activeProviderName}`);
-    console.log(`🔑 Gemini API Key configured: ${env.geminiApiKey ? "YES (from GEMINI_API_KEY environment variable)" : "NO"}`);
-    console.log(`🗄️  Supabase Key configured: ${env.supabaseKey ? "YES (from SUPABASE_KEY environment variable)" : "NO"}`);
-    console.log(`📱 Base URL: http://localhost:${env.port}/api/v1`);
-    console.log(`=================================================\n`);
-  });
+  const startServer = (port) => {
+    const onError = (err) => {
+      if (err.code === "EADDRINUSE") {
+        console.warn(`⚠️  Port ${port} is occupied by another process. Automatically switching to port ${port + 1}...`);
+        server.removeListener("error", onError);
+        startServer(port + 1);
+      } else {
+        console.error("[Server Listen Error]", err);
+      }
+    };
+
+    server.once("error", onError);
+    server.listen(port, () => {
+      server.removeListener("error", onError);
+      console.log(`\n=================================================`);
+      console.log(`🚀 Blind AI Backend listening on port ${port}`);
+      console.log(`🤖 Active AI Provider: ${aiService.activeProviderName}`);
+      console.log(`🔑 Gemini API Key configured: ${env.geminiApiKey ? "YES (from GEMINI_API_KEY environment variable)" : "NO"}`);
+      console.log(`🗄️  Supabase Key configured: ${env.supabaseKey ? "YES (from SUPABASE_KEY environment variable)" : "NO"}`);
+      console.log(`📱 App URL:  http://localhost:${port}`);
+      console.log(`📱 Base URL: http://localhost:${port}/api/v1`);
+      console.log(`=================================================\n`);
+    });
+  };
+
+  startServer(env.port);
 }
 
 requestHandler.server = server;
