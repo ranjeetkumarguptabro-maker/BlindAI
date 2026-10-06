@@ -1866,35 +1866,47 @@ html_content = f"""<!DOCTYPE html>
 
       // Update instructions and voice announcements
       const tip = document.getElementById('instruction-tip');
+      if (tip) {{
+        if (targetRoute === 'home') {{
+          tip.innerHTML = "Tap <strong>Describe what's around me</strong> or <strong>Start navigation</strong>";
+        }} else if (targetRoute === 'listening') {{
+          tip.innerHTML = "Listening actively... Say <strong>'Take me to RTU'</strong> or <strong>'Describe around me'</strong>";
+        }} else if (targetRoute === 'destinationSearch') {{
+          tip.innerHTML = "Select a destination like <strong>Riga Technical University</strong> or speak";
+        }} else if (targetRoute === 'routePreview') {{
+          tip.innerHTML = "Route preview to <strong>RTU Ķīpsala</strong>. Tap <strong>Start navigation</strong> to begin";
+        }} else if (targetRoute === 'activeNavigation') {{
+          tip.innerHTML = "Active walking navigation with live countdown. Test safety events below.";
+        }} else if (targetRoute === 'whereAmI') {{
+          tip.innerHTML = "Current location and orientation near <strong>RTU Ķīpsala Campus</strong>";
+        }} else if (targetRoute === 'describeAround') {{
+          tip.innerHTML = "Perception scene: <strong>RTU Campus</strong>. Tap <strong>Repeat</strong> to hear again";
+        }} else if (targetRoute === 'obstacleAlert') {{
+          tip.innerHTML = "Warning: <strong>Obstacle ahead</strong>. Tap <strong>I Understand</strong> to resume";
+        }} else if (targetRoute === 'crosswalkSafety') {{
+          tip.innerHTML = "Crosswalk quiet mode active. Tap waveform card when across to resume.";
+        }}
+      }}
 
       if (targetRoute === 'home') {{
-        tip.innerHTML = "Tap <strong>Describe what's around me</strong> or <strong>Start navigation</strong>";
         speakText("Blind AI home. How can I help you today?");
       }} else if (targetRoute === 'listening') {{
-        tip.innerHTML = "Listening actively... Say <strong>'Take me to RTU'</strong> or <strong>'Describe around me'</strong>";
         speakText("Listening. Say your command or destination.");
         startVoiceCapture();
       }} else if (targetRoute === 'destinationSearch') {{
-        tip.innerHTML = "Select a destination like <strong>Riga Technical University</strong> or speak";
         speakText("Where would you like to go? You can select Riga Technical University, Ķīpsala Campus.");
       }} else if (targetRoute === 'routePreview') {{
-        tip.innerHTML = "Route preview to <strong>RTU Ķīpsala</strong>. Tap <strong>Start navigation</strong> to begin";
         speakText("Route preview to Riga Technical University, Ķīpsala. 2.4 kilometers, 28 minutes, 8 waypoints.");
       }} else if (targetRoute === 'activeNavigation') {{
-        tip.innerHTML = "Active walking navigation with live countdown. Test safety events below.";
         announceToScreenReader("Active walking navigation started. Turn right on Ķīpsalas iela in 120 meters.");
       }} else if (targetRoute === 'whereAmI') {{
-        tip.innerHTML = "Current location and orientation near <strong>RTU Ķīpsala Campus</strong>";
         speakText("Where am I? You are at Riga Technical University, Ķīpsala Campus in Riga, Latvia. Facing east.");
       }} else if (targetRoute === 'describeAround') {{
-        tip.innerHTML = "Perception scene: <strong>RTU Campus</strong>. Tap <strong>Repeat</strong> to hear again";
         speakText(getLidarSceneDescription());
       }} else if (targetRoute === 'obstacleAlert') {{
-        tip.innerHTML = "Warning: <strong>Obstacle ahead</strong>. Tap <strong>I Understand</strong> to resume";
         const evalResult = evaluateLidarDanger(currentLidarDistance, currentLidarLane, currentLidarObject);
         speakText(evalResult.spoken || "Warning: Obstacle ahead. Two meters ahead, construction barrier on right. Pathway is clear on left.");
       }} else if (targetRoute === 'crosswalkSafety') {{
-        tip.innerHTML = "Crosswalk quiet mode active. Tap waveform card when across to resume.";
         speakText("Approaching pedestrian crosswalk. Quiet mode active. Listen for traffic.");
       }}
     }}
@@ -2462,7 +2474,31 @@ html_content = f"""<!DOCTYPE html>
         }}
       }}
     }});
+
+    function toggleSimulatorChrome() {{
+      const isShowing = document.body.classList.toggle('show-simulator');
+      const icon = document.getElementById('mode-icon');
+      const text = document.getElementById('mode-text');
+      const btn = document.getElementById('toggle-mobile-mode-btn');
+      if (isShowing) {{
+        if (icon) icon.innerText = '🛠️';
+        if (text) text.innerText = 'Tools: ON';
+        if (btn) btn.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500 text-white transition shadow-sm';
+      }} else {{
+        if (icon) icon.innerText = '📱';
+        if (text) text.innerText = 'Mobile View';
+        if (btn) btn.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-neutral-900 text-white transition shadow-sm';
+      }}
+    }}
   </script>
+
+  <!-- Floating View Mode Switcher (Tap to toggle Developer Simulator Tools on or off) -->
+  <aside aria-label="Simulator View Mode Switcher" class="fixed bottom-4 right-4 z-50 flex items-center gap-2 bg-white/95 backdrop-blur-md border border-slate-300 rounded-full p-1.5 shadow-xl text-xs font-semibold text-slate-700">
+    <button type="button" id="toggle-mobile-mode-btn" onclick="toggleSimulatorChrome()" aria-label="Toggle between Pure Mobile View and Developer Simulator Tools" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-neutral-900 text-white transition hover:bg-neutral-800 active:scale-95 shadow-sm">
+      <span id="mode-icon">📱</span>
+      <span id="mode-text">Mobile View</span>
+    </button>
+  </aside>
 </body>
 </html>"""
 
