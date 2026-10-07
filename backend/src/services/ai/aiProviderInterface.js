@@ -37,6 +37,17 @@ class AIProviderInterface {
   async parseVoiceCommand(params) {
     throw new Error("Method parseVoiceCommand() must be implemented by provider");
   }
+
+  /**
+   * Detects and reads signboards, street names, entrance signs, transit stops, and placards from camera frames.
+   * @param {Object} params
+   * @param {string} [params.imageBase64]
+   * @param {Object} [params.userContext]
+   * @returns {Promise<{ signs: Array<Object>, summary: string, processingProvider: string }>}
+   */
+  async detectSignboards(params) {
+    throw new Error("Method detectSignboards() must be implemented by provider");
+  }
 }
 
 module.exports = AIProviderInterface;

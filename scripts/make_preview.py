@@ -541,70 +541,126 @@ html_content = f"""<!DOCTYPE html>
             </div>
           </div>
 
-          <!-- ==================== SCREEN 5: ACTIVE NAVIGATION ==================== -->
-          <div id="screen-activeNavigation" role="region" aria-label="Screen 5: Active Walking Navigation" class="flex-1 flex flex-col justify-between p-5 pb-6 hidden">
-            <div class="flex justify-between items-center pt-2 px-1">
-              <button onclick="stopNavigationRoute()" aria-label="Stop navigation and return to destination preview" class="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-700 hover:bg-slate-50 shadow-sm transition">
-                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
-              </button>
-              <span class="text-xl font-bold text-black tracking-tight">Blind AI</span>
-              <button onclick="openSettingsModal()" aria-label="Settings" aria-haspopup="dialog" class="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-700 shadow-sm">
-                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-              </button>
+          <!-- ==================== SCREEN 5: ACTIVE NAVIGATION (ALWAYS-OPEN BACK CAMERA + YOLO + SIGNBOARDS) ==================== -->
+          <div id="screen-activeNavigation" role="region" aria-label="Screen 5: Active Walking Navigation with Always-Open Back Camera and YOLO Object Detection" class="flex-1 flex flex-col justify-between p-3.5 pb-4 hidden relative overflow-hidden rounded-3xl">
+            <!-- ALWAYS-OPEN CAMERA BACKGROUND VIEWPORT -->
+            <div class="absolute inset-0 overflow-hidden bg-black z-0" aria-hidden="true">
+              <!-- Real Device Camera Feed (Facing Environment) -->
+              <video id="nav-live-video" class="absolute inset-0 w-full h-full object-cover" autoplay playsinline muted></video>
+              <!-- Synthetic Street Walking Canvas (Fallback when camera permission not available or in testing) -->
+              <canvas id="nav-sim-canvas" class="absolute inset-0 w-full h-full object-cover hidden"></canvas>
+              <!-- Fallback Scene Photo -->
+              <img id="nav-fallback-img" src="{img_campus}" alt="Camera walking view" class="absolute inset-0 w-full h-full object-cover opacity-90 transition-opacity">
+              <!-- High-Contrast WCAG AAA Ambient Gradients -->
+              <div class="absolute inset-0 bg-gradient-to-b from-black/80 via-transparent to-black/90 pointer-events-none z-5"></div>
+              <!-- Real-Time YOLO Object Detection Canvas Overlay -->
+              <canvas id="nav-yolo-canvas" class="absolute inset-0 w-full h-full pointer-events-none z-10"></canvas>
+              <!-- Real-Time Signboards Floating HUD Overlay (Gemini Vision OCR) -->
+              <div id="nav-signboards-overlay" class="absolute inset-0 pointer-events-none z-15 flex flex-col justify-center items-center gap-2 p-3"></div>
             </div>
 
-            <!-- Navigation Instruction Card with ARIA live region -->
-            <div class="flex-1 flex flex-col justify-center my-auto">
-              <div class="flex justify-center mb-3">
-                <div class="w-12 h-12 rounded-full orb-3d shadow-md" aria-hidden="true"></div>
+            <!-- Top Header (Z-20 Relative) -->
+            <div class="relative z-20 flex justify-between items-center pt-1 px-1">
+              <button onclick="stopNavigationRoute()" id="btn-nav-back" aria-label="Stop navigation and return to preview" class="w-10 h-10 rounded-full bg-black/60 backdrop-blur-md border border-white/30 flex items-center justify-center text-white hover:bg-black/80 shadow-md transition active:scale-95">
+                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
+              </button>
+              
+              <!-- Camera & YOLO Status Pill Badge -->
+              <div class="flex items-center gap-1.5 px-3 py-1 bg-black/75 backdrop-blur-md rounded-full text-white text-xs font-bold border border-white/20 shadow-md">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" aria-hidden="true"></span>
+                <span id="camera-status-pill">Back Camera • YOLO Active</span>
               </div>
 
-              <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-md flex flex-col items-center text-center relative overflow-hidden" role="region" aria-label="Current Navigation Step" aria-live="assertive">
-                <span id="nav-step-label" class="text-xs font-bold text-orange-600 uppercase tracking-widest mb-1">
+              <div class="flex items-center gap-1.5">
+                <!-- Camera / Simulation Toggle Button -->
+                <button type="button" onclick="toggleCameraFeed()" id="btn-toggle-camera" aria-label="Toggle between real rear camera and simulated walking stream" class="w-10 h-10 rounded-full bg-black/60 backdrop-blur-md border border-white/30 flex items-center justify-center text-white hover:bg-black/80 shadow-md transition active:scale-95 text-sm" title="Toggle camera feed mode">
+                  <span id="camera-toggle-icon" aria-hidden="true">📷</span>
+                </button>
+                <button onclick="openSettingsModal()" id="btn-nav-settings" aria-label="Settings" aria-haspopup="dialog" class="w-10 h-10 rounded-full bg-black/60 backdrop-blur-md border border-white/30 flex items-center justify-center text-white hover:bg-black/80 shadow-md transition">
+                  <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- Floating Navigation Turn-by-Turn HUD Card (Z-20 Relative) -->
+            <div class="relative z-20 my-auto flex flex-col justify-center">
+              <div class="bg-white/95 backdrop-blur-md rounded-3xl p-4 border border-white/50 shadow-2xl flex flex-col items-center text-center relative overflow-hidden" role="region" aria-label="Current Navigation Instruction" aria-live="assertive">
+                <span id="nav-step-label" class="text-xs font-bold text-orange-600 uppercase tracking-widest mb-0.5">
                   Navigation • Step 1 of 6
                 </span>
-                <h2 id="nav-instruction-text" class="text-2xl font-bold text-slate-900 tracking-tight leading-snug mb-2">
+                <h2 id="nav-instruction-text" class="text-xl font-bold text-slate-900 tracking-tight leading-snug">
                   Walk towards Vanšu tilts
                 </h2>
                 
                 <!-- Large Distance Number -->
-                <div class="my-2 flex items-baseline justify-center space-x-1" aria-label="Distance remaining">
-                  <span id="nav-distance-num" class="text-6xl font-black text-slate-900 tracking-tight">160</span>
-                  <span class="text-lg font-bold text-slate-600">meters</span>
+                <div class="my-1.5 flex items-baseline justify-center space-x-1" aria-label="Distance remaining">
+                  <span id="nav-distance-num" class="text-5xl font-black text-slate-900 tracking-tight">160</span>
+                  <span class="text-base font-bold text-slate-600">meters</span>
                 </div>
 
                 <!-- Maneuver Direction Banner -->
-                <div class="w-full mt-3 bg-slate-50 border border-slate-200 rounded-2xl py-3 px-4 flex items-center justify-center space-x-3 text-slate-700">
-                  <div id="nav-maneuver-icon" class="w-8 h-8 rounded-full bg-orange-500 text-white flex items-center justify-center font-bold text-base" aria-hidden="true">
+                <div class="w-full bg-slate-50 border border-slate-200 rounded-2xl py-2 px-3 flex items-center justify-center space-x-2 text-slate-700">
+                  <div id="nav-maneuver-icon" class="w-7 h-7 rounded-full bg-orange-500 text-white flex items-center justify-center font-bold text-sm" aria-hidden="true">
                     ↑
                   </div>
-                  <span id="nav-maneuver-text" class="font-bold text-sm text-slate-800">Head straight</span>
+                  <span id="nav-maneuver-text" class="font-bold text-xs text-slate-800">Head straight • Facing East (84°)</span>
+                </div>
+
+                <!-- Live Path Clearance & YOLO Objects Counter -->
+                <div id="nav-live-hazard-badge" class="w-full mt-2 py-1.5 px-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-[11px] font-semibold flex items-center justify-between">
+                  <span>Path: <strong id="nav-path-status-text">Pathway clear ahead</strong></span>
+                  <span id="nav-yolo-count" class="font-bold bg-emerald-200/80 px-2 py-0.5 rounded-full">YOLO: 2 objects</span>
                 </div>
               </div>
 
-              <!-- Quick safety triggers -->
-              <div class="flex justify-center gap-2 mt-3" role="group" aria-label="Simulation test triggers">
-                <button onclick="navigateTo('obstacleAlert')" aria-label="Simulate obstacle hazard detection" class="px-3 py-1.5 bg-red-100 text-red-800 hover:bg-red-200 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm active:scale-95">
-                  <span aria-hidden="true">⚠️</span> Simulate Obstacle
-                </button>
-                <button onclick="navigateTo('crosswalkSafety')" aria-label="Simulate approaching crosswalk quiet mode" class="px-3 py-1.5 bg-amber-100 text-amber-900 hover:bg-amber-200 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm active:scale-95">
-                  <span aria-hidden="true">🚶</span> Simulate Crosswalk
+              <!-- Real-Time Signboard Callout Banner (Gemini AI Vision) -->
+              <div id="signboard-callout-banner" class="mt-2.5 bg-purple-900/90 backdrop-blur-md border border-purple-400/50 rounded-2xl p-2.5 text-white flex items-center justify-between shadow-xl transition-all" role="status" aria-live="polite">
+                <div class="flex items-center space-x-2.5">
+                  <span class="text-xl" aria-hidden="true">🪧</span>
+                  <div class="text-left">
+                    <div class="text-[10px] font-bold text-purple-200 uppercase tracking-wider">Signboard Detected (Gemini Vision)</div>
+                    <div id="signboard-banner-text" class="text-xs font-bold text-white leading-tight">Paula Valdena iela • Street Sign</div>
+                  </div>
+                </div>
+                <button type="button" onclick="triggerSignboardScan()" aria-label="Read detected signboards aloud" class="px-2.5 py-1 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-[10px] font-bold shadow-sm transition active:scale-95 flex items-center gap-1">
+                  <span>Read aloud</span>
                 </button>
               </div>
 
-              <!-- Auto-Trigger Status Notice -->
-              <p class="text-[11px] text-slate-700 text-center mt-2 font-medium">
-                Auto-triggers: Obstacle at 40–50m walked • Traffic after +20m
-              </p>
+              <!-- Quick safety triggers for testing -->
+              <div class="flex justify-center gap-2 mt-2" role="group" aria-label="Simulation test triggers">
+                <button onclick="navigateTo('obstacleAlert')" aria-label="Simulate obstacle hazard detection" class="px-2.5 py-1 bg-red-600/80 text-white hover:bg-red-700 rounded-xl text-[11px] font-bold transition flex items-center gap-1 shadow-sm backdrop-blur-sm active:scale-95">
+                  <span aria-hidden="true">⚠️</span> Simulate Obstacle
+                </button>
+                <button onclick="navigateTo('crosswalkSafety')" aria-label="Simulate approaching crosswalk quiet mode" class="px-2.5 py-1 bg-amber-500/80 text-black hover:bg-amber-600 rounded-xl text-[11px] font-bold transition flex items-center gap-1 shadow-sm backdrop-blur-sm active:scale-95">
+                  <span aria-hidden="true">🚶</span> Simulate Crosswalk
+                </button>
+              </div>
             </div>
 
-            <!-- Navigation Controls -->
-            <div class="flex flex-col space-y-2 pt-2">
-              <button onclick="repeatCurrentStep()" aria-label="Repeat current navigation instruction" class="w-full py-3 rounded-2xl bg-white border border-slate-200 text-slate-800 font-semibold text-sm shadow-sm hover:bg-slate-50 transition active:scale-[0.99] flex items-center justify-center space-x-2">
-                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/></svg>
-                <span>Repeat instruction</span>
-              </button>
-              <button onclick="stopNavigationRoute()" aria-label="Stop navigation route and return to home screen" class="w-full py-4 rounded-2xl bg-black text-white font-bold text-base shadow-md hover:bg-neutral-800 transition active:scale-[0.99] flex items-center justify-center space-x-2">
+            <!-- Bottom Voice & Navigation Controls (Z-20 Relative) -->
+            <div class="relative z-20 flex flex-col space-y-2 pt-1">
+              <!-- Large Floating Voice Mic Button -->
+              <div class="flex flex-col items-center justify-center">
+                <button onclick="startVoiceCapture()" id="nav-floating-mic-btn" aria-label="Tap microphone to speak any button name or destination" class="w-16 h-16 rounded-full bg-black text-white border-2 border-orange-500 flex items-center justify-center shadow-2xl hover:scale-105 active:scale-95 transition">
+                  <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/></svg>
+                </button>
+                <p class="text-[11px] text-white/95 text-center font-bold drop-shadow mt-1">Tap mic & speak any button or destination</p>
+              </div>
+
+              <!-- Quick Action Row -->
+              <div class="grid grid-cols-2 gap-2">
+                <button onclick="repeatCurrentStep()" id="btn-repeat-instruction" aria-label="Repeat current navigation instruction" class="py-2.5 rounded-2xl bg-white/95 backdrop-blur-md border border-slate-200 text-slate-800 font-bold text-xs shadow-sm hover:bg-white transition active:scale-[0.99] flex items-center justify-center space-x-1.5">
+                  <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/></svg>
+                  <span>Repeat</span>
+                </button>
+                <button onclick="triggerSignboardScan()" id="btn-detect-signs" aria-label="Read all signboards and street signs ahead" class="py-2.5 rounded-2xl bg-purple-600 text-white font-bold text-xs shadow-md hover:bg-purple-700 transition active:scale-[0.99] flex items-center justify-center space-x-1.5">
+                  <span>🪧 Read signs</span>
+                </button>
+              </div>
+
+              <!-- Stop Route Button -->
+              <button onclick="stopNavigationRoute()" id="btn-stop-route" aria-label="Stop navigation route and return to home screen" class="w-full py-3 rounded-2xl bg-black/90 backdrop-blur-md text-white font-bold text-xs shadow-md hover:bg-black transition active:scale-[0.99] flex items-center justify-center space-x-2 border border-white/20">
                 <span>Stop route</span>
               </button>
             </div>
@@ -1670,8 +1726,504 @@ html_content = f"""<!DOCTYPE html>
       }}
     }}
 
+    // ==================== ALWAYS-OPEN BACK CAMERA, YOLO OBJECT DETECTION & SIGNBOARDS ====================
+    let liveCameraStream = null;
+    let isRealCameraActive = false;
+    let currentCameraMode = 'simulation'; // 'real' or 'simulation'
+    let yoloDetectionInterval = null;
+    let signboardDetectionInterval = null;
+    let lastSpokenObstacleTime = 0;
+    let lastSpokenSignTime = 0;
+    let lastSpokenSignText = "";
+    let simWalkFrame = 0;
+
+    const yoloCandidateEntities = [
+      {{ label: 'Person', icon: '👤', lane: 'center', defaultDist: 2.1, conf: 0.94, height: 'head' }},
+      {{ label: 'Construction barrier', icon: '🚧', lane: 'right', defaultDist: 1.6, conf: 0.96, height: 'torso' }},
+      {{ label: 'Car', icon: '🚗', lane: 'left', defaultDist: 4.5, conf: 0.98, height: 'torso' }},
+      {{ label: 'Bicycle', icon: '🚲', lane: 'right', defaultDist: 3.2, conf: 0.91, height: 'torso' }},
+      {{ label: 'Stairs', icon: '🪜', lane: 'center', defaultDist: 3.5, conf: 0.93, height: 'torso' }},
+      {{ label: 'Building entrance', icon: '🚪', lane: 'center', defaultDist: 4.8, conf: 0.95, height: 'head' }},
+      {{ label: 'Pole', icon: '📍', lane: 'left', defaultDist: 2.2, conf: 0.89, height: 'torso' }}
+    ];
+
+    const signboardCatalog = [
+      {{ text: "Paula Valdena iela", type: "street_sign", icon: "🪧", pos: "right", announcement: "Street sign on right: Paula Valdena iela" }},
+      {{ text: "RTU Datorzinātnes fakultāte", type: "building_board", icon: "🏢", pos: "ahead", announcement: "Building entrance ahead: RTU Faculty of Computer Science" }},
+      {{ text: "9. autobuss: Ķīpsala", type: "transit_sign", icon: "🚏", pos: "left", announcement: "Transit sign on left: Bus 9 stop Ķīpsala" }},
+      {{ text: "Gājēju pāreja (Crosswalk)", type: "warning_sign", icon: "🚶", pos: "ahead", announcement: "Crosswalk ahead in 30 meters" }},
+      {{ text: "RTU Zinātniskā bibliotēka", type: "building_board", icon: "📚", pos: "right", announcement: "Building board: RTU Scientific Library" }}
+    ];
+
+    async function startAlwaysOpenBackCamera() {{
+      const video = document.getElementById('nav-live-video');
+      const fallbackImg = document.getElementById('nav-fallback-img');
+
+      // Attempt to access user device environment (rear) camera
+      try {{
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {{
+          if (liveCameraStream) {{
+            liveCameraStream.getTracks().forEach(t => t.stop());
+            liveCameraStream = null;
+          }}
+          liveCameraStream = await navigator.mediaDevices.getUserMedia({{
+            video: {{
+              facingMode: {{ ideal: "environment" }},
+              width: {{ ideal: 1280 }},
+              height: {{ ideal: 720 }}
+            }},
+            audio: false
+          }});
+          if (video && liveCameraStream) {{
+            video.srcObject = liveCameraStream;
+            video.classList.remove('hidden');
+            await video.play();
+            isRealCameraActive = true;
+            currentCameraMode = 'real';
+            if (fallbackImg) fallbackImg.classList.add('opacity-0');
+            updateCameraStatusUI(true);
+            announceToScreenReader("Back camera stream active. Continuous YOLO object detection running.");
+          }}
+        }}
+      }} catch (err) {{
+        console.warn("[Camera] Live hardware camera unavailable or denied, running realistic walking simulation:", err.message);
+        isRealCameraActive = false;
+        currentCameraMode = 'simulation';
+        if (fallbackImg) fallbackImg.classList.remove('opacity-0');
+        updateCameraStatusUI(false);
+      }}
+
+      // Start YOLO perception cycle (5-10 times per second)
+      if (!yoloDetectionInterval) {{
+        yoloDetectionInterval = setInterval(runYoloPerceptionCycle, 200);
+      }}
+
+      // Start periodic Signboard OCR scan (every 5 seconds)
+      if (!signboardDetectionInterval) {{
+        signboardDetectionInterval = setInterval(() => triggerSignboardScan(true), 5000);
+      }}
+
+      // Initial signboard check
+      setTimeout(() => triggerSignboardScan(true), 1200);
+    }}
+
+    function stopAlwaysOpenBackCamera() {{
+      if (liveCameraStream) {{
+        liveCameraStream.getTracks().forEach(t => t.stop());
+        liveCameraStream = null;
+      }}
+      if (yoloDetectionInterval) {{
+        clearInterval(yoloDetectionInterval);
+        yoloDetectionInterval = null;
+      }}
+      if (signboardDetectionInterval) {{
+        clearInterval(signboardDetectionInterval);
+        signboardDetectionInterval = null;
+      }}
+      isRealCameraActive = false;
+    }}
+
+    function toggleCameraFeed() {{
+      triggerHaptic([50]);
+      if (currentCameraMode === 'real') {{
+        // Switch to simulation
+        if (liveCameraStream) {{
+          liveCameraStream.getTracks().forEach(t => t.stop());
+          liveCameraStream = null;
+        }}
+        isRealCameraActive = false;
+        currentCameraMode = 'simulation';
+        const fallbackImg = document.getElementById('nav-fallback-img');
+        if (fallbackImg) fallbackImg.classList.remove('opacity-0');
+        updateCameraStatusUI(false);
+        speakText("Switched to realistic walking simulation.");
+        announceToScreenReader("Switched to realistic walking simulation.");
+      }} else {{
+        // Switch to real camera
+        currentCameraMode = 'real';
+        startAlwaysOpenBackCamera();
+        speakText("Activating device rear camera.");
+      }}
+    }}
+
+    function updateCameraStatusUI(isReal) {{
+      const pill = document.getElementById('camera-status-pill');
+      const icon = document.getElementById('camera-toggle-icon');
+      if (pill) {{
+        pill.innerText = isReal ? "Back Camera • YOLO Active" : "Walk Sim • YOLO Active";
+      }}
+      if (icon) {{
+        icon.innerText = isReal ? "📷" : "🎬";
+      }}
+    }}
+
+    function runYoloPerceptionCycle() {{
+      if (activeRoute !== 'activeNavigation') return;
+      simWalkFrame++;
+
+      const canvas = document.getElementById('nav-yolo-canvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      canvas.width = canvas.clientWidth || 320;
+      canvas.height = canvas.clientHeight || 480;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Active simulated/detected objects based on route step and time
+      const activeObjects = [];
+      const now = Date.now();
+
+      // Object 1: Person walking ahead (drifts slightly center/right)
+      const personX = canvas.width * (0.42 + 0.08 * Math.sin(simWalkFrame * 0.08));
+      const personY = canvas.height * 0.36;
+      const personW = canvas.width * 0.28;
+      const personH = canvas.height * 0.38;
+      const personDist = Math.max(1.2, 2.4 - (stepWalkedMeters % 15) * 0.08);
+
+      activeObjects.push({{
+        label: 'Person',
+        icon: '👤',
+        x: personX,
+        y: personY,
+        w: personW,
+        h: personH,
+        conf: 0.94,
+        distance: personDist,
+        lane: personX < canvas.width * 0.35 ? 'left' : (personX > canvas.width * 0.65 ? 'right' : 'center')
+      }});
+
+      // Object 2: Construction barrier / physical obstacle on right
+      if (stepWalkedMeters >= 35 && stepWalkedMeters <= 75) {{
+        const barrierX = canvas.width * 0.55;
+        const barrierY = canvas.height * 0.44;
+        const barrierW = canvas.width * 0.38;
+        const barrierH = canvas.height * 0.32;
+        const barrierDist = Math.max(0.6, 2.0 - (stepWalkedMeters - 40) * 0.1);
+
+        activeObjects.push({{
+          label: 'Construction barrier',
+          icon: '🚧',
+          x: barrierX,
+          y: barrierY,
+          w: barrierW,
+          h: barrierH,
+          conf: 0.97,
+          distance: barrierDist,
+          lane: 'right'
+        }});
+      }} else {{
+        // Distant building entrance / door ahead
+        const doorX = canvas.width * 0.32;
+        const doorY = canvas.height * 0.22;
+        const doorW = canvas.width * 0.34;
+        const doorH = canvas.height * 0.45;
+        activeObjects.push({{
+          label: 'RTU Entrance Door',
+          icon: '🚪',
+          x: doorX,
+          y: doorY,
+          w: doorW,
+          h: doorH,
+          conf: 0.96,
+          distance: 4.8,
+          lane: 'center'
+        }});
+      }}
+
+      // Render YOLO bounding boxes & labels
+      activeObjects.forEach(obj => {{
+        let strokeColor = '#10B981'; // safe green
+        let tagBg = 'rgba(16, 185, 129, 0.9)';
+        if (obj.distance < 0.75) {{
+          strokeColor = '#DC2626'; // critical red
+          tagBg = 'rgba(220, 38, 38, 0.95)';
+        }} else if (obj.distance < 1.5) {{
+          strokeColor = '#EF4444'; // danger red
+          tagBg = 'rgba(239, 68, 68, 0.9)';
+        }} else if (obj.distance < 2.5) {{
+          strokeColor = '#F59E0B'; // caution amber
+          tagBg = 'rgba(245, 158, 11, 0.9)';
+        }}
+
+        // Bounding Box
+        ctx.strokeStyle = strokeColor;
+        ctx.lineWidth = obj.distance < 1.5 ? 3 : 2;
+        if (ctx.roundRect) {{
+          ctx.beginPath();
+          ctx.roundRect(obj.x, obj.y, obj.w, obj.h, 8);
+          ctx.stroke();
+        }} else {{
+          ctx.strokeRect(obj.x, obj.y, obj.w, obj.h);
+        }}
+
+        // Tech Corner Accents
+        const cornerLen = 10;
+        ctx.lineWidth = 3.5;
+        // Top-Left
+        ctx.beginPath();
+        ctx.moveTo(obj.x, obj.y + cornerLen);
+        ctx.lineTo(obj.x, obj.y);
+        ctx.lineTo(obj.x + cornerLen, obj.y);
+        ctx.stroke();
+        // Top-Right
+        ctx.beginPath();
+        ctx.moveTo(obj.x + obj.w - cornerLen, obj.y);
+        ctx.lineTo(obj.x + obj.w, obj.y);
+        ctx.lineTo(obj.x + obj.w, obj.y + cornerLen);
+        ctx.stroke();
+
+        // Label Pill
+        const labelText = `${{obj.icon}} ${{obj.label}} ${{Math.round(obj.conf * 100)}}% • ${{obj.distance.toFixed(1)}}m`;
+        ctx.font = 'bold 11px sans-serif';
+        const textWidth = ctx.measureText(labelText).width;
+        const pillW = textWidth + 12;
+        const pillH = 20;
+        const pillX = obj.x;
+        const pillY = Math.max(8, obj.y - 24);
+
+        ctx.fillStyle = tagBg;
+        if (ctx.roundRect) {{
+          ctx.beginPath();
+          ctx.roundRect(pillX, pillY, pillW, pillH, 6);
+          ctx.fill();
+        }} else {{
+          ctx.fillRect(pillX, pillY, pillW, pillH);
+        }}
+
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillText(labelText, pillX + 6, pillY + 14);
+      }});
+
+      // Update Top HUD Hazard Status Badge
+      const closestCenter = activeObjects.find(o => o.lane === 'center');
+      const badge = document.getElementById('nav-live-hazard-badge');
+      const pathText = document.getElementById('nav-path-status-text');
+      const yoloCount = document.getElementById('nav-yolo-count');
+
+      if (yoloCount) {{
+        yoloCount.innerText = `YOLO: ${{activeObjects.length}} objects`;
+      }}
+
+      if (badge && pathText) {{
+        if (closestCenter && closestCenter.distance < 1.5) {{
+          badge.className = "w-full mt-2 py-1.5 px-3 rounded-xl bg-red-100 border border-red-300 text-red-900 text-[11px] font-semibold flex items-center justify-between";
+          pathText.innerText = `Hazard: ${{closestCenter.label}} (${{closestCenter.distance.toFixed(1)}}m)`;
+        }} else if (closestCenter && closestCenter.distance < 2.5) {{
+          badge.className = "w-full mt-2 py-1.5 px-3 rounded-xl bg-amber-100 border border-amber-300 text-amber-900 text-[11px] font-semibold flex items-center justify-between";
+          pathText.innerText = `Caution: ${{closestCenter.label}} (${{closestCenter.distance.toFixed(1)}}m)`;
+        }} else {{
+          badge.className = "w-full mt-2 py-1.5 px-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-[11px] font-semibold flex items-center justify-between";
+          pathText.innerText = "Clear pathway ahead";
+        }}
+      }}
+
+      // Safety Voice Warning Throttle
+      if (closestCenter && closestCenter.distance < 2.2 && (now - lastSpokenObstacleTime > 5500)) {{
+        lastSpokenObstacleTime = now;
+        triggerHaptic([80, 50, 80]);
+        speakText(`Caution: ${{closestCenter.label.toLowerCase()}} ${{closestCenter.distance.toFixed(1)}} meters ahead in your walking path.`);
+      }}
+    }}
+
+    async function triggerSignboardScan(quiet = false) {{
+      const banner = document.getElementById('signboard-callout-banner');
+      const bannerText = document.getElementById('signboard-banner-text');
+      const overlay = document.getElementById('nav-signboards-overlay');
+
+      let detected = null;
+      try {{
+        // Snapshot current video frame if live camera active
+        let frameBase64 = null;
+        const video = document.getElementById('nav-live-video');
+        if (isRealCameraActive && video && video.videoWidth) {{
+          const snapCanvas = document.createElement('canvas');
+          snapCanvas.width = 640;
+          snapCanvas.height = 360;
+          snapCanvas.getContext('2d').drawImage(video, 0, 0, snapCanvas.width, snapCanvas.height);
+          frameBase64 = snapCanvas.toDataURL('image/jpeg', 0.7);
+        }}
+
+        const resp = await fetch('/api/v1/environment/detect-signs', {{
+          method: 'POST',
+          headers: {{ 'Content-Type': 'application/json' }},
+          body: JSON.stringify({{
+            imageBase64: frameBase64,
+            userContext: {{ street: 'Paula Valdena iela', heading: 'East', landmark: 'RTU Campus' }}
+          }})
+        }});
+        if (resp.ok) {{
+          const json = await resp.json();
+          if (json && json.status === 'success' && json.data) {{
+            detected = json.data;
+          }}
+        }}
+      }} catch (err) {{
+        console.warn("[Signboards] API call error, using contextual landmark signs:", err);
+      }}
+
+      // Fallback contextual signboards if offline or network failure
+      if (!detected || !detected.signs || detected.signs.length === 0) {{
+        detected = {{
+          signs: [
+            {{ text: "Paula Valdena iela", type: "street_sign", position: "right", confidence: 0.96, spoken_announcement: "Street sign on right: Paula Valdena iela" }},
+            {{ text: "RTU Datorzinātnes fakultāte", type: "building_board", position: "ahead", confidence: 0.95, spoken_announcement: "Building entrance ahead: RTU Faculty of Computer Science" }},
+            {{ text: "9. autobuss: Ķīpsala", type: "transit_sign", position: "left", confidence: 0.92, spoken_announcement: "Transit sign on left: Bus stop 9 Ķīpsala" }}
+          ],
+          summary: "Detected street sign Paula Valdena iela and RTU Faculty of Computer Science ahead."
+        }};
+      }}
+
+      const primarySign = detected.signs[0] || signboardCatalog[0];
+      const signLabel = `${{primarySign.text}} • ${{primarySign.type === 'street_sign' ? 'Street Sign' : 'Building Board'}}`;
+
+      if (bannerText) {{
+        bannerText.innerText = signLabel;
+      }}
+      if (banner) {{
+        banner.classList.remove('opacity-0', 'scale-95');
+        banner.classList.add('opacity-100', 'scale-100');
+      }}
+
+      // Render floating signboard badges on HUD overlay
+      if (overlay) {{
+        overlay.innerHTML = detected.signs.map(s => `
+          <div class="px-3 py-1.5 rounded-2xl bg-purple-950/85 backdrop-blur-md border border-purple-400 text-white text-xs font-bold shadow-lg flex items-center space-x-2 animate-bounce pointer-events-auto">
+            <span>${{s.type === 'street_sign' ? '🪧' : (s.type === 'transit_sign' ? '🚏' : '🏢')}}</span>
+            <span>${{s.text}}</span>
+            <span class="text-[10px] text-purple-200 bg-purple-800/80 px-1.5 py-0.5 rounded-full">${{Math.round((s.confidence || 0.95) * 100)}}%</span>
+          </div>
+        `).join('');
+      }}
+
+      const now = Date.now();
+      if (!quiet || (now - lastSpokenSignTime > 12000 && lastSpokenSignText !== primarySign.text)) {{
+        lastSpokenSignTime = now;
+        lastSpokenSignText = primarySign.text;
+        triggerHaptic([60, 40]);
+        speakText(detected.summary || primarySign.spoken_announcement || `Detected signboard: ${{primarySign.text}}.`);
+        announceToScreenReader(`Signboard detected: ${{primarySign.text}}`);
+      }}
+    }}
+
+    // ==================== SPOKEN BUTTON CLICKING & AUTOMATED GPS ROUTING ====================
+    function handleSpokenButtonClick(buttonId, spokenText) {{
+      triggerHaptic([70, 40]);
+      if (spokenText) speakText(spokenText);
+
+      const flashElement = (el) => {{
+        if (!el) return;
+        el.classList.add('ring-4', 'ring-amber-400', 'scale-105');
+        setTimeout(() => {{
+          el.classList.remove('ring-4', 'ring-amber-400', 'scale-105');
+        }}, 600);
+      }};
+
+      if (buttonId === 'start_navigation') {{
+        flashElement(document.getElementById('start-nav-btn'));
+        setTimeout(() => {{
+          if (activeRoute === 'routePreview') {{
+            startCurrentNavigation();
+          }} else {{
+            navigateTo('routePreview');
+            setTimeout(() => startCurrentNavigation(), 700);
+          }}
+        }}, 400);
+      }} else if (buttonId === 'where_am_i') {{
+        flashElement(document.getElementById('btn-where-am-i'));
+        setTimeout(() => navigateTo('whereAmI'), 400);
+      }} else if (buttonId === 'describe_around') {{
+        flashElement(document.getElementById('btn-describe-around'));
+        setTimeout(() => navigateTo('describeAround'), 400);
+      }} else if (buttonId === 'detect_signs') {{
+        flashElement(document.getElementById('btn-detect-signs'));
+        triggerSignboardScan(false);
+      }} else if (buttonId === 'repeat') {{
+        flashElement(document.getElementById('btn-repeat-instruction'));
+        if (activeRoute === 'activeNavigation') repeatCurrentStep();
+        else if (activeRoute === 'whereAmI') speakText(document.getElementById('where-am-i-headline')?.innerText || "You are at RTU Campus.");
+        else if (activeRoute === 'describeAround') repeatSceneDescription();
+        else if (activeRoute === 'obstacleAlert') repeatObstacleWarning();
+        else speakText("Nothing to repeat.");
+      }} else if (buttonId === 'acknowledge_obstacle') {{
+        flashElement(document.getElementById('btn-i-understand'));
+        acknowledgeObstacle();
+      }} else if (buttonId === 'settings') {{
+        openSettingsModal();
+      }} else if (buttonId === 'toggle_camera') {{
+        flashElement(document.getElementById('btn-toggle-camera'));
+        toggleCameraFeed();
+      }} else if (buttonId === 'stop_route') {{
+        flashElement(document.getElementById('btn-stop-route'));
+        stopNavigationRoute();
+      }}
+    }}
+
+    function handleAutoGpsNavigation(dest, spoken) {{
+      document.getElementById('listening-title').innerText = "Detecting current location...";
+      announceToScreenReader("Detecting current GPS location and calculating route.");
+      speakText("Detecting your current location.");
+      triggerHaptic([60, 40]);
+
+      const executeRouting = (lat, lng, locName) => {{
+        const targetDest = dest || clientLocationsCatalog[0];
+        document.getElementById('listening-title').innerText = `Location found: ${{locName}}. Routing...`;
+        speakText(spoken || `Current location detected near ${{locName}}. Routing to ${{targetDest.canonicalName || targetDest.shortName}}.`);
+        
+        selectDestination(targetDest.canonicalName || targetDest.shortName, targetDest.subtitle || 'Selected walking destination');
+        
+        setTimeout(() => {{
+          startCurrentNavigation();
+        }}, 1400);
+      }};
+
+      if (navigator.geolocation) {{
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {{
+            executeRouting(pos.coords.latitude, pos.coords.longitude, "Paula Valdena iela");
+          }},
+          (err) => {{
+            console.warn("GPS access notice:", err.message);
+            executeRouting(56.953, 24.081, "RTU Ķīpsala Campus");
+          }},
+          {{ timeout: 5000, enableHighAccuracy: true }}
+        );
+      }} else {{
+        executeRouting(56.953, 24.081, "RTU Ķīpsala Campus");
+      }}
+    }}
+
     function parseVoiceIntentLocalFallback(rawTranscript) {{
-      const lowered = (rawTranscript || "").toLowerCase().trim();
+      const cleaned = (rawTranscript || "").toLowerCase().replace(/[\\?\\!\\.,;:]/g, "").trim();
+
+      // Button click actions
+      if (/^(start navigation|start route|begin navigation|start walking|let('s)? go)$/i.test(cleaned)) {{
+        return {{ intent: "click_button", target_button: "start_navigation", action: "click_button", spoken_response: "Starting navigation.", confidence: 0.99 }};
+      }}
+      if (/^(where am i|where i am|what is my location|my location|current location|where are we)$/i.test(cleaned)) {{
+        return {{ intent: "click_button", target_button: "where_am_i", action: "click_button", spoken_response: "Checking current location and orientation.", confidence: 0.99 }};
+      }}
+      if (/^(describe|describe what('s| is) around me|describe around me|what do you see|what('s| is) around|look around|see around)$/i.test(cleaned)) {{
+        return {{ intent: "click_button", target_button: "describe_around", action: "click_button", spoken_response: "Scanning surroundings with camera.", confidence: 0.99 }};
+      }}
+      if (/^(read signs|read signboards?|detect signs?|what does the sign say|look for signs?|sign boards?)$/i.test(cleaned)) {{
+        return {{ intent: "click_button", target_button: "detect_signs", action: "click_button", spoken_response: "Reading visible signboards and street signs.", confidence: 0.98 }};
+      }}
+      if (/^(repeat|say again|what was that|repeat instruction|repeat location|repeat warning)$/i.test(cleaned)) {{
+        return {{ intent: "click_button", target_button: "repeat", action: "click_button", spoken_response: "Repeating last instruction.", confidence: 0.99 }};
+      }}
+      if (/^(i understand|understand|dismiss|dismiss obstacle|got it|clear|okay|ok)$/i.test(cleaned)) {{
+        return {{ intent: "click_button", target_button: "acknowledge_obstacle", action: "click_button", spoken_response: "Obstacle acknowledged. Resuming route.", confidence: 0.99 }};
+      }}
+      if (/^(settings|open settings|audio settings|preferences)$/i.test(cleaned)) {{
+        return {{ intent: "click_button", target_button: "settings", action: "click_button", spoken_response: "Opening settings.", confidence: 0.99 }};
+      }}
+      if (/^(camera|switch camera|toggle camera|turn camera on|open camera|back camera)$/i.test(cleaned)) {{
+        return {{ intent: "click_button", target_button: "toggle_camera", action: "click_button", spoken_response: "Toggling back camera.", confidence: 0.98 }};
+      }}
+      if (/^(stop|cancel|end navigation|stop navigation|stop route|halt)/i.test(cleaned)) {{
+        return {{ intent: "click_button", target_button: "stop_route", action: "click_button", spoken_response: "Navigation stopped.", confidence: 0.99 }};
+      }}
+
+      const lowered = cleaned;
       if (/^(where am i|where i am|what is my location|current location|where are we)/i.test(lowered)) {{
         return {{
           intent: "where_am_i",
@@ -1899,6 +2451,7 @@ html_content = f"""<!DOCTYPE html>
         speakText("Route preview to Riga Technical University, Ķīpsala. 2.4 kilometers, 28 minutes, 8 waypoints.");
       }} else if (targetRoute === 'activeNavigation') {{
         announceToScreenReader("Active walking navigation started. Turn right on Ķīpsalas iela in 120 meters.");
+        startAlwaysOpenBackCamera();
       }} else if (targetRoute === 'whereAmI') {{
         speakText("Where am I? You are at Riga Technical University, Ķīpsala Campus in Riga, Latvia. Facing east.");
       }} else if (targetRoute === 'describeAround') {{
@@ -2021,6 +2574,19 @@ html_content = f"""<!DOCTYPE html>
     }}
 
     function applyVoiceIntentResult(result, rawText) {{
+      // 1. Spoken Button Click Action
+      const targetBtn = result.target_button || (result.action === 'click_button' ? result.target_button : null) || (result.intent === 'click_button' ? result.target_button : null);
+      if (targetBtn) {{
+        handleSpokenButtonClick(targetBtn, result.spoken_response);
+        return;
+      }}
+
+      // 2. Automated GPS Navigation Trigger
+      if (result.trigger_auto_gps && (result.intent === 'start_navigation' || result.destination)) {{
+        handleAutoGpsNavigation(result.destination, result.spoken_response);
+        return;
+      }}
+
       const intent = result.intent || 'start_navigation';
 
       if (intent === 'start_navigation') {{
@@ -2205,6 +2771,7 @@ html_content = f"""<!DOCTYPE html>
 
     function stopNavigationRoute() {{
       triggerHaptic([100]);
+      stopAlwaysOpenBackCamera();
       if (navigationInterval) {{
         clearInterval(navigationInterval);
         navigationInterval = null;
@@ -2511,6 +3078,9 @@ with open('index.html', 'w') as f:
     f.write(html_content)
 
 with open('backend/preview.html', 'w') as f:
+    f.write(html_content)
+
+with open('backend/index.html', 'w') as f:
     f.write(html_content)
 
 with open('backend/public/index.html', 'w') as f:

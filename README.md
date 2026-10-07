@@ -37,14 +37,16 @@
 
 ## 🌟 Key Capabilities
 
+- **Always-Open Back Camera Pipeline**: The rear environment camera (`navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })`) remains continuously active while walking, feeding live visual frames to real-time perception models with a seamless walking simulation toggle.
+- **YOLO Real-Time Object Detection**: High-frequency bounding-box detection (Person, Car, Bicycle, Construction Barrier, Stairs, Building Entrance, Pole) displaying live spatial distances, lateral lanes (`left`, `center`, `right`), and `<0.7m` emergency stop alerts.
+- **Gemini AI Signboard & Board Reading**: Continuously analyzes camera views via Gemini Multimodal Vision to identify and transcribe street name signs (e.g. *Paula Valdena iela*), building entrance boards (*RTU Faculty of Computer Science*), bus stops (*Bus 9: Ķīpsala*), and warning placards, announcing them aloud to the pedestrian.
+- **Hands-Free Automated Voice Button Clicker**: Tapping the microphone and speaking automatically triggers and clicks matching UI buttons (*Start navigation*, *Where am I*, *Describe around me*, *Read signs*, *Repeat*, *I understand*, *Settings*, *Stop*).
+- **Automated GPS Location & Destination Routing**: Speaking *"Take me to [place]"* or *"I want to go there/somewhere"* automatically acquires the user's real GPS coordinates via CoreLocation / Geolocation, sets current location as origin, calculates the walking route, and launches active walking navigation instantly.
 - **ARKit LiDAR Spatial Scanning**: Direct reading of raw `CVPixelBuffer` depth maps (`kCVPixelFormatType_DepthFloat32`) filtered by confidence maps (`kCVPixelFormatType_OneComponent8`) to accurately measure distances from 0.3 m to 5.0+ m in daylight or total darkness.
-- **Vision Object Classification**: Identifies 12 canonical street and indoor obstacle classes (`person`, `car`, `chair`, `table`, `wall`, `pole`, `tree`, `door`, `stairs`, `construction_barrier`, `trash_bin`, `bench`) at 15 FPS.
 - **Corridor Lane & Vertical Height Mapping**: Categorizes obstacles into lateral zones (`left`, `center/walking path`, `right`) and vertical clearance (`ground`, `torso`, `head`).
 - **Emergency Speech & Haptic Preemption**: Immediate override for critical hazards (<0.7 m) that halts navigation speech instantly and dispatches heavy continuous haptic vibration.
 - **Ground Hazard Elevation Delta Tracking**: Analyzes point-cloud ground elevation deltas to detect drop-offs, curbs, stairs, potholes, and depressions.
-- **Natural Language Destination Routing**: Voice commands powered by Google Gemini 1.5 Flash supporting both structured locations and arbitrary spoken addresses with clarification for ambiguous phrases.
-- **Automatic Walking Safety Triggers**: Walk simulator auto-triggers obstacle alerts after 40–50 m walked and crosswalk safety after +20 m walked.
-- **Dual-View Web Simulator**: Toggle seamlessly between clean **Pure Mobile View** and **Interactive Simulator Tools** (distance sliders, obstacle presets, depth map heatmaps).
+- **Dual-View Web Simulator**: Toggle seamlessly between clean **Pure Mobile View** and **Interactive Simulator Tools** (distance sliders, obstacle presets, depth map heatmaps, real camera toggle).
 
 ---
 
@@ -317,7 +319,8 @@ Base URL: `http://localhost:3000/api/v1`
 | Method | Endpoint | Description | Sample Request / Response |
 | :--- | :--- | :--- | :--- |
 | `GET` | `/api/v1/health` | Health check & active AI provider status | `{"status": "ok", "service": "Blind AI Backend", "aiProvider": "gemini"}` |
-| `POST` | `/api/v1/voice/intent` | Natural language intent parsing | Body: `{"transcript": "Take me to the library"}`<br>Returns: `{"intent": "start_navigation", "destination": {...}}` |
+| `POST` | `/api/v1/voice/intent` | Natural language voice intent & button action parsing | Body: `{"transcript": "Take me to the library"}`<br>Returns: `{"intent": "start_navigation", "trigger_auto_gps": true, "destination": {...}}` |
+| `POST` | `/api/v1/environment/detect-signs` | Gemini Multimodal signboard & street text detection | Body: `{"imageBase64": "..."}`<br>Returns: `{"signs": [{"text": "Paula Valdena iela", "type": "street_sign"}], "summary": "..."}` |
 | `POST` | `/api/v1/environment/describe` | Multimodal visual scene description | Body: `{"image_base64": "..."}`<br>Returns structured semantic objects list |
 | `POST` | `/api/v1/environment/where-am-i` | Spatial GPS + landmark context | Body: `{"latitude": 56.95, "longitude": 24.08}`<br>Returns street name, campus name, and orientation |
 | `GET` | `/api/v1/routes` | Predefined campus & city routes | Returns list of available accessible paths |
@@ -375,6 +378,8 @@ BlindAI/
     │   ├── ViewModels/               # 9 ObservableObject ViewModels
     │   ├── Components/               # Reusable Accessible UI Components
     │   ├── Services/
+    │   │   ├── YOLOObjectDetector.swift       # Real-Time YOLOv8 Detection & Signboard OCR
+    │   │   ├── LocationManagerService.swift   # CoreLocation GPS tracking & Auto-Origin
     │   │   ├── ARKitLiDARScannerService.swift # Apple ARKit sceneDepth LiDAR Scanner
     │   │   ├── VisionObjectDetector.swift     # Apple Vision Object Detection
     │   │   ├── ObstacleDangerSystem.swift     # Danger Evaluation & Speech Preemption

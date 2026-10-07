@@ -54,6 +54,10 @@ class AIService {
   async parseVoiceCommand(params) {
     return this.activeProvider.parseVoiceCommand(params);
   }
+
+  async detectSignboards(params) {
+    return this.activeProvider.detectSignboards(params);
+  }
 }
 
 // Export singleton instance

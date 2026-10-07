@@ -33,3 +33,20 @@ exports.whereAmI = async (req, res) => {
     });
   }
 };
+
+exports.detectSignboards = async (req, res) => {
+  try {
+    const { imageBase64, userContext } = req.body || {};
+    const result = await aiService.detectSignboards({ imageBase64, userContext });
+    return res.json({
+      status: "success",
+      data: result
+    });
+  } catch (err) {
+    console.error("[EnvironmentController] Error detecting signboards:", err);
+    return res.status(500).json({
+      status: "error",
+      message: err.message
+    });
+  }
+};

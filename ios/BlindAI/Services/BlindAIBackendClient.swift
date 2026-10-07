@@ -97,12 +97,17 @@ public final class BlindAIBackendClient {
            let intentStr = dataObj["intent"] as? String {
             switch intentStr {
             case "start_navigation":
-                let dest = dataObj["destination"] as? String ?? "Riga Technical University (RTU)"
+                let dest = (dataObj["destination"] as? [String: Any])?["canonicalName"] as? String ?? (dataObj["destination"] as? String ?? "Riga Technical University (RTU)")
                 return .startNavigation(destination: dest)
             case "where_am_i":
                 return .whereAmI
             case "describe_environment":
                 return .describeEnvironment
+            case "detect_signs":
+                return .detectSigns
+            case "click_button":
+                let target = dataObj["target_button"] as? String ?? ""
+                return .clickButton(target: target)
             case "stop":
                 return .stop
             case "repeat":
@@ -110,6 +115,34 @@ public final class BlindAIBackendClient {
             default:
                 return .unknown(query: transcript)
             }
+        }
+        
+        throw URLError(.cannotParseResponse)
+    }
+    
+    /// Requests real-time signboard and street sign detection via Gemini Vision API
+    public func detectSignboards(imageBase64: String? = nil) async throws -> (signs: [[String: Any]], summary: String) {
+        let url = baseURL.appendingPathComponent("environment/detect-signs")
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        var payload: [String: Any] = [:]
+        if let imageBase64 {
+            payload["imageBase64"] = imageBase64
+        }
+        request.httpBody = try JSONSerialization.data(withJSONObject: payload)
+        
+        let (data, response) = try await urlSession.data(for: request)
+        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+            throw URLError(.badServerResponse)
+        }
+        
+        if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
+           let dataObj = json["data"] as? [String: Any] {
+            let signs = dataObj["signs"] as? [[String: Any]] ?? []
+            let summary = dataObj["summary"] as? String ?? "Signboard scan completed."
+            return (signs, summary)
         }
         
         throw URLError(.cannotParseResponse)

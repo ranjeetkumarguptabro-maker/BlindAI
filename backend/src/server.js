@@ -189,6 +189,15 @@ const requestHandler = async (req, res) => {
       });
     }
 
+    // 2b. Signboard & Street Sign Detection (Gemini Vision)
+    if (pathname === "/api/v1/environment/detect-signs" && req.method === "POST") {
+      req.body = await readBody();
+      return environmentController.detectSignboards(req, {
+        json: data => sendJson(200, data),
+        status: code => ({ json: data => sendJson(code, data) })
+      });
+    }
+
     // 3. Voice Intent Parsing
     if (pathname === "/api/v1/voice/intent" && req.method === "POST") {
       req.body = await readBody();

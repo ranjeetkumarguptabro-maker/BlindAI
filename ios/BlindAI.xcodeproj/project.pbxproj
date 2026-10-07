@@ -45,6 +45,8 @@
 		B00111111111111111111111 /* ARKitLiDARScannerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00111111111111111111111 /* ARKitLiDARScannerService.swift */; };
 		B00222222222222222222222 /* VisionObjectDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00222222222222222222222 /* VisionObjectDetector.swift */; };
 		B00333333333333333333333 /* ObstacleDangerSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00333333333333333333333 /* ObstacleDangerSystem.swift */; };
+		B00444444444444444444444 /* YOLOObjectDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00444444444444444444444 /* YOLOObjectDetector.swift */; };
+		B00555555555555555555555 /* LocationManagerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00555555555555555555555 /* LocationManagerService.swift */; };
 		D2D8D95CA703EDF7210D0048 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 39DF35C5B235782381DC07AE /* Assets.xcassets */; };
 		2C7CD670D2AAF2DF924F67A4 /* EnvironmentSceneItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = B57D0450185B097D8B034802 /* EnvironmentSceneItem.swift */; };
 		B21B415E33AF7E7B42624D47 /* ObstacleAlertItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA62167211BBDBD295A9B645 /* ObstacleAlertItem.swift */; };
@@ -98,6 +100,8 @@
 		A00111111111111111111111 /* ARKitLiDARScannerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ARKitLiDARScannerService.swift"; sourceTree = "<group>"; };
 		A00222222222222222222222 /* VisionObjectDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VisionObjectDetector.swift"; sourceTree = "<group>"; };
 		A00333333333333333333333 /* ObstacleDangerSystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ObstacleDangerSystem.swift"; sourceTree = "<group>"; };
+		A00444444444444444444444 /* YOLOObjectDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "YOLOObjectDetector.swift"; sourceTree = "<group>"; };
+		A00555555555555555555555 /* LocationManagerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LocationManagerService.swift"; sourceTree = "<group>"; };
 		39DF35C5B235782381DC07AE /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Assets.xcassets"; sourceTree = "<group>"; };
 		5E4978EFF3D1173E79C6DB22 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Info.plist"; sourceTree = "<group>"; };
 		B57D0450185B097D8B034802 /* EnvironmentSceneItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EnvironmentSceneItem.swift"; sourceTree = "<group>"; };
@@ -215,6 +219,8 @@
 				A00111111111111111111111 /* ARKitLiDARScannerService.swift */,
 				A00222222222222222222222 /* VisionObjectDetector.swift */,
 				A00333333333333333333333 /* ObstacleDangerSystem.swift */,
+				A00444444444444444444444 /* YOLOObjectDetector.swift */,
+				A00555555555555555555555 /* LocationManagerService.swift */,
 			);
 			path = "Services";
 			sourceTree = "<group>";
@@ -364,6 +370,8 @@
 				B00111111111111111111111 /* ARKitLiDARScannerService.swift in Sources */,
 				B00222222222222222222222 /* VisionObjectDetector.swift in Sources */,
 				B00333333333333333333333 /* ObstacleDangerSystem.swift in Sources */,
+				B00444444444444444444444 /* YOLOObjectDetector.swift in Sources */,
+				B00555555555555555555555 /* LocationManagerService.swift in Sources */,
 							2C7CD670D2AAF2DF924F67A4 /* EnvironmentSceneItem.swift in Sources */,
 				B21B415E33AF7E7B42624D47 /* ObstacleAlertItem.swift in Sources */,
 				C2602FEEE938F770124C6A14 /* CrosswalkStatusItem.swift in Sources */,

@@ -9,6 +9,8 @@ public enum VoiceIntent: Equatable {
     case whereAmI
     case stop
     case repeatInstruction
+    case detectSigns
+    case clickButton(target: String)
     case unknown(query: String)
 }
 
@@ -226,10 +228,16 @@ public final class SpeechService: NSObject, SpeechServiceProtocol, ObservableObj
             return .whereAmI
         } else if lowered.contains("what's in front") || lowered.contains("front of me") || lowered.contains("around me") || lowered.contains("describe") {
             return .describeEnvironment
+        } else if lowered.contains("read sign") || lowered.contains("signboard") || lowered.contains("detect sign") {
+            return .detectSigns
         } else if lowered.contains("stop") || lowered.contains("cancel") || lowered.contains("end") {
             return .stop
         } else if lowered.contains("repeat") || lowered.contains("again") {
             return .repeatInstruction
+        } else if lowered.contains("settings") {
+            return .clickButton(target: "settings")
+        } else if lowered.contains("i understand") || lowered.contains("dismiss") {
+            return .clickButton(target: "acknowledge_obstacle")
         } else {
             return .unknown(query: text)
         }
