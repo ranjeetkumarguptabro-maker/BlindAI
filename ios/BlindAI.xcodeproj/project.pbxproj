@@ -57,6 +57,12 @@
 		3C89A91BB54647C0446D36BD /* DescribeAroundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 044D94B1B61D5EBC52F28B1A /* DescribeAroundView.swift */; };
 		CBDB0BC017C083271D1DC90C /* ObstacleAlertView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA2465F6B306C3FAFD73C5B3 /* ObstacleAlertView.swift */; };
 		1B577020C8BF3BCCD19F62F5 /* CrosswalkSafetyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 848914AC424FC2BAD92EACB5 /* CrosswalkSafetyView.swift */; };
+		B00666666666666666666666 /* CameraCaptureService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00666666666666666666666 /* CameraCaptureService.swift */; };
+		B00777777777777777777777 /* RealtimeVisionPerceptionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00777777777777777777777 /* RealtimeVisionPerceptionService.swift */; };
+		B00888888888888888888888 /* MapKitNavigationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00888888888888888888888 /* MapKitNavigationService.swift */; };
+		B00999999999999999999999 /* DestinationSearchService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00999999999999999999999 /* DestinationSearchService.swift */; };
+		B00AAAAA1111111111111111 /* RealInteractiveMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00AAAAA1111111111111111 /* RealInteractiveMapView.swift */; };
+		B00BBBBB2222222222222222 /* CameraPreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00BBBBB2222222222222222 /* CameraPreviewView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -113,6 +119,12 @@
 		044D94B1B61D5EBC52F28B1A /* DescribeAroundView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DescribeAroundView.swift"; sourceTree = "<group>"; };
 		EA2465F6B306C3FAFD73C5B3 /* ObstacleAlertView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ObstacleAlertView.swift"; sourceTree = "<group>"; };
 		848914AC424FC2BAD92EACB5 /* CrosswalkSafetyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CrosswalkSafetyView.swift"; sourceTree = "<group>"; };
+		A00666666666666666666666 /* CameraCaptureService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CameraCaptureService.swift"; sourceTree = "<group>"; };
+		A00777777777777777777777 /* RealtimeVisionPerceptionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RealtimeVisionPerceptionService.swift"; sourceTree = "<group>"; };
+		A00888888888888888888888 /* MapKitNavigationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MapKitNavigationService.swift"; sourceTree = "<group>"; };
+		A00999999999999999999999 /* DestinationSearchService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DestinationSearchService.swift"; sourceTree = "<group>"; };
+		A00AAAAA1111111111111111 /* RealInteractiveMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RealInteractiveMapView.swift"; sourceTree = "<group>"; };
+		A00BBBBB2222222222222222 /* CameraPreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CameraPreviewView.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -183,10 +195,12 @@
 				59CF686898A766E2D684A7C3 /* RoutePreviewView.swift */,
 				7E8E26EBD638AC27DEBF9CE6 /* ActiveNavigationView.swift */,
 				0A93A7037EFFC9E90F6A90B7 /* WhereAmIView.swift */,
-							044D94B1B61D5EBC52F28B1A /* DescribeAroundView.swift */,
+				044D94B1B61D5EBC52F28B1A /* DescribeAroundView.swift */,
 				EA2465F6B306C3FAFD73C5B3 /* ObstacleAlertView.swift */,
 				848914AC424FC2BAD92EACB5 /* CrosswalkSafetyView.swift */,
-);
+				A00AAAAA1111111111111111 /* RealInteractiveMapView.swift */,
+				A00BBBBB2222222222222222 /* CameraPreviewView.swift */,
+			);
 			path = "Views";
 			sourceTree = "<group>";
 		};
@@ -221,6 +235,10 @@
 				A00333333333333333333333 /* ObstacleDangerSystem.swift */,
 				A00444444444444444444444 /* YOLOObjectDetector.swift */,
 				A00555555555555555555555 /* LocationManagerService.swift */,
+				A00666666666666666666666 /* CameraCaptureService.swift */,
+				A00777777777777777777777 /* RealtimeVisionPerceptionService.swift */,
+				A00888888888888888888888 /* MapKitNavigationService.swift */,
+				A00999999999999999999999 /* DestinationSearchService.swift */,
 			);
 			path = "Services";
 			sourceTree = "<group>";
@@ -381,7 +399,13 @@
 				3C89A91BB54647C0446D36BD /* DescribeAroundView.swift in Sources */,
 				CBDB0BC017C083271D1DC90C /* ObstacleAlertView.swift in Sources */,
 				1B577020C8BF3BCCD19F62F5 /* CrosswalkSafetyView.swift in Sources */,
-);
+				B00666666666666666666666 /* CameraCaptureService.swift in Sources */,
+				B00777777777777777777777 /* RealtimeVisionPerceptionService.swift in Sources */,
+				B00888888888888888888888 /* MapKitNavigationService.swift in Sources */,
+				B00999999999999999999999 /* DestinationSearchService.swift in Sources */,
+				B00AAAAA1111111111111111 /* RealInteractiveMapView.swift in Sources */,
+				B00BBBBB2222222222222222 /* CameraPreviewView.swift in Sources */,
+			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */

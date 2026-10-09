@@ -40,17 +40,13 @@ public struct DescribeAroundView: View {
                             .frame(maxWidth: .infinity, alignment: .center)
                             .accessibilityHeading(.h1)
                         
-                        // Scene Camera Preview Card
+                        // Scene Live Camera Preview Card
                         ZStack {
-                            RoundedRectangle(cornerRadius: 20, style: .continuous)
-                                .fill(Color.slate200)
-                            
-                            if let uiImage = UIImage(named: "scene_rtu_campus") {
-                                Image(uiImage: uiImage)
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fill)
+                            if CameraCaptureService.shared.hasCameraPermission {
+                                CameraPreviewView(captureSession: CameraCaptureService.shared.captureSession)
                             } else {
-                                // Fallback stylized scenic placeholder
+                                RoundedRectangle(cornerRadius: 20, style: .continuous)
+                                    .fill(Color.slate200)
                                 LinearGradient(
                                     colors: [Color.blue.opacity(0.3), Color.green.opacity(0.3)],
                                     startPoint: .topLeading,
@@ -60,7 +56,7 @@ public struct DescribeAroundView: View {
                                     Image(systemName: "camera.viewfinder")
                                         .font(.system(size: 36))
                                         .foregroundColor(.white)
-                                    Text("Riga Technical University Scene")
+                                    Text("Live Camera Feed")
                                         .font(.caption)
                                         .foregroundColor(.white)
                                 }
@@ -70,7 +66,7 @@ public struct DescribeAroundView: View {
                         .frame(height: 175)
                         .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
                         .shadow(color: Color.black.opacity(0.06), radius: 8, x: 0, y: 3)
-                        .accessibilityLabel("Forward camera photo of Riga Technical University campus")
+                        .accessibilityLabel("Forward live camera perception view")
                         
                         // Environmental Items List Card
                         VStack(spacing: 0) {

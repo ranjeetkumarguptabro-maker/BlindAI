@@ -84,85 +84,16 @@ public struct RoutePreviewView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
                         .shadow(color: Color.black.opacity(0.03), radius: 6, x: 0, y: 2)
                         
-                        // Map Representation Card (Riga, Daugava, Bridge, RTU)
-                        ZStack(alignment: .bottomTrailing) {
-                            // Styled Vector Map View
-                            ZStack {
-                                Color(red: 242/255, green: 245/255, blue: 240/255)
-                                
-                                // Daugava River Shape
-                                Path { path in
-                                    path.move(to: CGPoint(x: 350, y: 0))
-                                    path.addLine(to: CGPoint(x: 200, y: 220))
-                                    path.addLine(to: CGPoint(x: 140, y: 220))
-                                    path.addLine(to: CGPoint(x: 260, y: 0))
-                                    path.closeSubpath()
-                                }
-                                .fill(Color(red: 195/255, green: 225/255, blue: 248/255))
-                                
-                                // River Label
-                                Text("Daugava")
-                                    .font(.system(size: 11, weight: .semibold))
-                                    .foregroundColor(Color(red: 100/255, green: 155/255, blue: 210/255))
-                                    .position(x: 230, y: 80)
-                                
-                                // Vanšu tilts label
-                                Text("Vanšu tilts")
-                                    .font(.system(size: 10, weight: .medium))
-                                    .foregroundColor(.neutral500)
-                                    .position(x: 240, y: 155)
-                                
-                                // Kipsala & Riga Labels
-                                Text("Ķīpsala")
-                                    .font(.system(size: 12, weight: .bold))
-                                    .foregroundColor(.neutral600)
-                                    .position(x: 65, y: 135)
-                                
-                                Text("Rīga")
-                                    .font(.system(size: 13, weight: .bold))
-                                    .foregroundColor(.neutral700)
-                                    .position(x: 280, y: 150)
-                                
-                                // Blue Route Polyline
-                                Path { path in
-                                    path.move(to: CGPoint(x: 280, y: 110)) // Start
-                                    path.addLine(to: CGPoint(x: 180, y: 150)) // Bridge
-                                    path.addLine(to: CGPoint(x: 110, y: 110)) // Turn left Kipsala
-                                    path.addLine(to: CGPoint(x: 80, y: 70))  // Destination RTU
-                                }
-                                .stroke(Color(red: 45/255, green: 130/255, blue: 250/255), style: StrokeStyle(lineWidth: 4.5, lineCap: .round, lineJoin: .round))
-                                
-                                // Start Pin
-                                HStack(spacing: 3) {
-                                    Circle().fill(Color.blue).frame(width: 8, height: 8)
-                                    Text("Start").font(.system(size: 10, weight: .bold))
-                                }
-                                .padding(.horizontal, 6)
-                                .padding(.vertical, 3)
-                                .background(Color.white)
-                                .clipShape(Capsule())
-                                .shadow(radius: 2)
-                                .position(x: 280, y: 92)
-                                
-                                // RTU Destination Pin
-                                VStack(spacing: 1) {
-                                    HStack(spacing: 3) {
-                                        Image(systemName: "mappin.circle.fill").foregroundColor(.red).font(.system(size: 12))
-                                        VStack(alignment: .leading, spacing: 0) {
-                                            Text("RTU").font(.system(size: 10, weight: .bold))
-                                            Text("Ķīpsala Campus").font(.system(size: 8))
-                                        }
-                                    }
-                                    .padding(.horizontal, 6)
-                                    .padding(.vertical, 3)
-                                    .background(Color.white)
-                                    .clipShape(RoundedRectangle(cornerRadius: 6))
-                                    .shadow(radius: 3)
-                                }
-                                .position(x: 80, y: 55)
-                            }
-                            .frame(height: 200)
-                            .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+                        // Real Interactive MapView (MapKit with dynamic coordinates)
+                        RealInteractiveMapView(
+                            startCoordinate: CLLocationCoordinate2D(
+                                latitude: LocationManagerService.shared.userLatitude,
+                                longitude: LocationManagerService.shared.userLongitude
+                            ),
+                            destinationCoordinate: viewModel.destination.coordinate,
+                            destinationTitle: viewModel.destination.title
+                        )
+                        .frame(height: 200)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 18, style: .continuous)
                                     .stroke(Color.black.opacity(0.04), lineWidth: 1)

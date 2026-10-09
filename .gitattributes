@@ -1,0 +1,18 @@
+# GitHub Linguist Configuration
+# Mark generated HTML distribution bundles and artifacts as vendored/generated
+# so that native Swift is correctly reflected as the primary project language.
+
+*.html linguist-generated=true
+*.html linguist-vendored=true
+preview.html linguist-generated=true
+preview.html linguist-vendored=true
+index.html linguist-generated=true
+index.html linguist-vendored=true
+backend/preview.html linguist-generated=true
+backend/preview.html linguist-vendored=true
+backend/index.html linguist-generated=true
+backend/index.html linguist-vendored=true
+backend/public/** linguist-generated=true
+backend/public/** linguist-vendored=true
+docs/** linguist-documentation=true
+scripts/** linguist-vendored=true

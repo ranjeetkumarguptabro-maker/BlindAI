@@ -1,4 +1,5 @@
 import SwiftUI
+import CoreLocation
 
 public struct DestinationItem: Identifiable, Hashable {
     public let id: String
@@ -10,6 +11,12 @@ public struct DestinationItem: Identifiable, Hashable {
     public let distanceKm: Double
     public let estimatedMinutes: Int
     public let waypointCount: Int
+    public let latitude: Double
+    public let longitude: Double
+    
+    public var coordinate: CLLocationCoordinate2D {
+        CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
+    }
     
     public init(
         id: String = UUID().uuidString,
@@ -20,7 +27,9 @@ public struct DestinationItem: Identifiable, Hashable {
         iconBackground: Color,
         distanceKm: Double = 2.4,
         estimatedMinutes: Int = 28,
-        waypointCount: Int = 8
+        waypointCount: Int = 8,
+        latitude: Double = 56.9535,
+        longitude: Double = 24.0815
     ) {
         self.id = id
         self.title = title
@@ -31,6 +40,8 @@ public struct DestinationItem: Identifiable, Hashable {
         self.distanceKm = distanceKm
         self.estimatedMinutes = estimatedMinutes
         self.waypointCount = waypointCount
+        self.latitude = latitude
+        self.longitude = longitude
     }
     
     public static let rtu = DestinationItem(
@@ -42,7 +53,9 @@ public struct DestinationItem: Identifiable, Hashable {
         iconBackground: Color(red: 238/255, green: 237/255, blue: 255/255),
         distanceKm: 2.4,
         estimatedMinutes: 28,
-        waypointCount: 8
+        waypointCount: 8,
+        latitude: 56.9535,
+        longitude: 24.0815
     )
     
     public static let kipsalaCampus = DestinationItem(
