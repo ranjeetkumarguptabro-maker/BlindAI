@@ -534,8 +534,8 @@ Rules:
         intent: "start_navigation",
         trigger_auto_gps: true,
         destination: customDest,
-        spoken_response: `Detecting current location. Planning route to ${customDest.canonicalName}. Distance ${customDest.distanceKm} kilometers, estimated ${customDest.estimatedMinutes} minutes.`,
-        confidence: 0.92,
+        spoken_response: `Detecting current location. Planning pedestrian route to ${customDest.canonicalName}.`,
+        confidence: 0.95,
         provider: `${this.name} (Semantic Fallback)`
       };
     }

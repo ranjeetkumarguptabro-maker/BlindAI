@@ -5,6 +5,9 @@ html_content = f"""<!DOCTYPE html>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
   <!-- Leaflet Interactive Maps & OpenStreetMap -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -593,31 +596,31 @@ html_content = f"""<!DOCTYPE html>
                   </div>
                   <div class="flex flex-col text-left">
                     <span id="nav-step-label" class="text-[10px] font-bold text-orange-400 uppercase tracking-wider">
-                      Step 1 of 4
+                      Real Pedestrian Route
                     </span>
                     <h2 id="nav-instruction-text" class="text-xs font-bold text-white tracking-tight leading-snug">
-                      Walk forward along sidewalk
+                      Point camera forward & walk along pathway
                     </h2>
                   </div>
                 </div>
                 <div class="flex items-baseline space-x-1 pl-2 shrink-0">
-                  <span id="nav-distance-num" class="text-2xl font-black text-white">80</span>
+                  <span id="nav-distance-num" class="text-2xl font-black text-white">0</span>
                   <span class="text-[10px] font-bold text-slate-300">m</span>
                 </div>
               </div>
 
-              <!-- Real-Time LiDAR Depth Corridor & Spatial Direction HUD -->
+              <!-- Real-Time Optical Perception & Spatial Direction HUD -->
               <div id="nav-lidar-corridor-hud" class="w-full py-2 px-3 rounded-2xl bg-black/85 backdrop-blur-md border border-emerald-500/50 text-white shadow-xl flex items-center justify-between">
                 <div class="flex items-center space-x-2.5">
                   <span id="nav-direction-arrow" class="text-2xl text-emerald-400 font-extrabold select-none">⬆️</span>
                   <div class="flex flex-col text-left">
                     <span id="nav-corridor-status" class="text-[11px] font-bold text-emerald-300 tracking-wide uppercase">WALK STRAIGHT • PATH CLEAR</span>
-                    <span id="nav-depth-reading" class="text-[10px] text-slate-300 font-mono">Depth ahead: <strong id="nav-depth-meters" class="text-white">4.0m</strong> • Center clear</span>
+                    <span id="nav-depth-reading" class="text-[10px] text-slate-300 font-mono">Vision status: <strong id="nav-depth-meters" class="text-white">Clear (>3m)</strong></span>
                   </div>
                 </div>
                 <div class="flex flex-col items-end">
-                  <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">LiDAR Lanes</span>
-                  <span id="nav-lateral-lanes" class="text-[10px] font-mono font-bold text-emerald-400">L:3.5m | C:4.0m | R:3.5m</span>
+                  <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Perception</span>
+                  <span id="nav-lateral-lanes" class="text-[10px] font-mono font-bold text-emerald-400">Optical View: Clear Ahead</span>
                 </div>
               </div>
             </div>
@@ -1399,15 +1402,9 @@ html_content = f"""<!DOCTYPE html>
         id: "custom-" + Date.now(),
         canonicalName: title,
         shortName: title,
-        subtitle: `${{title}} • 2.6 km • 32 min • 6 waypoints`,
-        category: "Custom Place",
-        distanceKm: 2.6,
-        estimatedMinutes: 32,
-        waypoints: [
-          {{ instruction: `Head toward ${{title}}`, distance: 100, maneuver: "Head straight", icon: "↑" }},
-          {{ instruction: `Continue along pedestrian pathway to ${{title}}`, distance: 120, maneuver: "Head straight", icon: "↑" }},
-          {{ instruction: `Arrival: ${{title}}`, distance: 0, maneuver: "Destination reached", icon: "★" }}
-        ]
+        subtitle: `${{title}} • Real Pedestrian Destination`,
+        category: "Real Destination",
+        isRealQuery: true
       }};
     }}
 
@@ -1631,71 +1628,140 @@ html_content = f"""<!DOCTYPE html>
       return parseFloat((R * c).toFixed(2));
     }}
 
-    function generateDynamicWaypoints(startLat, startLon, destLat, destLon, destTitle) {{
-      const distKm = calculateHaversineKm(startLat, startLon, destLat, destLon);
-      const distMeters = Math.max(80, Math.round(distKm * 1000));
-      const step1Dist = Math.min(120, Math.round(distMeters * 0.25));
-      const step2Dist = Math.max(60, Math.round(distMeters * 0.5));
-      const step3Dist = Math.max(30, distMeters - step1Dist - step2Dist);
+    async function fetchRealOsrmRoute(startLat, startLon, destLat, destLon, destTitle) {{
+      try {{
+        const url = `https://router.project-osrm.org/route/v1/foot/${{startLon}},${{startLat}};${{destLon}},${{destLat}}?overview=full&geometries=geojson&steps=true`;
+        const res = await fetch(url);
+        if (res.ok) {{
+          const data = await res.json();
+          if (data && data.routes && data.routes[0]) {{
+            const r = data.routes[0];
+            const distKm = parseFloat((r.distance / 1000).toFixed(2));
+            const estMin = Math.max(1, Math.round(r.duration / 60));
+            const routeCoords = (r.geometry && r.geometry.coordinates)
+              ? r.geometry.coordinates.map(c => [c[1], c[0]])
+              : null;
 
-      return [
-        {{
-          instruction: `Walk forward along pathway toward ${{destTitle}}`,
-          distance: step1Dist,
-          maneuver: "Head straight",
-          icon: "↑"
-        }},
-        {{
-          instruction: `Continue along main pedestrian walkway toward ${{destTitle}}`,
-          distance: step2Dist,
-          maneuver: "Follow sidewalk",
-          icon: "↑"
-        }},
-        {{
-          instruction: `Approaching entrance of ${{destTitle}}`,
-          distance: step3Dist,
-          maneuver: "Keep straight to entrance",
-          icon: "🚶"
-        }},
-        {{
-          instruction: `Arrival: ${{destTitle}}`,
-          distance: 0,
-          maneuver: "Destination reached",
-          icon: "★"
+            const legs = r.legs || [];
+            let waypoints = [];
+            if (legs[0] && legs[0].steps && legs[0].steps.length > 0) {{
+              waypoints = legs[0].steps.map((st) => {{
+                const stepMeters = Math.max(1, Math.round(st.distance));
+                const streetName = st.name || destTitle;
+                const mType = st.maneuver ? st.maneuver.type : 'continue';
+                const mMod = st.maneuver ? st.maneuver.modifier : '';
+                let maneuverText = "Walk straight";
+                let icon = "↑";
+                let instruction = `Continue along ${{streetName}}`;
+
+                if (mType === 'depart') {{
+                  maneuverText = `Head toward ${{streetName}}`;
+                  instruction = `Start walking on ${{streetName}}`;
+                  icon = "↑";
+                }} else if (mType === 'arrive') {{
+                  maneuverText = "Destination reached";
+                  instruction = `Arrived at ${{destTitle}}`;
+                  icon = "★";
+                }} else if (mType === 'turn' || mType === 'fork' || mType === 'end of road') {{
+                  if (mMod && mMod.includes('left')) {{
+                    maneuverText = "Turn left";
+                    instruction = `Turn left onto ${{streetName}}`;
+                    icon = "←";
+                  }} else if (mMod && mMod.includes('right')) {{
+                    maneuverText = "Turn right";
+                    instruction = `Turn right onto ${{streetName}}`;
+                    icon = "→";
+                  }}
+                }} else if (mType === 'roundabout') {{
+                  maneuverText = "Enter roundabout";
+                  instruction = `Take exit onto ${{streetName}}`;
+                  icon = "↻";
+                }}
+
+                return {{
+                  instruction: instruction,
+                  distance: stepMeters,
+                  maneuver: maneuverText,
+                  icon: icon
+                }};
+              }}).filter(st => st.distance > 0 || st.maneuver === 'Destination reached');
+            }}
+
+            if (waypoints.length > 0) {{
+              return {{
+                distKm,
+                estMin,
+                waypoints,
+                routeCoords
+              }};
+            }}
+          }}
         }}
-      ];
+      }} catch (err) {{
+        console.warn("[OSRM] Pedestrian routing fetch:", err);
+      }}
+
+      // Haversine direct calculation fallback if offline
+      const distKm = calculateHaversineKm(startLat, startLon, destLat, destLon);
+      const estMin = Math.max(1, Math.round((distKm / 4.8) * 60));
+      const distMeters = Math.max(10, Math.round(distKm * 1000));
+      return {{
+        distKm,
+        estMin,
+        waypoints: [
+          {{
+            instruction: `Walk forward along pathway toward ${{destTitle}}`,
+            distance: distMeters,
+            maneuver: "Head straight",
+            icon: "↑"
+          }},
+          {{
+            instruction: `Arrival: ${{destTitle}}`,
+            distance: 0,
+            maneuver: "Destination reached",
+            icon: "★"
+          }}
+        ],
+        routeCoords: [
+          [startLat, startLon],
+          [destLat, destLon]
+        ]
+      }};
     }}
 
-    function selectRealDestination(title, subtitle, lat, lon) {{
+    async function selectRealDestination(title, subtitle, lat, lon) {{
       triggerHaptic([60]);
       const destLat = parseFloat(lat);
       const destLon = parseFloat(lon);
-      const distKm = calculateHaversineKm(userGps.lat, userGps.lon, destLat, destLon);
-      const estMin = Math.max(2, Math.round((distKm / 4.8) * 60));
-      const waypoints = generateDynamicWaypoints(userGps.lat, userGps.lon, destLat, destLon, title);
-
-      activeDestination = {{
-        title: title,
-        subtitle: subtitle || `${{title}} • ${{distKm}} km`,
-        lat: destLat,
-        lon: destLon,
-        distanceKm: distKm,
-        estimatedMinutes: estMin,
-        waypoints: waypoints
-      }};
-
-      currentDestinationTitle = title;
-      currentDestinationSub = `${{subtitle || title}} • ${{distKm}} km • ${{estMin}} min • ${{waypoints.length}} waypoints`;
-      currentWaypoints = [...waypoints];
 
       const pTitle = document.getElementById('preview-destination-title');
       const pSub = document.getElementById('preview-destination-sub');
-      const sBtn = document.getElementById('start-nav-btn');
       if (pTitle) pTitle.innerText = title;
+      if (pSub) pSub.innerText = "Calculating real pedestrian walking route...";
+      navigateTo('routePreview');
+
+      const routeData = await fetchRealOsrmRoute(userGps.lat, userGps.lon, destLat, destLon, title);
+
+      activeDestination = {{
+        title: title,
+        subtitle: subtitle || `${{title}} • ${{routeData.distKm}} km`,
+        lat: destLat,
+        lon: destLon,
+        distanceKm: routeData.distKm,
+        estimatedMinutes: routeData.estMin,
+        waypoints: routeData.waypoints,
+        routeCoords: routeData.routeCoords
+      }};
+
+      currentDestinationTitle = title;
+      currentDestinationSub = `${{subtitle || title}} • ${{routeData.distKm}} km • ${{routeData.estMin}} min • ${{routeData.waypoints.length}} steps`;
+      currentWaypoints = [...routeData.waypoints];
+
       if (pSub) pSub.innerText = currentDestinationSub;
+      const sBtn = document.getElementById('start-nav-btn');
       if (sBtn) sBtn.setAttribute('aria-label', `Start walking navigation to ${{title}}`);
 
-      navigateTo('routePreview');
+      initRouteLeafletMap();
     }}
 
     // ==================== INTERACTIVE LEAFLET MAPS ====================
@@ -1739,17 +1805,20 @@ html_content = f"""<!DOCTYPE html>
         }});
         routeDestMarker = L.marker([activeDestination.lat, activeDestination.lon], {{ icon: destIcon }}).addTo(routeLeafletMap);
 
-        // Add Route Polyline
-        const latlngs = [
-          [userGps.lat, userGps.lon],
-          [(userGps.lat + activeDestination.lat) / 2 + 0.0005, (userGps.lon + activeDestination.lon) / 2],
-          [activeDestination.lat, activeDestination.lon]
-        ];
+        // Add Genuine Real Route Polyline
+        let latlngs = [];
+        if (activeDestination.routeCoords && activeDestination.routeCoords.length > 0) {{
+          latlngs = activeDestination.routeCoords;
+        }} else {{
+          latlngs = [
+            [userGps.lat, userGps.lon],
+            [activeDestination.lat, activeDestination.lon]
+          ];
+        }}
         routePolyline = L.polyline(latlngs, {{
           color: '#2563EB',
           weight: 5,
           opacity: 0.85,
-          dashArray: '8, 8',
           lineCap: 'round'
         }}).addTo(routeLeafletMap);
 
@@ -2586,8 +2655,14 @@ html_content = f"""<!DOCTYPE html>
         statEl.innerText = directionStatus;
         statEl.className = 'text-[11px] font-bold tracking-wide uppercase ' + statusClass;
       }}
-      if (depthEl) depthEl.innerText = minCenterDist.toFixed(1) + 'm';
-      if (lanesEl) lanesEl.innerText = `L:${{minLeftDist.toFixed(1)}}m | C:${{minCenterDist.toFixed(1)}}m | R:${{minRightDist.toFixed(1)}}m`;
+      if (depthEl) {{
+        depthEl.innerText = activeObjects.length > 0 ? (minCenterDist.toFixed(1) + 'm') : 'Clear (>3m)';
+      }}
+      if (lanesEl) {{
+        lanesEl.innerText = activeObjects.length > 0 
+          ? `Detected: ${{activeObjects.map(o => o.label).join(', ')}}`
+          : 'Optical View: Clear Ahead';
+      }}
       if (hudEl) hudEl.className = `w-full mt-2 py-2 px-3 rounded-2xl bg-black/85 backdrop-blur-md border ${{borderClass}} text-white shadow-xl flex items-center justify-between`;
 
       // Update Top HUD Hazard Status Badge
@@ -2612,8 +2687,8 @@ html_content = f"""<!DOCTYPE html>
         }}
       }}
 
-      // Draw Ground Perspective Corridor & Chevrons on Canvas
-      drawLidarCorridorOverlay(ctx, canvas, minLeftDist, minCenterDist, minRightDist, directionArrow, directionStatus);
+      // Zero cartoon painted road! Pure real-world camera view.
+      // Bounding boxes for genuine detected objects have already been drawn above.
 
       // Emergency or Directional Voice Guidance (Throttled)
       if (guidanceSpoken && (now - lastSpokenObstacleTime > 5000)) {{
@@ -2627,104 +2702,6 @@ html_content = f"""<!DOCTYPE html>
           navigateTo('obstacleAlert');
         }}
       }}
-    }}
-
-    function drawLidarCorridorOverlay(ctx, canvas, minLeft, minCenter, minRight, arrowSymbol, directionStatus) {{
-      const w = canvas.width;
-      const h = canvas.height;
-      const vpX = w / 2;
-      const vpY = h * 0.40;
-      const laneW = w / 3;
-
-      ctx.save();
-
-      // 1. Center Walking Path Corridor (Ground Perspective Polygon)
-      ctx.beginPath();
-      ctx.moveTo(laneW, h);
-      ctx.lineTo(2 * laneW, h);
-      ctx.lineTo(vpX + 25, vpY);
-      ctx.lineTo(vpX - 25, vpY);
-      ctx.closePath();
-
-      if (minCenter >= 2.2) {{
-        ctx.fillStyle = 'rgba(16, 185, 129, 0.18)'; // Green pathway
-        ctx.strokeStyle = 'rgba(16, 185, 129, 0.7)';
-      }} else if (minCenter >= 1.0) {{
-        ctx.fillStyle = 'rgba(245, 158, 11, 0.28)'; // Amber caution
-        ctx.strokeStyle = 'rgba(245, 158, 11, 0.85)';
-      }} else {{
-        ctx.fillStyle = 'rgba(239, 68, 68, 0.38)'; // Red hazard
-        ctx.strokeStyle = 'rgba(239, 68, 68, 0.95)';
-      }}
-      ctx.lineWidth = 2.5;
-      ctx.fill();
-      ctx.stroke();
-
-      // Ground Walking Chevrons inside Center Path
-      const numChevrons = 3;
-      for (let i = 1; i <= numChevrons; i++) {{
-        const t = i / (numChevrons + 1);
-        const cy = h - (h - vpY) * t;
-        const halfW = 25 + (laneW * 0.5 - 25) * (1 - t);
-        ctx.beginPath();
-        ctx.moveTo(vpX - halfW * 0.6, cy + 8);
-        ctx.lineTo(vpX, cy - 6);
-        ctx.lineTo(vpX + halfW * 0.6, cy + 8);
-        ctx.strokeStyle = minCenter >= 2.2 ? 'rgba(52, 211, 153, 0.8)' : (minCenter >= 1.0 ? 'rgba(251, 191, 36, 0.85)' : 'rgba(248, 113, 113, 0.95)');
-        ctx.lineWidth = 3;
-        ctx.stroke();
-      }}
-
-      // 2. Left Lateral Lane Guide
-      ctx.beginPath();
-      ctx.moveTo(0, h);
-      ctx.lineTo(laneW, h);
-      ctx.lineTo(vpX - 25, vpY);
-      ctx.lineTo(vpX - 70, vpY);
-      ctx.closePath();
-      ctx.fillStyle = minLeft >= 2.0 ? 'rgba(59, 130, 246, 0.08)' : 'rgba(239, 68, 68, 0.16)';
-      ctx.strokeStyle = 'rgba(148, 163, 184, 0.35)';
-      ctx.lineWidth = 1.5;
-      ctx.fill();
-      ctx.stroke();
-
-      // 3. Right Lateral Lane Guide
-      ctx.beginPath();
-      ctx.moveTo(2 * laneW, h);
-      ctx.lineTo(w, h);
-      ctx.lineTo(vpX + 70, vpY);
-      ctx.lineTo(vpX + 25, vpY);
-      ctx.closePath();
-      ctx.fillStyle = minRight >= 2.0 ? 'rgba(59, 130, 246, 0.08)' : 'rgba(239, 68, 68, 0.16)';
-      ctx.strokeStyle = 'rgba(148, 163, 184, 0.35)';
-      ctx.lineWidth = 1.5;
-      ctx.fill();
-      ctx.stroke();
-
-      // Dynamic Guidance Arrow & Clearance Pill on Ground
-      const arrowY = h - 60;
-      ctx.font = 'bold 24px sans-serif';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillStyle = minCenter >= 2.2 ? '#10B981' : (minCenter >= 1.0 ? '#F59E0B' : '#EF4444');
-      ctx.fillText(arrowSymbol, vpX, arrowY);
-
-      // Depth Ahead Tag
-      ctx.font = 'bold 10px monospace';
-      const depthTag = `L:${{minLeft.toFixed(1)}}m | C:${{minCenter.toFixed(1)}}m | R:${{minRight.toFixed(1)}}m`;
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
-      const textW = ctx.measureText(depthTag).width + 14;
-      if (ctx.roundRect) {{
-        ctx.beginPath();
-        ctx.roundRect(vpX - textW / 2, arrowY + 16, textW, 18, 5);
-        ctx.fill();
-      }} else {{
-        ctx.fillRect(vpX - textW / 2, arrowY + 16, textW, 18);
-      }}
-      ctx.fillStyle = minCenter >= 2.2 ? '#34D399' : (minCenter >= 1.0 ? '#FBBF24' : '#F87171');
-      ctx.fillText(depthTag, vpX, arrowY + 25);
-
-      ctx.restore();
     }}
 
     async function triggerSignboardScan(quiet = false) {{
@@ -2920,7 +2897,7 @@ html_content = f"""<!DOCTYPE html>
         const speechMsg = `Current location detected near ${{locName}}. Routing to ${{targetTitle}}. Back camera is open. Point phone forward.`;
         speakText(spoken || speechMsg);
         
-        selectRealDestination(targetTitle, targetSub, targetLat, targetLon);
+        await selectRealDestination(targetTitle, targetSub, targetLat, targetLon);
         
         // Open back camera immediately and launch active navigation!
         startAlwaysOpenBackCamera();
@@ -3488,7 +3465,7 @@ html_content = f"""<!DOCTYPE html>
       navigateTo('activeNavigation');
       triggerHaptic([80, 40, 80]);
       currentWaypointIdx = 0;
-      currentDistance = currentWaypoints[0] ? currentWaypoints[0].distance : 80;
+      currentDistance = currentWaypoints[0] ? currentWaypoints[0].distance : 0;
       stepWalkedMeters = 0;
       obstacleTriggeredThisStep = false;
       trafficTriggeredThisStep = false;
@@ -3496,7 +3473,7 @@ html_content = f"""<!DOCTYPE html>
       renderActiveWaypoint();
 
       const initialInstruction = currentWaypoints[0] ? currentWaypoints[0].instruction : 'Head toward destination';
-      speakText(`Starting walking route to ${{targetName}}. ${{initialInstruction}} in ${{currentDistance}} meters.`);
+      speakText(`Starting real walking route to ${{targetName}}. ${{initialInstruction}}. Waiting at your current position. Walk forward along route when you are ready.`);
 
       // Ensure always-open rear camera is active
       startAlwaysOpenBackCamera();
@@ -3512,7 +3489,7 @@ html_content = f"""<!DOCTYPE html>
 
     function renderActiveWaypoint() {{
       const wp = currentWaypoints[currentWaypointIdx] || {{ instruction: 'Continue toward destination', maneuver: 'Continue straight', icon: '↑' }};
-      document.getElementById('nav-step-label').innerText = `Navigation • Step ${{currentWaypointIdx + 1}} of ${{currentWaypoints.length}}`;
+      document.getElementById('nav-step-label').innerText = `Real Route • Step ${{currentWaypointIdx + 1}} of ${{currentWaypoints.length}}`;
       document.getElementById('nav-instruction-text').innerText = wp.instruction;
       document.getElementById('nav-distance-num').innerText = currentDistance;
       document.getElementById('nav-maneuver-text').innerText = wp.maneuver;

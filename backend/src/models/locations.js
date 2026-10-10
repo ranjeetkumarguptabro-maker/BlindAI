@@ -322,18 +322,14 @@ function createCustomDestination(rawLocationName) {
     id: "custom-" + Date.now(),
     canonicalName: title,
     shortName: title,
-    subtitle: `${title} • 2.6 km • 32 min • 7 waypoints`,
-    category: "Custom Place",
-    distanceKm: 2.6,
-    estimatedMinutes: 32,
-    waypointCount: 7,
+    subtitle: `${title} • Real Pedestrian Destination`,
+    category: "Real Destination",
     isCustom: true,
     aliases: [title.toLowerCase()],
-    description: `User-specified destination: ${title}.`,
+    description: `User-specified pedestrian destination: ${title}.`,
     waypoints: [
-      { sequence: 1, instruction: `Head toward ${title}`, distanceMeters: 100, maneuver: "Head straight", icon: "arrow.up" },
-      { sequence: 2, instruction: `Continue along pedestrian pathway to ${title}`, distanceMeters: 120, maneuver: "Head straight", icon: "arrow.up" },
-      { sequence: 3, instruction: `Arriving at ${title}`, distanceMeters: 0, maneuver: "Destination reached", icon: "★" }
+      { sequence: 1, instruction: `Head toward ${title}`, distanceMeters: 0, maneuver: "Head straight", icon: "arrow.up" },
+      { sequence: 2, instruction: `Arriving at ${title}`, distanceMeters: 0, maneuver: "Destination reached", icon: "★" }
     ]
   };
 }

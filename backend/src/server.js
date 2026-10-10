@@ -116,7 +116,12 @@ const requestHandler = async (req, res) => {
       for (const p of candidatePaths) {
         if (fs.existsSync(p) && fs.statSync(p).isFile()) {
           const html = fs.readFileSync(p, "utf8");
-          res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
+          res.writeHead(200, {
+            "Content-Type": "text/html; charset=utf-8",
+            "Cache-Control": "no-cache, no-store, must-revalidate",
+            "Pragma": "no-cache",
+            "Expires": "0"
+          });
           if (req.method === "HEAD") {
             res.end();
           } else {
