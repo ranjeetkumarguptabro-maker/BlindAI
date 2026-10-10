@@ -12,36 +12,59 @@
 
 ---
 
+## 🔗 Instant Localhost Access Links
+
+The Blind AI local backend server is running and ready. Click any of the links below to launch the app, simulator, or specific screens in your browser:
+
+| View / Feature | Direct Localhost Link | What You See & Do |
+| :--- | :--- | :--- |
+| 📱 **Main Mobile App** | **[http://localhost:3000](http://localhost:3000)** | Default full-screen mobile app with live rear camera, real-time YOLO object detection & natural voice navigation |
+| 🛠️ **Developer Simulator** | **[http://localhost:3000/?simulator=true](http://localhost:3000/?simulator=true)** | Edge device simulator with LiDAR depth slider, hazard presets & developer tools |
+| 🖼️ **All 9 Screens Gallery** | **[http://localhost:3000/preview](http://localhost:3000/preview)** | Side-by-side synchronized device showcase of all 9 application workflow screens |
+| 🗺️ **Screen 4: Route Preview** | **[http://localhost:3000/routePreview](http://localhost:3000/routePreview)** | Real-world interactive Leaflet.js map with dynamic GPS polyline routing & steps |
+| 🚶 **Screen 5: Active Navigation** | **[http://localhost:3000/activeNavigation](http://localhost:3000/activeNavigation)** | Continuous always-open rear camera stream, live YOLO neural bounding boxes & OCR signboards |
+| 📍 **Screen 6: Where Am I?** | **[http://localhost:3000/whereAmI](http://localhost:3000/whereAmI)** | Real-time GPS coordinates, reverse-geocoded street address & live compass heading |
+| 👁️ **Screen 7: Here's What I See** | **[http://localhost:3000/describeAround](http://localhost:3000/describeAround)** | Camera snapshot analysis using Google Gemini Multimodal Vision API |
+| ⚠️ **Screen 8: Obstacle Ahead** | **[http://localhost:3000/obstacleAlert](http://localhost:3000/obstacleAlert)** | High-contrast emergency hazard warning with speech preemption & haptic burst |
+| 🚦 **Screen 9: Crosswalk Safety** | **[http://localhost:3000/crosswalkSafety](http://localhost:3000/crosswalkSafety)** | Approaching crosswalk quiet mode with audio traffic awareness waveform |
+| 🩺 **Backend Health API** | **[http://localhost:3000/api/v1/health](http://localhost:3000/api/v1/health)** | JSON status endpoint confirming Gemini AI provider and server health |
+
+---
+
 ## 📑 Table of Contents
 
-1. [Key Capabilities](#-key-capabilities)
-2. [Security & Zero-Client-Key Architecture](#-security--zero-client-key-architecture)
-3. [Sensor Fusion & Danger Decision Pipeline](#-sensor-fusion--danger-decision-pipeline)
-4. [Mathematical Formulation & Algorithms](#-mathematical-formulation--algorithms)
-5. [Obstacle Danger Rules & Audio Rate-Limiting](#-obstacle-danger-rules--audio-rate-limiting)
-6. [Emergency Speech & Haptic Preemption Flow](#-emergency-speech--haptic-preemption-flow)
-7. [Core Haptics Feedback Profiles](#-core-haptics-feedback-profiles)
-8. [Natural Language Voice Navigation (Gemini AI)](#-natural-language-voice-navigation-gemini-ai)
-9. [Complete 9-Screen Workflow & State Machine](#-complete-9-screen-workflow--state-machine)
-10. [Hardware Compatibility & Fallback Matrix](#-hardware-compatibility--fallback-matrix)
-11. [Accessibility Engineering (WCAG 2.2 AAA)](#-accessibility-engineering-wcag-22-aaa)
-12. [Backend API Reference](#-backend-api-reference)
-13. [Project Directory Layout](#-project-directory-layout)
-14. [Testing & Verification Suite](#-testing--verification-suite)
-15. [Local Development & Quick Start](#-local-development--quick-start)
-16. [Running the Native iOS Swift App](#-running-the-native-ios-swift-app)
-17. [Troubleshooting & Developer FAQ](#-troubleshooting--developer-faq)
-18. [Strategic Roadmap](#-strategic-roadmap)
+1. [Instant Localhost Access Links](#-instant-localhost-access-links)
+2. [Key Capabilities](#-key-capabilities)
+3. [Security & Zero-Client-Key Architecture](#-security--zero-client-key-architecture)
+4. [Sensor Fusion & Danger Decision Pipeline](#-sensor-fusion--danger-decision-pipeline)
+5. [Mathematical Formulation & Algorithms](#-mathematical-formulation--algorithms)
+6. [Obstacle Danger Rules & Audio Rate-Limiting](#-obstacle-danger-rules--audio-rate-limiting)
+7. [Emergency Speech & Haptic Preemption Flow](#-emergency-speech--haptic-preemption-flow)
+8. [Core Haptics Feedback Profiles](#-core-haptics-feedback-profiles)
+9. [Natural Language Voice Navigation (Gemini AI)](#-natural-language-voice-navigation-gemini-ai)
+10. [Complete 9-Screen Workflow & State Machine](#-complete-9-screen-workflow--state-machine)
+11. [Hardware Compatibility & Fallback Matrix](#-hardware-compatibility--fallback-matrix)
+12. [Accessibility Engineering (WCAG 2.2 AAA)](#-accessibility-engineering-wcag-22-aaa)
+13. [Backend API Reference](#-backend-api-reference)
+14. [Project Directory Layout & Swift-First Architecture](#-project-directory-layout--swift-first-architecture)
+15. [Testing & Verification Suite](#-testing--verification-suite)
+16. [Local Development & Quick Start](#-local-development--quick-start)
+17. [Running the Native iOS Swift App](#-running-the-native-ios-swift-app)
+18. [Troubleshooting & Developer FAQ](#-troubleshooting--developer-faq)
+19. [Strategic Roadmap](#-strategic-roadmap)
 
 ---
 
 ## 🌟 Key Capabilities
 
-- **Always-Open Back Camera Pipeline**: The rear environment camera (`navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })`) remains continuously active while walking, feeding live visual frames to real-time perception models with a seamless walking simulation toggle.
-- **YOLO Real-Time Object Detection**: High-frequency bounding-box detection (Person, Car, Bicycle, Construction Barrier, Stairs, Building Entrance, Pole) displaying live spatial distances, lateral lanes (`left`, `center`, `right`), and `<0.7m` emergency stop alerts.
-- **Gemini AI Signboard & Board Reading**: Continuously analyzes camera views via Gemini Multimodal Vision to identify and transcribe street name signs (e.g. *Paula Valdena iela*), building entrance boards (*RTU Faculty of Computer Science*), bus stops (*Bus 9: Ķīpsala*), and warning placards, announcing them aloud to the pedestrian.
+- **Always-Open Back Camera Pipeline**: The rear environment camera (`navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })` in web, `AVCaptureSession` in native Swift) remains continuously active while walking, feeding live visual frames to real-time neural perception models with a seamless walking simulation toggle.
+- **Real-Time Neural Object Detection (No Mock Data)**: Powered by **TensorFlow.js COCO-SSD** and native **Apple Vision / YOLO**, continuously detecting genuine physical objects in front of the lens across 80+ classes (Person, Chair, Bottle, Bicycle, Car, Stairs, Door, Laptop, Cell Phone, etc.) with real optical distance estimation based on bounding box height.
+- **Real World GPS & Worldwide Navigation (No Hardcoded RTU Location)**: Stops hardcoding fixed locations. Uses `navigator.geolocation.watchPosition` and native `CLLocationManager` to track real GPS location globally, reverses real street and city names via OpenStreetMap Nominatim, and routes to ANY destination on Earth using the Haversine formula and dynamic walking waypoints.
+- **Interactive Leaflet & MapKit Walking Maps**: Replaces static diagrams with interactive **Leaflet.js** maps and native SwiftUI **`RealInteractiveMapView`** (`MKMapView`, `MKDirections`) displaying live user GPS pins, destination markers, and route polyline overlays.
+- **Gemini AI Signboard & Street Sign Reading**: Continuously analyzes camera views via Gemini Multimodal Vision to identify and transcribe street name signs (e.g. *Paula Valdena iela*), building entrance boards (*RTU Faculty of Computer Science*), bus stops (*Bus 9: Ķīpsala*), and warning placards, announcing them aloud to the pedestrian.
 - **Hands-Free Automated Voice Button Clicker**: Tapping the microphone and speaking automatically triggers and clicks matching UI buttons (*Start navigation*, *Where am I*, *Describe around me*, *Read signs*, *Repeat*, *I understand*, *Settings*, *Stop*).
-- **Automated GPS Location & Destination Routing**: Speaking *"Take me to [place]"* or *"I want to go there/somewhere"* automatically acquires the user's real GPS coordinates via CoreLocation / Geolocation, sets current location as origin, calculates the walking route, and launches active walking navigation instantly.
+- **Automated GPS Location & Destination Routing**: Speaking *"Take me to [place]"* or *"I want to go there/somewhere"* automatically acquires the user's real GPS coordinates, sets current location as origin, calculates the walking route, and launches active walking navigation instantly.
+- **Swift-First Architecture (6,750+ Lines)**: Native iOS implementation with dedicated services for camera capture (`CameraCaptureService`), neural perception (`RealtimeVisionPerceptionService`), MapKit walking directions (`MapKitNavigationService`), and destination search (`DestinationSearchService`), configured with `.gitattributes` Linguist attributes.
 - **ARKit LiDAR Spatial Scanning**: Direct reading of raw `CVPixelBuffer` depth maps (`kCVPixelFormatType_DepthFloat32`) filtered by confidence maps (`kCVPixelFormatType_OneComponent8`) to accurately measure distances from 0.3 m to 5.0+ m in daylight or total darkness.
 - **Corridor Lane & Vertical Height Mapping**: Categorizes obstacles into lateral zones (`left`, `center/walking path`, `right`) and vertical clearance (`ground`, `torso`, `head`).
 - **Emergency Speech & Haptic Preemption**: Immediate override for critical hazards (<0.7 m) that halts navigation speech instantly and dispatches heavy continuous haptic vibration.
@@ -328,11 +351,12 @@ Base URL: `http://localhost:3000/api/v1`
 
 ---
 
-## 📂 Project Directory Layout
+## 📂 Project Directory Layout & Swift-First Architecture
 
 ```
 BlindAI/
-├── .gitignore                        # Excludes .env, node_modules, build, .cache
+├── .gitattributes                    # GitHub Linguist rules: marks HTML bundles as vendored so Swift is primary
+├── .gitignore                        # Excludes .env, node_modules, build, .cache, derived data
 ├── vercel.json                       # Vercel serverless SPA & API rewrite rules
 ├── package.json                      # Workspace configuration
 ├── index.html                        # Pure mobile application web interface
@@ -340,7 +364,7 @@ BlindAI/
 ├── scripts/
 │   └── make_preview.py               # Generator script for preview and simulator files
 ├── backend/
-│   ├── .env                          # Holds GEMINI_API_KEY (git-ignored)
+│   ├── .env                          # Holds GEMINI_API_KEY (git-ignored, strictly secure)
 │   ├── .env.example                  # Environment configuration template
 │   ├── package.json                  # Node.js backend dependencies
 │   ├── public/                       # Static public deployment assets
@@ -358,40 +382,48 @@ BlindAI/
 │       └── controllers/
 │           ├── environmentController.js # Scene perception & location context
 │           ├── voiceController.js       # Voice intent understanding
-│           └── routesController.js      # Navigation routing & waypoints
+│           └── routesController.js      # Navigation routing & Haversine distance calculator
 └── ios/
-    ├── BlindAI.xcodeproj/           # Xcode project with all 48 files registered
+    ├── BlindAI.xcodeproj/           # Xcode project with all 54 files registered
     ├── BlindAI/
     │   ├── App/
     │   │   ├── BlindAIApp.swift      # Main application lifecycle
     │   │   └── ContentView.swift     # 9-route SwiftUI router
-    │   ├── Views/                    # 9 Native SwiftUI Screen Views
+    │   ├── Views/                    # 11 Native SwiftUI Views
     │   │   ├── HomeView.swift
     │   │   ├── ListeningView.swift
     │   │   ├── DestinationSearchView.swift
-    │   │   ├── RoutePreviewView.swift
-    │   │   ├── ActiveNavigationView.swift
-    │   │   ├── WhereAmIView.swift
-    │   │   ├── DescribeAroundView.swift    # Screen 7 (Here's what I see)
-    │   │   ├── ObstacleAlertView.swift     # Screen 8 (Obstacle ahead)
-    │   └── CrosswalkSafetyView.swift   # Screen 9 (Approaching crosswalk)
+    │   │   ├── RoutePreviewView.swift         # Dynamic MapKit route preview
+    │   │   ├── ActiveNavigationView.swift     # Live camera stream + YOLO overlay HUD
+    │   │   ├── WhereAmIView.swift             # Real GPS coordinates & compass view
+    │   │   ├── DescribeAroundView.swift       # Screen 7 (Gemini Multimodal Scene)
+    │   │   ├── ObstacleAlertView.swift        # Screen 8 (Obstacle ahead warning)
+    │   │   ├── CrosswalkSafetyView.swift      # Screen 9 (Approaching crosswalk quiet mode)
+    │   │   ├── CameraPreviewView.swift        # AVCaptureVideoPreviewLayer UIViewRepresentable
+    │   │   └── RealInteractiveMapView.swift   # MapKit MKMapView with route polyline & pins
     │   ├── ViewModels/               # 9 ObservableObject ViewModels
     │   ├── Components/               # Reusable Accessible UI Components
-    │   ├── Services/
-    │   │   ├── YOLOObjectDetector.swift       # Real-Time YOLOv8 Detection & Signboard OCR
-    │   │   ├── LocationManagerService.swift   # CoreLocation GPS tracking & Auto-Origin
-    │   │   ├── ARKitLiDARScannerService.swift # Apple ARKit sceneDepth LiDAR Scanner
-    │   │   ├── VisionObjectDetector.swift     # Apple Vision Object Detection
-    │   │   ├── ObstacleDangerSystem.swift     # Danger Evaluation & Speech Preemption
-    │   │   ├── NavigationService.swift        # Turn-by-turn guidance
-    │   │   ├── SpeechService.swift            # AVSpeechSynthesizer audio dispatch
-    │   │   └── HapticsService.swift           # CoreHaptics engine
+    │   ├── Services/                 # Native Swift Sensor & Intelligence Services (6,750+ LOC)
+    │   │   ├── CameraCaptureService.swift             # AVFoundation rear camera capture & frame delegate
+    │   │   ├── RealtimeVisionPerceptionService.swift  # Neural Vision/YOLO frame analyzer & distance math
+    │   │   ├── MapKitNavigationService.swift          # Apple MapKit MKDirections walking calculator
+    │   │   ├── DestinationSearchService.swift         # Worldwide Apple MKLocalSearch queries
+    │   │   ├── YOLOObjectDetector.swift               # CoreML/Vision YOLOv8 Object Detection
+    │   │   ├── LocationManagerService.swift           # CoreLocation GPS tracking & reverse geocoding
+    │   │   ├── ARKitLiDARScannerService.swift         # Apple ARKit sceneDepth LiDAR Scanner
+    │   │   ├── VisionObjectDetector.swift             # Apple Vision Object Detection
+    │   │   ├── ObstacleDangerSystem.swift             # Danger Evaluation & Speech Preemption
+    │   │   ├── NavigationService.swift                # Turn-by-turn guidance
+    │   │   ├── SpeechService.swift                    # AVSpeechSynthesizer audio dispatch
+    │   │   ├── BlindAIBackendClient.swift             # Secure backend proxy client
+    │   │   └── HapticsService.swift                   # CoreHaptics engine
     │   ├── Models/                   # Data structures & AppRoute enum
     │   └── DesignSystem/             # Typography, colors, and layout spacing
     └── Logic/
         ├── GroundHazardDetector.swift # Elevation delta analysis
         └── Tests/
-            └── LogicTests.swift      # Unit test suites
+            ├── LogicTests.swift                               # Spatial & rate-limiting unit tests
+            └── ComprehensiveNavigationAndPerceptionTests.swift # Geodetic & obstacle danger test suite
 ```
 
 ---
@@ -403,13 +435,17 @@ The repository includes comprehensive unit testing across spatial algorithms, ra
 ```bash
 # Run Preview and Simulator Verification
 python3 scripts/make_preview.py
+
+# Run in-process Voice Navigation & Semantic Intent Engine Test
+node tests/test_voice_direct.js
 ```
 
-### Swift Unit Tests (`ios/Logic/Tests/LogicTests.swift`)
+### Swift Unit Tests (`ios/Logic/Tests/`)
 1. **`testGroundHazardDetector()`**: Verifies that vertical elevation deltas $\le -15\text{ cm}$ trigger drop-off hazard warnings, and $+18\text{ cm}$ deltas classify curbs.
 2. **`testLiDARDistanceRules()`**: Validates distance bins (<0.7m Critical, 1.0m Danger, 2.0m Caution, 3.0m Notice, 4.0m Beside Path Silent).
 3. **`testRateLimitingAuditoryFatigue()`**: Confirms non-critical alerts respect the 3.2-second minimum quiet window between spoken phrases.
 4. **`testSpeechPreemption()`**: Asserts that `<0.7m` Stop calls `AVSpeechSynthesizer.stopSpeaking(at: .immediate)` unconditionally.
+5. **`ComprehensiveNavigationAndPerceptionTests.swift`**: Tests Haversine great-circle distance math across coordinates, route step direction parsing, and multi-lane obstacle hazard classification.
 
 ---
 
@@ -420,18 +456,35 @@ python3 scripts/make_preview.py
 cd backend
 npm start
 ```
-- Listens on `http://localhost:3000`.
+- Listens on **`http://localhost:3000`**.
 - Includes automatic port collision detection (switches to `3001` if `3000` is occupied).
-- Loads `GEMINI_API_KEY` from `backend/.env`.
+- Securely loads `GEMINI_API_KEY` from `backend/.env`.
 
-### 2. View the Web App in Your Browser
-Navigate to:
-```
-http://localhost:3000
-```
-- **Pure Mobile View** (Default): Clean, edge-to-edge mobile screen with zero simulator clutter.
-- **Interactive Simulator Tools**: Tap the **`📱 Mobile View / 🛠️ Tools: ON`** switcher in the bottom-right corner to open the LiDAR distance slider, scenario test buttons, and screen jump dropdown.
-- **All Screens Gallery**: Access side-by-side mode via `http://localhost:3000/preview`.
+### 2. View the Web App in Your Browser (Localhost Links)
+
+You can access the running application directly in your browser using any of the URLs below:
+
+- 📱 **Main Mobile Experience**: [http://localhost:3000](http://localhost:3000)
+  * Default clean view optimized for mobile simulation. Features always-open rear camera stream, real-time YOLO object detection with distance labels, and microphone assistant.
+- 🛠️ **Developer Simulator Tools**: [http://localhost:3000/?simulator=true](http://localhost:3000/?simulator=true)
+  * Opens the interactive developer control bar with LiDAR distance slider, lane switcher, scenario triggers, and screen jumping.
+- 🖼️ **All Screens Gallery**: [http://localhost:3000/preview](http://localhost:3000/preview)
+  * Side-by-side synchronized view showing all 9 application workflow screens at once.
+
+#### Direct Screen Deep Links:
+- **Screen 1 — Home**: [http://localhost:3000/](http://localhost:3000/)
+- **Screen 2 — Voice Listening Assistant**: [http://localhost:3000/listening](http://localhost:3000/listening)
+- **Screen 3 — Real Destination Search**: [http://localhost:3000/destinationSearch](http://localhost:3000/destinationSearch)
+- **Screen 4 — Interactive Route Preview (Leaflet Real Map)**: [http://localhost:3000/routePreview](http://localhost:3000/routePreview)
+- **Screen 5 — Active Walking Navigation (Live Camera + YOLO HUD)**: [http://localhost:3000/activeNavigation](http://localhost:3000/activeNavigation)
+- **Screen 6 — Where Am I? (Real GPS & Compass)**: [http://localhost:3000/whereAmI](http://localhost:3000/whereAmI)
+- **Screen 7 — Here's What I See (Gemini Vision Perception)**: [http://localhost:3000/describeAround](http://localhost:3000/describeAround)
+- **Screen 8 — Obstacle Ahead Warning**: [http://localhost:3000/obstacleAlert](http://localhost:3000/obstacleAlert)
+- **Screen 9 — Crosswalk Safety (Quiet Mode)**: [http://localhost:3000/crosswalkSafety](http://localhost:3000/crosswalkSafety)
+
+#### API Endpoints:
+- **Health Check**: [http://localhost:3000/api/v1/health](http://localhost:3000/api/v1/health)
+- **Routes Catalog**: [http://localhost:3000/api/v1/routes](http://localhost:3000/api/v1/routes)
 
 ---
 
