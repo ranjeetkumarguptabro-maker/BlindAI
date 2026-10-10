@@ -2,7 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#F8F8F9">
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
@@ -150,9 +153,96 @@
     body.show-simulator div.simulator-chrome {
       display: flex !important;
     }
-    @media (max-width: 639px) {
+    /* Global SVG & Icon Non-Distortion & Crispness */
+    svg {
+      flex-shrink: 0;
+      shape-rendering: geometricPrecision;
+    }
+    button, a {
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Safe Area Inset Classes */
+    .mobile-safe-header {
+      padding-top: max(env(safe-area-inset-top, 0px), 14px) !important;
+      padding-left: max(env(safe-area-inset-left, 0px), 16px) !important;
+      padding-right: max(env(safe-area-inset-right, 0px), 16px) !important;
+    }
+    .mobile-safe-footer {
+      padding-bottom: max(env(safe-area-inset-bottom, 0px), 20px) !important;
+      padding-left: max(env(safe-area-inset-left, 0px), 16px) !important;
+      padding-right: max(env(safe-area-inset-right, 0px), 16px) !important;
+    }
+
+    /* Full-Bleed Native Mobile Layout on real phones / tablets */
+    @media (max-width: 768px) {
+      html, body {
+        width: 100% !important;
+        height: 100% !important;
+        height: 100dvh !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: hidden !important;
+        background-color: #F8F8F9 !important;
+        -webkit-text-size-adjust: 100% !important;
+        touch-action: manipulation;
+      }
+      body {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        justify-content: flex-start !important;
+        padding: 0 !important;
+      }
+      #main-content {
+        width: 100% !important;
+        max-width: 100% !important;
+        height: 100% !important;
+        height: 100dvh !important;
+        flex: 1 1 100% !important;
+        display: flex !important;
+        padding: 0 !important;
+        margin: 0 !important;
+      }
+      #view-interactive {
+        width: 100% !important;
+        max-width: 100% !important;
+        height: 100% !important;
+        height: 100dvh !important;
+        flex: 1 1 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        gap: 0 !important;
+      }
+      #view-interactive > div {
+        width: 100% !important;
+        max-width: 100% !important;
+        height: 100% !important;
+        height: 100dvh !important;
+      }
+      .iphone-frame {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 100% !important;
+        height: 100% !important;
+        height: 100dvh !important;
+        max-height: 100dvh !important;
+        border: none !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        background-color: #F8F8F9 !important;
+      }
       #device-status-bar, #device-home-bar {
         display: none !important;
+      }
+      aside[aria-label="Simulator View Mode Switcher"] {
+        display: none !important;
+      }
+      .screen-container {
+        height: 100% !important;
+        height: 100dvh !important;
       }
     }
     
@@ -263,19 +353,19 @@
         <section id="screen-viewport" role="region" aria-label="Blind AI Mobile Screen" class="flex-1 flex flex-col overflow-y-auto no-scrollbar relative" tabindex="-1">
           
           <!-- ==================== SCREEN 1: HOME ==================== -->
-          <div id="screen-home" role="region" aria-label="Screen 1: Home" class="flex-1 flex flex-col justify-between p-5 pb-6">
-            <div class="flex justify-between items-center pt-2 px-1">
+          <div id="screen-home" role="region" aria-label="Screen 1: Home" class="screen-container flex-1 flex flex-col justify-between p-5 pb-6">
+            <div class="mobile-safe-header flex justify-between items-center pt-2 px-1">
               <span class="text-xl font-bold text-black tracking-tight">Blind AI</span>
-              <button onclick="openSettingsModal()" aria-label="Settings" aria-haspopup="dialog" class="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-700 hover:bg-slate-50 shadow-sm transition active:scale-95">
-                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+              <button onclick="openSettingsModal()" aria-label="Settings" aria-haspopup="dialog" class="w-11 h-11 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-700 hover:bg-slate-50 shadow-sm transition active:scale-95 shrink-0">
+                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
               </button>
             </div>
 
             <div class="flex flex-col items-center justify-center my-auto py-2">
-              <button type="button" onclick="navigateTo('listening')" aria-label="Activate voice listening assistant" class="relative flex items-center justify-center w-36 h-36 mb-4 cursor-pointer rounded-full focus:outline-none">
+              <button type="button" onclick="navigateTo('listening')" aria-label="Activate voice listening assistant" class="relative flex items-center justify-center w-36 h-36 mb-4 cursor-pointer rounded-full focus:outline-none shrink-0">
                 <div class="absolute w-44 h-44 rounded-full orb-glow ripple-ring-1 pointer-events-none" aria-hidden="true"></div>
                 <div class="absolute w-36 h-36 rounded-full orb-glow ripple-ring-2 pointer-events-none" aria-hidden="true"></div>
-                <div class="w-28 h-28 rounded-full orb-3d relative z-10 flex items-center justify-center" aria-hidden="true">
+                <div class="w-28 h-28 rounded-full orb-3d relative z-10 flex items-center justify-center shrink-0" aria-hidden="true">
                   <div class="w-10 h-10 rounded-full bg-white/20 blur-[2px]"></div>
                 </div>
               </button>
@@ -287,70 +377,70 @@
             <div class="flex flex-col space-y-3">
               <!-- Card 1: Start navigation -->
               <button onclick="navigateTo('destinationSearch')" aria-label="Start navigation: Get directions to a place" class="w-full bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between text-left hover:border-slate-300 transition active:scale-[0.99]">
-                <div class="flex items-center space-x-3.5">
-                  <div class="w-11 h-11 rounded-xl bg-orange-50 border border-orange-100 flex items-center justify-center text-orange-600 flex-shrink-0" aria-hidden="true">
-                    <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
+                <div class="flex items-center space-x-3.5 min-w-0 flex-1">
+                  <div class="w-11 h-11 rounded-xl bg-orange-50 border border-orange-100 flex items-center justify-center text-orange-600 shrink-0" aria-hidden="true">
+                    <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
                   </div>
-                  <div>
+                  <div class="min-w-0 flex-1 pr-2">
                     <h3 class="font-bold text-slate-900 text-base leading-tight">Start navigation</h3>
-                    <p class="text-xs text-slate-600 mt-0.5">Get directions to a place</p>
+                    <p class="text-xs text-slate-600 mt-0.5 truncate">Get directions to a place</p>
                   </div>
                 </div>
-                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-slate-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
               </button>
 
               <!-- Card 2: Describe what's around me -->
               <button onclick="navigateTo('describeAround')" aria-label="Describe what's around me: Identify objects and obstacles" class="w-full bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between text-left hover:border-slate-300 transition active:scale-[0.99]">
-                <div class="flex items-center space-x-3.5">
-                  <div class="w-11 h-11 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 flex-shrink-0" aria-hidden="true">
-                    <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                <div class="flex items-center space-x-3.5 min-w-0 flex-1">
+                  <div class="w-11 h-11 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 shrink-0" aria-hidden="true">
+                    <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                   </div>
-                  <div>
+                  <div class="min-w-0 flex-1 pr-2">
                     <h3 class="font-bold text-slate-900 text-base leading-tight">Describe what's around me</h3>
-                    <p class="text-xs text-slate-600 mt-0.5">Identify objects and obstacles</p>
+                    <p class="text-xs text-slate-600 mt-0.5 truncate">Identify objects and obstacles</p>
                   </div>
                 </div>
-                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-slate-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
               </button>
 
               <!-- Card 3: Where am I? -->
               <button onclick="navigateTo('whereAmI')" aria-label="Where am I?: Current location and surroundings" class="w-full bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between text-left hover:border-slate-300 transition active:scale-[0.99]">
-                <div class="flex items-center space-x-3.5">
-                  <div class="w-11 h-11 rounded-xl bg-purple-50 border border-purple-100 flex items-center justify-center text-purple-600 flex-shrink-0" aria-hidden="true">
-                    <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                <div class="flex items-center space-x-3.5 min-w-0 flex-1">
+                  <div class="w-11 h-11 rounded-xl bg-purple-50 border border-purple-100 flex items-center justify-center text-purple-600 shrink-0" aria-hidden="true">
+                    <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                   </div>
-                  <div>
+                  <div class="min-w-0 flex-1 pr-2">
                     <h3 class="font-bold text-slate-900 text-base leading-tight">Where am I?</h3>
-                    <p class="text-xs text-slate-600 mt-0.5">Current location and surroundings</p>
+                    <p class="text-xs text-slate-600 mt-0.5 truncate">Current location and surroundings</p>
                   </div>
                 </div>
-                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-slate-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
               </button>
             </div>
 
             <!-- Bottom Mic Button -->
-            <div class="flex justify-center mt-3">
-              <button onclick="navigateTo('listening')" aria-label="Start voice listening assistant" class="w-14 h-14 rounded-full bg-black text-white flex items-center justify-center shadow-lg hover:bg-neutral-800 transition active:scale-95">
-                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/></svg>
+            <div class="mobile-safe-footer flex justify-center mt-3">
+              <button onclick="navigateTo('listening')" aria-label="Start voice listening assistant" class="w-16 h-16 rounded-full bg-black text-white flex items-center justify-center shadow-lg hover:bg-neutral-800 transition active:scale-95 shrink-0">
+                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/></svg>
               </button>
             </div>
           </div>
 
           <!-- ==================== SCREEN 2: VOICE LISTENING ==================== -->
-          <div id="screen-listening" role="region" aria-label="Screen 2: Voice Listening" class="flex-1 flex flex-col justify-between p-5 pb-6 hidden">
-            <div class="flex justify-between items-center pt-2 px-1">
-              <button onclick="navigateTo('home')" aria-label="Back to home screen" class="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-700 hover:bg-slate-50 shadow-sm transition">
-                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+          <div id="screen-listening" role="region" aria-label="Screen 2: Voice Listening" class="screen-container flex-1 flex flex-col justify-between p-5 pb-6 hidden">
+            <div class="mobile-safe-header flex justify-between items-center pt-2 px-1">
+              <button onclick="navigateTo('home')" aria-label="Back to home screen" class="w-11 h-11 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-700 hover:bg-slate-50 shadow-sm transition shrink-0">
+                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
               </button>
               <span class="text-xl font-bold text-black tracking-tight">Blind AI</span>
-              <div class="w-10 h-10" aria-hidden="true"></div>
+              <div class="w-11 h-11 shrink-0" aria-hidden="true"></div>
             </div>
 
             <div class="flex flex-col items-center justify-center my-auto">
-              <div class="relative flex items-center justify-center w-48 h-48 mb-6" aria-hidden="true">
+              <div class="relative flex items-center justify-center w-48 h-48 mb-6 shrink-0" aria-hidden="true">
                 <div class="absolute w-56 h-56 rounded-full orb-glow ripple-ring-1"></div>
                 <div class="absolute w-44 h-44 rounded-full orb-glow ripple-ring-2"></div>
-                <div class="w-32 h-32 rounded-full orb-3d relative z-10 flex items-center justify-center">
+                <div class="w-32 h-32 rounded-full orb-3d relative z-10 flex items-center justify-center shrink-0">
                   <div class="w-12 h-12 rounded-full bg-white/20 blur-[2px]"></div>
                 </div>
               </div>
@@ -360,31 +450,31 @@
               <p id="live-transcript" aria-live="polite" class="text-sm text-slate-600 text-center mt-2 px-6 italic min-h-[3rem]">
                 “Take me to coffee shop”
               </p>
-              <div class="mt-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-50 border border-orange-200 text-[11px] font-semibold text-orange-700">
-                <span class="w-2 h-2 rounded-full bg-orange-500 animate-pulse"></span>
+              <div class="mt-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-50 border border-orange-200 text-[11px] font-semibold text-orange-700 shrink-0">
+                <span class="w-2 h-2 rounded-full bg-orange-500 animate-pulse shrink-0"></span>
                 <span>Powered by Gemini AI</span>
               </div>
             </div>
 
-            <div class="flex flex-col gap-2.5">
+            <div class="mobile-safe-footer flex flex-col gap-2.5">
               <!-- Voice phrase simulation chips -->
               <div class="flex flex-wrap justify-center gap-1.5" role="group" aria-label="Suggested voice phrases">
-                <button onclick="handleVoiceInput('What is in front of me?')" aria-label="Simulate: What is in front of me?" class="px-2.5 py-1 rounded-full bg-orange-50 border border-orange-200 text-[11px] font-semibold text-orange-900 shadow-sm hover:bg-orange-100 transition active:scale-95">
+                <button onclick="handleVoiceInput('What is in front of me?')" aria-label="Simulate: What is in front of me?" class="px-2.5 py-1 rounded-full bg-orange-50 border border-orange-200 text-[11px] font-semibold text-orange-900 shadow-sm hover:bg-orange-100 transition active:scale-95 shrink-0">
                   “What is in front of me?”
                 </button>
-                <button onclick="handleVoiceInput('Where am I?')" aria-label="Simulate: Where am I?" class="px-2.5 py-1 rounded-full bg-blue-50 border border-blue-200 text-[11px] font-semibold text-blue-900 shadow-sm hover:bg-blue-100 transition active:scale-95">
+                <button onclick="handleVoiceInput('Where am I?')" aria-label="Simulate: Where am I?" class="px-2.5 py-1 rounded-full bg-blue-50 border border-blue-200 text-[11px] font-semibold text-blue-900 shadow-sm hover:bg-blue-100 transition active:scale-95 shrink-0">
                   “Where am I?”
                 </button>
-                <button onclick="handleVoiceInput('Take me to coffee shop')" aria-label="Simulate: Take me to coffee shop" class="px-2.5 py-1 rounded-full bg-white border border-slate-200 text-[11px] font-medium text-slate-700 shadow-sm hover:bg-slate-50 transition active:scale-95">
+                <button onclick="handleVoiceInput('Take me to coffee shop')" aria-label="Simulate: Take me to coffee shop" class="px-2.5 py-1 rounded-full bg-white border border-slate-200 text-[11px] font-medium text-slate-700 shadow-sm hover:bg-slate-50 transition active:scale-95 shrink-0">
                   “Take me to coffee shop”
                 </button>
-                <button onclick="handleVoiceInput('Take me to Central Park')" aria-label="Simulate: Take me to Central Park" class="px-2.5 py-1 rounded-full bg-white border border-slate-200 text-[11px] font-medium text-slate-700 shadow-sm hover:bg-slate-50 transition active:scale-95">
+                <button onclick="handleVoiceInput('Take me to Central Park')" aria-label="Simulate: Take me to Central Park" class="px-2.5 py-1 rounded-full bg-white border border-slate-200 text-[11px] font-medium text-slate-700 shadow-sm hover:bg-slate-50 transition active:scale-95 shrink-0">
                   “Take me to Central Park”
                 </button>
-                <button onclick="handleVoiceInput('Take me somewhere')" aria-label="Simulate: Take me somewhere (auto GPS search)" class="px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-[11px] font-medium text-emerald-800 shadow-sm hover:bg-emerald-100 transition active:scale-95" title="Auto GPS routing to nearest place">
+                <button onclick="handleVoiceInput('Take me somewhere')" aria-label="Simulate: Take me somewhere (auto GPS search)" class="px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-[11px] font-medium text-emerald-800 shadow-sm hover:bg-emerald-100 transition active:scale-95 shrink-0" title="Auto GPS routing to nearest place">
                   “Take me somewhere” (Auto GPS)
                 </button>
-                <button onclick="handleVoiceInput('Go there')" aria-label="Simulate: Go there (auto GPS search)" class="px-2.5 py-1 rounded-full bg-amber-50 border border-amber-200 text-[11px] font-medium text-amber-800 shadow-sm hover:bg-amber-100 transition active:scale-95" title="Auto GPS routing">
+                <button onclick="handleVoiceInput('Go there')" aria-label="Simulate: Go there (auto GPS search)" class="px-2.5 py-1 rounded-full bg-amber-50 border border-amber-200 text-[11px] font-medium text-amber-800 shadow-sm hover:bg-amber-100 transition active:scale-95 shrink-0" title="Auto GPS routing">
                   “Go there”
                 </button>
               </div>
@@ -392,35 +482,35 @@
               <!-- Test input for any natural-language destination or command -->
               <form onsubmit="event.preventDefault(); const inp = document.getElementById('voice-sim-input'); if (inp && inp.value.trim()) { handleVoiceInput(inp.value.trim()); inp.value = ''; }" class="flex items-center gap-1.5 px-1">
                 <label for="voice-sim-input" class="sr-only">Type any voice command or destination for Gemini AI</label>
-                <input type="text" id="voice-sim-input" placeholder="Type any destination (e.g. library, Old Town, Paris)..." class="flex-1 bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-amber-500 shadow-sm">
-                <button type="submit" class="px-3 py-2 rounded-xl bg-slate-900 text-white text-xs font-semibold hover:bg-black transition active:scale-95">
+                <input type="text" id="voice-sim-input" placeholder="Type any destination (e.g. library, Old Town, Paris)..." class="flex-1 min-w-0 bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-amber-500 shadow-sm">
+                <button type="submit" class="px-3.5 py-2 rounded-xl bg-slate-900 text-white text-xs font-semibold hover:bg-black transition active:scale-95 shrink-0">
                   Send
                 </button>
               </form>
 
               <div class="flex justify-center">
-                <button onclick="navigateTo('home')" aria-label="Cancel voice listening and return home" class="w-14 h-14 rounded-full bg-red-500 text-white flex items-center justify-center shadow-lg hover:bg-red-600 transition active:scale-95">
-                  <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                <button onclick="navigateTo('home')" aria-label="Cancel voice listening and return home" class="w-14 h-14 rounded-full bg-red-500 text-white flex items-center justify-center shadow-lg hover:bg-red-600 transition active:scale-95 shrink-0">
+                  <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
               </div>
             </div>
           </div>
 
           <!-- ==================== SCREEN 3: DESTINATION SEARCH ==================== -->
-          <div id="screen-destinationSearch" role="region" aria-label="Screen 3: Destination Search" class="flex-1 flex flex-col justify-between p-5 pb-6 hidden">
-            <div class="flex justify-between items-center pt-2 px-1">
-              <button onclick="navigateTo('home')" aria-label="Back to home screen" class="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-700 hover:bg-slate-50 shadow-sm transition">
-                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+          <div id="screen-destinationSearch" role="region" aria-label="Screen 3: Destination Search" class="screen-container flex-1 flex flex-col justify-between p-5 pb-6 hidden">
+            <div class="mobile-safe-header flex justify-between items-center pt-2 px-1">
+              <button onclick="navigateTo('home')" aria-label="Back to home screen" class="w-11 h-11 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-700 hover:bg-slate-50 shadow-sm transition shrink-0">
+                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
               </button>
               <span class="text-xl font-bold text-black tracking-tight">Blind AI</span>
-              <button onclick="openSettingsModal()" aria-label="Settings" aria-haspopup="dialog" class="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-700 shadow-sm">
-                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+              <button onclick="openSettingsModal()" aria-label="Settings" aria-haspopup="dialog" class="w-11 h-11 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-700 shadow-sm shrink-0">
+                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
               </button>
             </div>
 
             <div class="flex-1 flex flex-col pt-3 overflow-y-auto no-scrollbar">
               <div class="flex flex-col items-center mb-3">
-                <div class="w-12 h-12 rounded-full orb-3d mb-2" aria-hidden="true"></div>
+                <div class="w-12 h-12 rounded-full orb-3d mb-2 shrink-0" aria-hidden="true"></div>
                 <h2 class="text-xl font-bold text-slate-900">Where would you like to go?</h2>
               </div>
 
@@ -428,98 +518,98 @@
               <div class="relative mb-3">
                 <label for="destination-search-input" class="sr-only">Search destination or speak</label>
                 <input type="text" id="destination-search-input" oninput="filterDestinations(this.value)" placeholder="Search destination or speak..." aria-label="Search destination or speak" class="w-full bg-white border border-slate-200 rounded-2xl py-3 pl-11 pr-11 text-sm font-medium text-slate-800 placeholder-slate-500 shadow-sm focus:border-amber-500 transition">
-                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-slate-500 absolute left-3.5 top-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-                <button onclick="navigateTo('listening')" aria-label="Search destination using voice" class="absolute right-3 top-3 text-orange-500 hover:text-orange-600">
-                  <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/></svg>
+                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-slate-500 absolute left-3.5 top-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                <button onclick="navigateTo('listening')" aria-label="Search destination using voice" class="absolute right-3 top-3 text-orange-500 hover:text-orange-600 shrink-0">
+                  <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/></svg>
                 </button>
               </div>
 
               <!-- Category Pills -->
               <div role="group" aria-label="Destination categories" class="flex items-center gap-2 mb-4 overflow-x-auto no-scrollbar py-1">
-                <button onclick="selectCategory('Coffee shop')" class="px-3 py-1.5 bg-orange-100 text-orange-800 rounded-full text-xs font-semibold whitespace-nowrap">Coffee Shop</button>
-                <button onclick="selectCategory('Park')" class="px-3 py-1.5 bg-emerald-100 text-emerald-800 rounded-full text-xs font-semibold whitespace-nowrap">Park</button>
-                <button onclick="selectCategory('Grocery')" class="px-3 py-1.5 bg-blue-100 text-blue-800 rounded-full text-xs font-semibold whitespace-nowrap">Grocery Store</button>
-                <button onclick="selectCategory('Pharmacy')" class="px-3 py-1.5 bg-purple-100 text-purple-800 rounded-full text-xs font-semibold whitespace-nowrap">Pharmacy</button>
+                <button onclick="selectCategory('Coffee shop')" class="px-3 py-1.5 bg-orange-100 text-orange-800 rounded-full text-xs font-semibold whitespace-nowrap shrink-0">Coffee Shop</button>
+                <button onclick="selectCategory('Park')" class="px-3 py-1.5 bg-emerald-100 text-emerald-800 rounded-full text-xs font-semibold whitespace-nowrap shrink-0">Park</button>
+                <button onclick="selectCategory('Grocery')" class="px-3 py-1.5 bg-blue-100 text-blue-800 rounded-full text-xs font-semibold whitespace-nowrap shrink-0">Grocery Store</button>
+                <button onclick="selectCategory('Pharmacy')" class="px-3 py-1.5 bg-purple-100 text-purple-800 rounded-full text-xs font-semibold whitespace-nowrap shrink-0">Pharmacy</button>
               </div>
 
               <!-- Recent Destinations List -->
               <h3 class="text-xs font-bold text-slate-600 uppercase tracking-wider mb-2 px-1">Recent Places</h3>
               <div id="recent-places-list" role="list" aria-label="Recent destinations" class="flex flex-col space-y-2.5 pb-4">
                 <button onclick="selectDestination('City Central Park', 'Pedestrian Promenade & Garden')" aria-label="Select destination: City Central Park" class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between text-left hover:border-amber-400 transition">
-                  <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-sm" aria-hidden="true">🌳</div>
-                    <div>
-                      <h4 class="font-bold text-slate-900 text-sm">City Central Park</h4>
-                      <p class="text-xs text-slate-600">Pedestrian Promenade • 0.8 km</p>
+                  <div class="flex items-center space-x-3 min-w-0 flex-1 pr-2">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-sm shrink-0" aria-hidden="true">🌳</div>
+                    <div class="min-w-0 flex-1">
+                      <h4 class="font-bold text-slate-900 text-sm truncate">City Central Park</h4>
+                      <p class="text-xs text-slate-600 truncate">Pedestrian Promenade • 0.8 km</p>
                     </div>
                   </div>
-                  <span class="text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-1 rounded-lg">10 min</span>
+                  <span class="text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-1 rounded-lg shrink-0">10 min</span>
                 </button>
 
                 <button onclick="selectDestination('Corner Bakery & Cafe', 'Main Sidewalk Entrance')" aria-label="Select destination: Corner Bakery & Cafe" class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between text-left hover:border-amber-400 transition">
-                  <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center font-bold text-sm" aria-hidden="true">☕</div>
-                    <div>
-                      <h4 class="font-bold text-slate-900 text-sm">Corner Bakery & Cafe</h4>
-                      <p class="text-xs text-slate-600">Main Sidewalk • 0.3 km</p>
+                  <div class="flex items-center space-x-3 min-w-0 flex-1 pr-2">
+                    <div class="w-10 h-10 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center font-bold text-sm shrink-0" aria-hidden="true">☕</div>
+                    <div class="min-w-0 flex-1">
+                      <h4 class="font-bold text-slate-900 text-sm truncate">Corner Bakery & Cafe</h4>
+                      <p class="text-xs text-slate-600 truncate">Main Sidewalk • 0.3 km</p>
                     </div>
                   </div>
-                  <span class="text-xs font-bold text-slate-700 bg-slate-100 px-2 py-1 rounded-lg">4 min</span>
+                  <span class="text-xs font-bold text-slate-700 bg-slate-100 px-2 py-1 rounded-lg shrink-0">4 min</span>
                 </button>
 
                 <button onclick="selectDestination('Metro & Bus Transit Station', 'Transit Plaza North')" aria-label="Select destination: Metro & Bus Transit Station" class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between text-left hover:border-amber-400 transition">
-                  <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-sm" aria-hidden="true">🚏</div>
-                    <div>
-                      <h4 class="font-bold text-slate-900 text-sm">Metro & Bus Transit Station</h4>
-                      <p class="text-xs text-slate-600">Transit Plaza North • 0.5 km</p>
+                  <div class="flex items-center space-x-3 min-w-0 flex-1 pr-2">
+                    <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-sm shrink-0" aria-hidden="true">🚏</div>
+                    <div class="min-w-0 flex-1">
+                      <h4 class="font-bold text-slate-900 text-sm truncate">Metro & Bus Transit Station</h4>
+                      <p class="text-xs text-slate-600 truncate">Transit Plaza North • 0.5 km</p>
                     </div>
                   </div>
-                  <span class="text-xs font-bold text-blue-700 bg-blue-50 px-2 py-1 rounded-lg">6 min</span>
+                  <span class="text-xs font-bold text-blue-700 bg-blue-50 px-2 py-1 rounded-lg shrink-0">6 min</span>
                 </button>
               </div>
             </div>
 
             <!-- Bottom Mic Button -->
-            <div class="flex justify-center mt-2">
-              <button onclick="navigateTo('listening')" aria-label="Start voice listening assistant" class="w-14 h-14 rounded-full bg-black text-white flex items-center justify-center shadow-lg hover:bg-neutral-800 transition active:scale-95">
-                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/></svg>
+            <div class="mobile-safe-footer flex justify-center mt-2">
+              <button onclick="navigateTo('listening')" aria-label="Start voice listening assistant" class="w-16 h-16 rounded-full bg-black text-white flex items-center justify-center shadow-lg hover:bg-neutral-800 transition active:scale-95 shrink-0">
+                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/></svg>
               </button>
             </div>
           </div>
 
           <!-- ==================== SCREEN 4: ROUTE PREVIEW ==================== -->
-          <div id="screen-routePreview" role="region" aria-label="Screen 4: Route Preview" class="flex-1 flex flex-col justify-between p-5 pb-6 hidden">
-            <div class="flex justify-between items-center pt-2 px-1">
-              <button onclick="navigateTo('destinationSearch')" aria-label="Back to destination search" class="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-700 hover:bg-slate-50 shadow-sm transition">
-                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+          <div id="screen-routePreview" role="region" aria-label="Screen 4: Route Preview" class="screen-container flex-1 flex flex-col justify-between p-5 pb-6 hidden">
+            <div class="mobile-safe-header flex justify-between items-center pt-2 px-1">
+              <button onclick="navigateTo('destinationSearch')" aria-label="Back to destination search" class="w-11 h-11 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-700 hover:bg-slate-50 shadow-sm transition shrink-0">
+                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
               </button>
               <span class="text-xl font-bold text-black tracking-tight">Blind AI</span>
-              <button onclick="openSettingsModal()" aria-label="Settings" aria-haspopup="dialog" class="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-700 shadow-sm">
-                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+              <button onclick="openSettingsModal()" aria-label="Settings" aria-haspopup="dialog" class="w-11 h-11 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-700 shadow-sm shrink-0">
+                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
               </button>
             </div>
 
             <!-- Real Leaflet Interactive Route Map -->
-            <div class="flex-1 flex flex-col justify-center my-2">
+            <div class="flex-1 flex flex-col justify-center my-2 min-h-0">
               <h2 class="sr-only">Interactive Real-World Route Map & Directions</h2>
-              <div class="w-full h-48 rounded-3xl relative overflow-hidden shadow-inner border border-slate-300 z-0">
+              <div class="w-full h-44 sm:h-48 rounded-3xl relative overflow-hidden shadow-inner border border-slate-300 z-0 shrink-0">
                 <div id="route-map-leaflet" class="w-full h-full"></div>
                 <div id="route-map-loading" class="absolute inset-0 bg-slate-100/90 backdrop-blur-xs flex items-center justify-center text-xs font-semibold text-slate-700 z-20">
-                  <span class="w-2.5 h-2.5 rounded-full bg-blue-500 animate-ping mr-2"></span>
+                  <span class="w-2.5 h-2.5 rounded-full bg-blue-500 animate-ping mr-2 shrink-0"></span>
                   <span>Loading Real-World Map & GPS Route...</span>
                 </div>
               </div>
 
               <!-- Destination Summary Card -->
               <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm mt-3">
-                <div class="flex items-center space-x-3 mb-2">
-                  <div class="w-9 h-9 rounded-xl bg-orange-100 text-orange-600 flex items-center justify-center font-bold text-sm" aria-hidden="true">
+                <div class="flex items-center space-x-3 mb-2 min-w-0">
+                  <div class="w-9 h-9 rounded-xl bg-orange-100 text-orange-600 flex items-center justify-center font-bold text-sm shrink-0" aria-hidden="true">
                     📍
                   </div>
-                  <div>
-                    <h3 id="preview-destination-title" class="font-bold text-slate-900 text-base leading-tight">Selected Destination</h3>
-                    <p id="preview-destination-sub" class="text-xs text-slate-600 mt-0.5">Pedestrian Walkway • Calculating live GPS route...</p>
+                  <div class="min-w-0 flex-1">
+                    <h3 id="preview-destination-title" class="font-bold text-slate-900 text-base leading-tight truncate">Selected Destination</h3>
+                    <p id="preview-destination-sub" class="text-xs text-slate-600 mt-0.5 truncate">Pedestrian Walkway • Calculating live GPS route...</p>
                   </div>
                 </div>
                 <div class="flex items-center justify-between text-xs text-slate-700 border-t border-slate-100 pt-2.5">
@@ -530,27 +620,27 @@
             </div>
 
             <!-- Route Actions -->
-            <div class="flex flex-col space-y-2.5 pt-1">
+            <div class="mobile-safe-footer flex flex-col space-y-2.5 pt-1">
               <button onclick="startCurrentNavigation()" id="start-nav-btn" aria-label="Start walking navigation to selected destination" class="w-full py-4 rounded-2xl bg-black text-white font-bold text-base shadow-md hover:bg-neutral-800 transition active:scale-[0.99] flex items-center justify-center space-x-2">
                 <span>Start navigation</span>
-                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
               </button>
               <button onclick="speakRouteOverview()" aria-label="Describe route overview and audible cues" class="w-full py-3 rounded-2xl bg-white border border-slate-200 text-slate-800 font-semibold text-sm shadow-sm hover:bg-slate-50 transition active:scale-[0.99] flex items-center justify-center space-x-2">
-                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/></svg>
+                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/></svg>
                 <span>Describe route</span>
               </button>
             </div>
           </div>
 
           <!-- ==================== SCREEN 5: ACTIVE NAVIGATION (ALWAYS-OPEN BACK CAMERA + YOLO + SIGNBOARDS) ==================== -->
-          <div id="screen-activeNavigation" role="region" aria-label="Screen 5: Active Walking Navigation with Always-Open Back Camera and YOLO Object Detection" class="flex-1 flex flex-col justify-between p-3.5 pb-4 hidden relative overflow-hidden rounded-3xl">
+          <div id="screen-activeNavigation" role="region" aria-label="Screen 5: Active Walking Navigation with Always-Open Back Camera and YOLO Object Detection" class="flex-1 flex flex-col justify-between p-3.5 pb-4 hidden relative overflow-hidden sm:rounded-3xl">
             <!-- ALWAYS-OPEN CAMERA BACKGROUND VIEWPORT -->
             <div class="absolute inset-0 overflow-hidden bg-black z-0" aria-hidden="true">
               <!-- Real Device Camera Feed (Facing Environment) -->
               <video id="nav-live-video" class="absolute inset-0 w-full h-full object-cover" autoplay playsinline muted></video>
               <!-- Real camera placeholder / live status indicator when initializing -->
               <div id="nav-camera-prompt" class="absolute inset-0 bg-neutral-950 flex flex-col items-center justify-center text-center p-6 text-white/80">
-                <div class="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center text-3xl mb-3 animate-pulse">📷</div>
+                <div class="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center text-3xl mb-3 animate-pulse shrink-0">📷</div>
                 <p class="text-sm font-semibold text-white">Back Camera Stream Active</p>
                 <p class="text-xs text-slate-400 mt-1">Point device forward while walking. Continuous YOLO object detection running.</p>
               </div>
@@ -563,24 +653,24 @@
             </div>
 
             <!-- Top Header (Z-20 Relative) -->
-            <div class="relative z-20 flex justify-between items-center pt-1 px-1">
-              <button onclick="stopNavigationRoute()" id="btn-nav-back" aria-label="Stop navigation and return to preview" class="w-10 h-10 rounded-full bg-black/60 backdrop-blur-md border border-white/30 flex items-center justify-center text-white hover:bg-black/80 shadow-md transition active:scale-95">
-                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
+            <div class="mobile-safe-header relative z-20 flex justify-between items-center pt-1 px-1">
+              <button onclick="stopNavigationRoute()" id="btn-nav-back" aria-label="Stop navigation and return to preview" class="w-11 h-11 rounded-full bg-black/60 backdrop-blur-md border border-white/30 flex items-center justify-center text-white hover:bg-black/80 shadow-md transition active:scale-95 shrink-0">
+                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
               </button>
               
               <!-- Camera & YOLO Status Pill Badge -->
-              <div class="flex items-center gap-1.5 px-3 py-1 bg-black/75 backdrop-blur-md rounded-full text-white text-xs font-bold border border-white/20 shadow-md">
-                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" aria-hidden="true"></span>
+              <div class="flex items-center gap-1.5 px-3 py-1.5 bg-black/75 backdrop-blur-md rounded-full text-white text-xs font-bold border border-white/20 shadow-md shrink-0">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shrink-0" aria-hidden="true"></span>
                 <span id="camera-status-pill">Back Camera • YOLO Active</span>
               </div>
 
-              <div class="flex items-center gap-1.5">
+              <div class="flex items-center gap-1.5 shrink-0">
                 <!-- Camera / Simulation Toggle Button -->
-                <button type="button" onclick="toggleCameraFeed()" id="btn-toggle-camera" aria-label="Toggle between real rear camera and simulated walking stream" class="w-10 h-10 rounded-full bg-black/60 backdrop-blur-md border border-white/30 flex items-center justify-center text-white hover:bg-black/80 shadow-md transition active:scale-95 text-sm" title="Toggle camera feed mode">
+                <button type="button" onclick="toggleCameraFeed()" id="btn-toggle-camera" aria-label="Toggle between real rear camera and simulated walking stream" class="w-11 h-11 rounded-full bg-black/60 backdrop-blur-md border border-white/30 flex items-center justify-center text-white hover:bg-black/80 shadow-md transition active:scale-95 text-base shrink-0" title="Toggle camera feed mode">
                   <span id="camera-toggle-icon" aria-hidden="true">📷</span>
                 </button>
-                <button onclick="openSettingsModal()" id="btn-nav-settings" aria-label="Settings" aria-haspopup="dialog" class="w-10 h-10 rounded-full bg-black/60 backdrop-blur-md border border-white/30 flex items-center justify-center text-white hover:bg-black/80 shadow-md transition">
-                  <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                <button onclick="openSettingsModal()" id="btn-nav-settings" aria-label="Settings" aria-haspopup="dialog" class="w-11 h-11 rounded-full bg-black/60 backdrop-blur-md border border-white/30 flex items-center justify-center text-white hover:bg-black/80 shadow-md transition shrink-0">
+                  <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                 </button>
               </div>
             </div>
@@ -588,15 +678,15 @@
             <!-- Floating Compact Navigation Turn-by-Turn HUD (Z-20 Relative) -->
             <div class="relative z-20 my-auto flex flex-col justify-center space-y-2">
               <div class="bg-black/85 backdrop-blur-md rounded-2xl py-2.5 px-3.5 border border-white/20 shadow-xl flex items-center justify-between text-white" role="region" aria-label="Current Navigation Instruction" aria-live="assertive">
-                <div class="flex items-center space-x-2.5">
+                <div class="flex items-center space-x-2.5 min-w-0 flex-1">
                   <div id="nav-maneuver-icon" class="w-8 h-8 rounded-full bg-orange-500 text-white flex items-center justify-center font-black text-sm shrink-0" aria-hidden="true">
                     ↑
                   </div>
-                  <div class="flex flex-col text-left">
-                    <span id="nav-step-label" class="text-[10px] font-bold text-orange-400 uppercase tracking-wider">
+                  <div class="flex flex-col text-left min-w-0 flex-1 pr-2">
+                    <span id="nav-step-label" class="text-[10px] font-bold text-orange-400 uppercase tracking-wider truncate">
                       Real Pedestrian Route
                     </span>
-                    <h2 id="nav-instruction-text" class="text-xs font-bold text-white tracking-tight leading-snug">
+                    <h2 id="nav-instruction-text" class="text-xs font-bold text-white tracking-tight leading-snug line-clamp-2">
                       Point camera forward & walk along pathway
                     </h2>
                   </div>
@@ -609,26 +699,26 @@
 
               <!-- Real-Time Optical Perception & Spatial Direction HUD -->
               <div id="nav-lidar-corridor-hud" class="w-full py-2 px-3 rounded-2xl bg-black/85 backdrop-blur-md border border-emerald-500/50 text-white shadow-xl flex items-center justify-between">
-                <div class="flex items-center space-x-2.5">
-                  <span id="nav-direction-arrow" class="text-2xl text-emerald-400 font-extrabold select-none">⬆️</span>
-                  <div class="flex flex-col text-left">
-                    <span id="nav-corridor-status" class="text-[11px] font-bold text-emerald-300 tracking-wide uppercase">WALK STRAIGHT • PATH CLEAR</span>
-                    <span id="nav-depth-reading" class="text-[10px] text-slate-300 font-mono">Vision status: <strong id="nav-depth-meters" class="text-white">Clear (>3m)</strong></span>
+                <div class="flex items-center space-x-2.5 min-w-0 flex-1">
+                  <span id="nav-direction-arrow" class="text-2xl text-emerald-400 font-extrabold select-none shrink-0">⬆️</span>
+                  <div class="flex flex-col text-left min-w-0 flex-1 pr-2">
+                    <span id="nav-corridor-status" class="text-[11px] font-bold text-emerald-300 tracking-wide uppercase truncate">WALK STRAIGHT • PATH CLEAR</span>
+                    <span id="nav-depth-reading" class="text-[10px] text-slate-300 font-mono truncate">Vision status: <strong id="nav-depth-meters" class="text-white">Clear (>3m)</strong></span>
                   </div>
                 </div>
-                <div class="flex flex-col items-end">
+                <div class="flex flex-col items-end shrink-0 pl-2">
                   <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Perception</span>
-                  <span id="nav-lateral-lanes" class="text-[10px] font-mono font-bold text-emerald-400">Optical View: Clear Ahead</span>
+                  <span id="nav-lateral-lanes" class="text-[10px] font-mono font-bold text-emerald-400 whitespace-nowrap">Optical View: Clear Ahead</span>
                 </div>
               </div>
             </div>
 
             <!-- Bottom Hands-Free Voice Interaction Hub for Blind Pedestrians (No Button Clutter) -->
-            <div class="relative z-20 flex flex-col items-center justify-center pt-2 pb-1">
+            <div class="mobile-safe-footer relative z-20 flex flex-col items-center justify-center pt-2 pb-1">
               <!-- Large Tactile Voice Mic Button (Tap to talk or ask anything) -->
-              <button onclick="startVoiceCapture()" id="nav-floating-mic-btn" aria-label="Tap to speak. Ask anything, say Yes, No, Repeat, or Stop." class="w-20 h-20 rounded-full bg-black text-white border-4 border-orange-500 flex items-center justify-center shadow-2xl hover:scale-105 active:scale-95 transition focus:ring-4 focus:ring-orange-400/50 relative group">
+              <button onclick="startVoiceCapture()" id="nav-floating-mic-btn" aria-label="Tap to speak. Ask anything, say Yes, No, Repeat, or Stop." class="w-20 h-20 rounded-full bg-black text-white border-4 border-orange-500 flex items-center justify-center shadow-2xl hover:scale-105 active:scale-95 transition focus:ring-4 focus:ring-orange-400/50 relative group shrink-0">
                 <span class="absolute -inset-1 rounded-full bg-orange-500/30 animate-ping group-hover:opacity-100 opacity-60"></span>
-                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-orange-400 relative z-10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/></svg>
+                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-orange-400 relative z-10 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/></svg>
               </button>
               <p class="text-xs text-white text-center font-bold drop-shadow mt-2">
                 Tap mic & speak • Ask anything, say <span class="text-orange-400">"Yes"</span>, <span class="text-orange-400">"No"</span>, <span class="text-orange-400">"Repeat"</span>, or <span class="text-orange-400">"Stop"</span>
@@ -637,28 +727,28 @@
           </div>
 
           <!-- ==================== SCREEN 6: WHERE AM I? ==================== -->
-          <div id="screen-whereAmI" role="region" aria-label="Screen 6: Where am I?" class="flex-1 flex flex-col justify-between p-5 pb-6 hidden">
-            <div class="flex justify-between items-center pt-2 px-1">
-              <button onclick="navigateTo('home')" aria-label="Back to home screen" class="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-700 hover:bg-slate-50 shadow-sm transition">
-                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+          <div id="screen-whereAmI" role="region" aria-label="Screen 6: Where am I?" class="screen-container flex-1 flex flex-col justify-between p-5 pb-6 hidden">
+            <div class="mobile-safe-header flex justify-between items-center pt-2 px-1">
+              <button onclick="navigateTo('home')" aria-label="Back to home screen" class="w-11 h-11 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-700 hover:bg-slate-50 shadow-sm transition shrink-0">
+                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
               </button>
               <span class="text-xl font-bold text-black tracking-tight">Blind AI</span>
-              <button onclick="openSettingsModal()" aria-label="Settings" aria-haspopup="dialog" class="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-700 shadow-sm">
-                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+              <button onclick="openSettingsModal()" aria-label="Settings" aria-haspopup="dialog" class="w-11 h-11 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-700 shadow-sm shrink-0">
+                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
               </button>
             </div>
 
             <!-- Location Info Content -->
-            <div class="flex-1 flex flex-col justify-center my-auto">
+            <div class="flex-1 flex flex-col justify-center my-auto min-h-0">
               <h2 class="sr-only">Current Location Context</h2>
               <div class="flex justify-center mb-3">
-                <div class="w-12 h-12 rounded-full orb-3d shadow-md" aria-hidden="true"></div>
+                <div class="w-12 h-12 rounded-full orb-3d shadow-md shrink-0" aria-hidden="true"></div>
               </div>
 
               <!-- Main Location Card -->
               <div class="bg-white rounded-3xl p-5 border border-slate-200 shadow-md text-left">
                 <div class="flex items-center space-x-2 text-xs font-bold text-purple-600 uppercase tracking-wider mb-1">
-                  <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg>
+                  <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg>
                   <span>Current Position</span>
                 </div>
                 <h3 id="whereami-headline" class="text-xl font-bold text-slate-900 leading-snug mb-1">
@@ -667,21 +757,21 @@
                 <p id="whereami-sub" class="text-xs text-slate-600 mb-3">Acquiring live GPS fix & street context...</p>
 
                 <!-- Real Interactive Leaflet Mini Map -->
-                <div class="w-full h-36 rounded-2xl overflow-hidden mb-3 border border-slate-200 shadow-sm relative z-0">
+                <div class="w-full h-36 rounded-2xl overflow-hidden mb-3 border border-slate-200 shadow-sm relative z-0 shrink-0">
                   <div id="whereami-map-leaflet" class="w-full h-full"></div>
                   <div id="whereami-map-loading" class="absolute inset-0 bg-slate-100/90 backdrop-blur-xs flex items-center justify-center text-xs font-semibold text-slate-700 z-20">
-                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping mr-2"></span>
+                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping mr-2 shrink-0"></span>
                     <span>Locating GPS position...</span>
                   </div>
                 </div>
 
                 <!-- Orientation & Compass Card -->
                 <div class="bg-slate-50 rounded-2xl p-3 border border-slate-100 flex items-center justify-between text-xs">
-                  <div>
+                  <div class="min-w-0 flex-1 pr-2">
                     <div class="font-bold text-slate-700">Orientation</div>
-                    <div id="whereami-orientation-text" class="text-slate-600">Compass active • Aligning heading...</div>
+                    <div id="whereami-orientation-text" class="text-slate-600 truncate">Compass active • Aligning heading...</div>
                   </div>
-                  <div id="whereami-compass-badge" class="w-8 h-8 rounded-full bg-white border border-slate-200 flex items-center justify-center font-bold text-slate-800 text-xs shadow-xs" role="img" aria-label="Facing direction">
+                  <div id="whereami-compass-badge" class="w-8 h-8 rounded-full bg-white border border-slate-200 flex items-center justify-center font-bold text-slate-800 text-xs shadow-xs shrink-0" role="img" aria-label="Facing direction">
                     N
                   </div>
                 </div>
@@ -689,31 +779,31 @@
             </div>
 
             <!-- Bottom Action -->
-            <div class="flex flex-col space-y-2 pt-2">
+            <div class="mobile-safe-footer flex flex-col space-y-2 pt-2">
               <button onclick="repeatRealLocation()" aria-label="Repeat current location, address, and orientation" class="w-full py-3.5 rounded-2xl bg-white border border-slate-200 text-slate-800 font-semibold text-sm shadow-sm hover:bg-slate-50 transition active:scale-[0.99] flex items-center justify-center space-x-2">
-                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-600" fill="currentColor" viewBox="0 0 24 24"><path d="M13.5 4.06c0-1.336-1.616-2.005-2.56-1.06l-4.5 4.5H4.5A2.25 2.25 0 0 0 2.25 9.75v4.5A2.25 2.25 0 0 0 4.5 16.5h1.94l4.5 4.5c.944.945 2.56.276 2.56-1.06V4.06Z"/></svg>
+                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-600 shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M13.5 4.06c0-1.336-1.616-2.005-2.56-1.06l-4.5 4.5H4.5A2.25 2.25 0 0 0 2.25 9.75v4.5A2.25 2.25 0 0 0 4.5 16.5h1.94l4.5 4.5c.944.945 2.56.276 2.56-1.06V4.06Z"/></svg>
                 <span>Repeat location</span>
               </button>
             </div>
           </div>
 
           <!-- ==================== SCREEN 7: DESCRIBE WHAT'S AROUND ME ==================== -->
-          <div id="screen-describeAround" role="region" aria-label="Screen 7: Describe what's around me" class="flex-1 flex flex-col justify-between p-5 pb-6 hidden">
+          <div id="screen-describeAround" role="region" aria-label="Screen 7: Describe what's around me" class="screen-container flex-1 flex flex-col justify-between p-5 pb-6 hidden">
             <!-- Header -->
-            <div class="flex justify-between items-center pt-2 px-1">
-              <button onclick="navigateTo('home')" aria-label="Back to home screen" class="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-700 hover:bg-slate-50 shadow-sm transition active:scale-95">
-                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+            <div class="mobile-safe-header flex justify-between items-center pt-2 px-1">
+              <button onclick="navigateTo('home')" aria-label="Back to home screen" class="w-11 h-11 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-700 hover:bg-slate-50 shadow-sm transition active:scale-95 shrink-0">
+                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
               </button>
               <span class="text-xl font-bold text-black tracking-tight">Blind AI</span>
-              <button onclick="openSettingsModal()" aria-label="Settings" aria-haspopup="dialog" class="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-700 shadow-sm">
-                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+              <button onclick="openSettingsModal()" aria-label="Settings" aria-haspopup="dialog" class="w-11 h-11 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-700 shadow-sm shrink-0">
+                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
               </button>
             </div>
 
             <!-- Body -->
-            <div class="flex-1 flex flex-col pt-1 overflow-y-auto no-scrollbar">
+            <div class="flex-1 flex flex-col pt-1 overflow-y-auto no-scrollbar min-h-0">
               <div class="flex justify-center mb-1.5">
-                <div class="w-12 h-12 rounded-full orb-3d shadow-md" aria-hidden="true"></div>
+                <div class="w-12 h-12 rounded-full orb-3d shadow-md shrink-0" aria-hidden="true"></div>
               </div>
 
               <!-- Title -->
@@ -722,19 +812,19 @@
               </h2>
 
               <!-- Camera Scene Card / Live Camera View -->
-              <div id="describe-scene-container" class="w-full h-40 rounded-2xl overflow-hidden mb-3 border border-slate-200 shadow-sm flex-shrink-0 relative bg-neutral-900">
+              <div id="describe-scene-container" class="w-full h-40 rounded-2xl overflow-hidden mb-3 border border-slate-200 shadow-sm shrink-0 relative bg-neutral-900">
                 <video id="describe-live-video" class="w-full h-full object-cover hidden" autoplay playsinline muted></video>
                 <div id="describe-camera-prompt" class="absolute inset-0 flex flex-col items-center justify-center text-center p-4 text-white/80">
-                  <span class="text-2xl mb-1">📷</span>
+                  <span class="text-2xl mb-1 shrink-0">📷</span>
                   <p class="text-xs font-semibold text-white">Rear Camera Feed</p>
                   <p class="text-[10px] text-slate-400">Scanning physical surroundings with Gemini Multimodal AI</p>
                 </div>
-                <div id="describe-live-badge" class="absolute top-2 left-2 px-2.5 py-1 rounded-full bg-black/75 text-white text-[11px] font-bold backdrop-blur-sm hidden flex items-center space-x-1.5 z-10">
-                  <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <div id="describe-live-badge" class="absolute top-2 left-2 px-2.5 py-1 rounded-full bg-black/75 text-white text-[11px] font-bold backdrop-blur-sm hidden flex items-center space-x-1.5 z-10 shrink-0">
+                  <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0"></span>
                   <span>Live Camera Feed</span>
                 </div>
                 <div id="describe-scanning-spinner" class="absolute inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center text-white text-xs font-bold hidden z-20">
-                  <span class="w-3 h-3 rounded-full border-2 border-white border-t-transparent animate-spin mr-2"></span>
+                  <span class="w-3 h-3 rounded-full border-2 border-white border-t-transparent animate-spin mr-2 shrink-0"></span>
                   <span>Gemini Multimodal Vision Analyzing...</span>
                 </div>
               </div>
@@ -742,45 +832,45 @@
               <!-- Dynamic Semantic List with Real Multimodal AI Detections -->
               <ul id="describe-scene-list" role="list" aria-label="Objects and environment observed" class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col divide-y divide-slate-100 list-none p-0 m-0">
                 <li class="flex items-center space-x-3 p-3">
-                  <div class="w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold text-xs flex-shrink-0" aria-hidden="true">✓</div>
+                  <div class="w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold text-xs shrink-0" aria-hidden="true">✓</div>
                   <span class="font-medium text-slate-900 text-sm">Sidewalk ahead is clear.</span>
                 </li>
                 <li class="flex items-center space-x-3 p-3">
-                  <div class="w-6 h-6 text-purple-600 flex items-center justify-center flex-shrink-0" aria-hidden="true">👁️</div>
+                  <div class="w-6 h-6 text-purple-600 flex items-center justify-center shrink-0" aria-hidden="true">👁️</div>
                   <span class="font-medium text-slate-900 text-sm">Point camera ahead to scan surroundings in real time.</span>
                 </li>
               </ul>
             </div>
 
             <!-- Bottom Repeat Pill Button -->
-            <div class="flex justify-center pt-3">
-              <button onclick="repeatSceneDescription()" aria-label="Repeat visual scene description" class="px-7 py-3 rounded-full bg-white border border-slate-200 text-slate-900 font-bold text-sm shadow-md hover:bg-slate-50 transition active:scale-95 flex items-center space-x-2">
-                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-slate-800" fill="currentColor" viewBox="0 0 24 24"><path d="M13.5 4.06c0-1.336-1.616-2.005-2.56-1.06l-4.5 4.5H4.5A2.25 2.25 0 0 0 2.25 9.75v4.5A2.25 2.25 0 0 0 4.5 16.5h1.94l4.5 4.5c.944.945 2.56.276 2.56-1.06V4.06ZM18.584 5.106a.75.75 0 0 1 1.06 0c3.808 3.807 3.808 9.98 0 13.788a.75.75 0 0 1-1.06-1.06 8.25 8.25 0 0 0 0-11.668.75.75 0 0 1 0-1.06Z"/></svg>
+            <div class="mobile-safe-footer flex justify-center pt-3">
+              <button onclick="repeatSceneDescription()" aria-label="Repeat visual scene description" class="px-7 py-3 rounded-full bg-white border border-slate-200 text-slate-900 font-bold text-sm shadow-md hover:bg-slate-50 transition active:scale-95 flex items-center space-x-2 shrink-0">
+                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-slate-800 shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M13.5 4.06c0-1.336-1.616-2.005-2.56-1.06l-4.5 4.5H4.5A2.25 2.25 0 0 0 2.25 9.75v4.5A2.25 2.25 0 0 0 4.5 16.5h1.94l4.5 4.5c.944.945 2.56.276 2.56-1.06V4.06ZM18.584 5.106a.75.75 0 0 1 1.06 0c3.808 3.807 3.808 9.98 0 13.788a.75.75 0 0 1-1.06-1.06 8.25 8.25 0 0 0 0-11.668.75.75 0 0 1 0-1.06Z"/></svg>
                 <span>Repeat</span>
               </button>
             </div>
           </div>
 
           <!-- ==================== SCREEN 8: OBSTACLE AHEAD (Hazard Detection) ==================== -->
-          <div id="screen-obstacleAlert" role="region" aria-label="Screen 8: Obstacle Ahead Warning" class="flex-1 flex flex-col justify-between p-5 pb-6 hidden">
+          <div id="screen-obstacleAlert" role="region" aria-label="Screen 8: Obstacle Ahead Warning" class="screen-container flex-1 flex flex-col justify-between p-5 pb-6 hidden">
             <!-- Header -->
-            <div class="flex justify-between items-center pt-2 px-1">
-              <button onclick="navigateTo('activeNavigation')" aria-label="Back to active navigation" class="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-700 hover:bg-slate-50 shadow-sm transition active:scale-95">
-                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+            <div class="mobile-safe-header flex justify-between items-center pt-2 px-1">
+              <button onclick="navigateTo('activeNavigation')" aria-label="Back to active navigation" class="w-11 h-11 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-700 hover:bg-slate-50 shadow-sm transition active:scale-95 shrink-0">
+                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
               </button>
               <span class="text-xl font-bold text-black tracking-tight">Blind AI</span>
-              <button onclick="openSettingsModal()" aria-label="Settings" aria-haspopup="dialog" class="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-700 shadow-sm">
-                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+              <button onclick="openSettingsModal()" aria-label="Settings" aria-haspopup="dialog" class="w-11 h-11 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-700 shadow-sm shrink-0">
+                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
               </button>
             </div>
 
             <!-- Top Warning Alert Banner (role="alert" for immediate screen reader announcement) -->
-            <div id="obstacle-alert-banner" role="alert" aria-live="assertive" class="mt-2 bg-[#FEECEC] border border-red-200 rounded-3xl p-4 flex items-center space-x-3.5 shadow-sm transition-colors">
-              <div id="obstacle-banner-icon" class="w-11 h-11 text-red-600 flex items-center justify-center flex-shrink-0" aria-hidden="true">
-                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 fill-current" viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>
+            <div id="obstacle-alert-banner" role="alert" aria-live="assertive" class="mt-2 bg-[#FEECEC] border border-red-200 rounded-3xl p-4 flex items-center space-x-3.5 shadow-sm transition-colors shrink-0">
+              <div id="obstacle-banner-icon" class="w-11 h-11 text-red-600 flex items-center justify-center shrink-0" aria-hidden="true">
+                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 fill-current shrink-0" viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>
               </div>
-              <div class="flex flex-col">
-                <h2 id="obstacle-screen-title" class="text-xl font-bold text-red-600 leading-tight">Obstacle Danger Alert</h2>
+              <div class="flex flex-col min-w-0 flex-1">
+                <h2 id="obstacle-screen-title" class="text-xl font-bold text-red-600 leading-tight truncate">Obstacle Danger Alert</h2>
                 <p id="obstacle-screen-subtitle" class="text-xs text-slate-800 font-medium leading-relaxed mt-0.5">
                   Scanning for collision hazards ahead with LiDAR depth & YOLO camera vision.
                 </p>
@@ -788,7 +878,7 @@
             </div>
 
             <!-- Camera View with Live Video, AR Path, LiDAR Depth Map Canvas -->
-            <div class="flex-1 my-3 relative rounded-3xl overflow-hidden border border-slate-200 shadow-inner flex flex-col justify-end p-3.5 bg-neutral-950">
+            <div class="flex-1 my-3 relative rounded-3xl overflow-hidden border border-slate-200 shadow-inner flex flex-col justify-end p-3.5 bg-neutral-950 min-h-0">
               <video id="obstacle-live-video" class="absolute inset-0 w-full h-full object-cover hidden" autoplay playsinline muted></video>
               <div id="obstacle-bg-fallback" class="absolute inset-0 bg-gradient-to-b from-neutral-900 via-neutral-950 to-black"></div>
               
@@ -797,24 +887,24 @@
               
               <!-- Floating Obstacle Detail Card -->
               <div class="relative z-10 bg-white/95 backdrop-blur-md rounded-2xl p-3.5 border border-slate-100 shadow-md flex items-center space-x-3">
-                <div id="obstacle-card-icon" class="w-10 h-10 rounded-full bg-red-100 text-red-600 flex items-center justify-center text-xl flex-shrink-0" role="img" aria-label="Hazard icon">
+                <div id="obstacle-card-icon" class="w-10 h-10 rounded-full bg-red-100 text-red-600 flex items-center justify-center text-xl shrink-0" role="img" aria-label="Hazard icon">
                   ⚠️
                 </div>
-                <div class="flex flex-col flex-1">
+                <div class="flex flex-col flex-1 min-w-0">
                   <div class="flex items-center justify-between">
-                    <h3 id="obstacle-card-title" class="font-bold text-slate-900 text-sm leading-tight">Active Hazard Sensing</h3>
-                    <span id="obstacle-card-dist-badge" class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700">Live</span>
+                    <h3 id="obstacle-card-title" class="font-bold text-slate-900 text-sm leading-tight truncate">Active Hazard Sensing</h3>
+                    <span id="obstacle-card-dist-badge" class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 shrink-0">Live</span>
                   </div>
-                  <p id="obstacle-card-sub" class="text-xs text-slate-600 mt-0.5">Point camera forward in walking path.</p>
+                  <p id="obstacle-card-sub" class="text-xs text-slate-600 mt-0.5 truncate">Point camera forward in walking path.</p>
                 </div>
               </div>
             </div>
 
             <!-- Hands-Free Voice Response Hub for Obstacle Screen (No Buttons To Search For) -->
-            <div class="flex flex-col items-center justify-center pt-2 pb-1">
-              <button onclick="startVoiceCapture()" id="obstacle-voice-mic-btn" aria-label="Tap microphone to speak or say Yes, No, or Repeat" class="w-20 h-20 rounded-full bg-black text-white border-4 border-red-500 flex items-center justify-center shadow-2xl hover:scale-105 active:scale-95 transition focus:ring-4 focus:ring-red-400/50 relative group">
+            <div class="mobile-safe-footer flex flex-col items-center justify-center pt-2 pb-1">
+              <button onclick="startVoiceCapture()" id="obstacle-voice-mic-btn" aria-label="Tap microphone to speak or say Yes, No, or Repeat" class="w-20 h-20 rounded-full bg-black text-white border-4 border-red-500 flex items-center justify-center shadow-2xl hover:scale-105 active:scale-95 transition focus:ring-4 focus:ring-red-400/50 relative group shrink-0">
                 <span class="absolute -inset-1 rounded-full bg-red-500/30 animate-ping group-hover:opacity-100 opacity-60"></span>
-                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-red-400 relative z-10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/></svg>
+                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-red-400 relative z-10 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/></svg>
               </button>
               <p class="text-xs text-slate-800 font-bold text-center mt-2">
                 Speak <span class="text-red-600 font-black">"Yes"</span> / <span class="text-red-600 font-black">"Okay"</span> to resume, or ask where to step
@@ -823,31 +913,31 @@
           </div>
 
           <!-- ==================== SCREEN 9: APPROACHING CROSSWALK (Quiet Mode) ==================== -->
-          <div id="screen-crosswalkSafety" role="region" aria-label="Screen 9: Approaching Crosswalk Quiet Mode" class="flex-1 flex flex-col justify-between p-5 pb-6 hidden">
+          <div id="screen-crosswalkSafety" role="region" aria-label="Screen 9: Approaching Crosswalk Quiet Mode" class="screen-container flex-1 flex flex-col justify-between p-5 pb-6 hidden">
             <!-- Header -->
-            <div class="flex justify-between items-center pt-2 px-1">
-              <button onclick="navigateTo('activeNavigation')" aria-label="Back to active navigation" class="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-700 hover:bg-slate-50 shadow-sm transition active:scale-95">
-                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+            <div class="mobile-safe-header flex justify-between items-center pt-2 px-1">
+              <button onclick="navigateTo('activeNavigation')" aria-label="Back to active navigation" class="w-11 h-11 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-700 hover:bg-slate-50 shadow-sm transition active:scale-95 shrink-0">
+                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
               </button>
               <span class="text-xl font-bold text-black tracking-tight">Blind AI</span>
-              <button onclick="openSettingsModal()" aria-label="Settings" aria-haspopup="dialog" class="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-700 shadow-sm">
-                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+              <button onclick="openSettingsModal()" aria-label="Settings" aria-haspopup="dialog" class="w-11 h-11 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-700 shadow-sm shrink-0">
+                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
               </button>
             </div>
 
             <!-- Top Warning Notice Banner (role="alert" for immediate screen reader notice) -->
-            <div role="alert" aria-live="assertive" class="mt-2 bg-[#FEE881] rounded-3xl p-4 flex items-center space-x-4 shadow-sm">
-              <div class="w-10 h-10 text-black flex items-center justify-center flex-shrink-0" aria-hidden="true">
-                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-9 h-9 fill-black" viewBox="0 0 24 24"><path d="M13.5 5.5c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zM9.8 8.9L7 23h2.1l1.8-8 2.1 2v6h2v-7.5l-2.1-2 .6-3C14.8 12 16.8 13 19 13v-2c-1.9 0-3.5-1-4.3-2.4l-1-1.6c-.4-.6-1-1-1.7-1-.3 0-.5.1-.8.1L6 8.3V13h2V9.6l1.8-.7z"/></svg>
+            <div role="alert" aria-live="assertive" class="mt-2 bg-[#FEE881] rounded-3xl p-4 flex items-center space-x-4 shadow-sm shrink-0">
+              <div class="w-10 h-10 text-black flex items-center justify-center shrink-0" aria-hidden="true">
+                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-9 h-9 fill-black shrink-0" viewBox="0 0 24 24"><path d="M13.5 5.5c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zM9.8 8.9L7 23h2.1l1.8-8 2.1 2v6h2v-7.5l-2.1-2 .6-3C14.8 12 16.8 13 19 13v-2c-1.9 0-3.5-1-4.3-2.4l-1-1.6c-.4-.6-1-1-1.7-1-.3 0-.5.1-.8.1L6 8.3V13h2V9.6l1.8-.7z"/></svg>
               </div>
-              <div class="flex flex-col">
-                <h2 class="text-xl font-bold text-black leading-tight">Approaching crosswalk.</h2>
-                <p class="text-sm text-slate-900 mt-0.5">Listen for traffic.</p>
+              <div class="flex flex-col min-w-0 flex-1">
+                <h2 class="text-xl font-bold text-black leading-tight truncate">Approaching crosswalk.</h2>
+                <p class="text-sm text-slate-900 mt-0.5 truncate">Listen for traffic.</p>
               </div>
             </div>
 
             <!-- Camera View with Real Video & Waveform Overlay -->
-            <div class="flex-1 my-3 relative rounded-3xl overflow-hidden border border-slate-200 shadow-inner flex flex-col justify-end p-3.5 bg-neutral-950">
+            <div class="flex-1 my-3 relative rounded-3xl overflow-hidden border border-slate-200 shadow-inner flex flex-col justify-end p-3.5 bg-neutral-950 min-h-0">
               <video id="crosswalk-live-video" class="absolute inset-0 w-full h-full object-cover hidden" autoplay playsinline muted></video>
               <div id="crosswalk-bg-fallback" class="absolute inset-0 bg-gradient-to-b from-slate-900 via-neutral-900 to-black"></div>
 
@@ -856,15 +946,15 @@
                 
                 <!-- Amber Audio Waveform Bars (Decorative) -->
                 <div class="flex items-center space-x-1.5 h-12 mb-3" aria-hidden="true">
-                  <div class="w-1.5 h-4 bg-amber-500 rounded-full wave-bar wave-1"></div>
-                  <div class="w-1.5 h-7 bg-amber-500 rounded-full wave-bar wave-2"></div>
-                  <div class="w-1.5 h-10 bg-amber-500 rounded-full wave-bar wave-3"></div>
-                  <div class="w-1.5 h-12 bg-amber-500 rounded-full wave-bar wave-4"></div>
-                  <div class="w-1.5 h-14 bg-amber-500 rounded-full wave-bar wave-5"></div>
-                  <div class="w-1.5 h-12 bg-amber-500 rounded-full wave-bar wave-6"></div>
-                  <div class="w-1.5 h-10 bg-amber-500 rounded-full wave-bar wave-7"></div>
-                  <div class="w-1.5 h-7 bg-amber-500 rounded-full wave-bar wave-8"></div>
-                  <div class="w-1.5 h-4 bg-amber-500 rounded-full wave-bar wave-9"></div>
+                  <div class="w-1.5 h-4 bg-amber-500 rounded-full wave-bar wave-1 shrink-0"></div>
+                  <div class="w-1.5 h-7 bg-amber-500 rounded-full wave-bar wave-2 shrink-0"></div>
+                  <div class="w-1.5 h-10 bg-amber-500 rounded-full wave-bar wave-3 shrink-0"></div>
+                  <div class="w-1.5 h-12 bg-amber-500 rounded-full wave-bar wave-4 shrink-0"></div>
+                  <div class="w-1.5 h-14 bg-amber-500 rounded-full wave-bar wave-5 shrink-0"></div>
+                  <div class="w-1.5 h-12 bg-amber-500 rounded-full wave-bar wave-6 shrink-0"></div>
+                  <div class="w-1.5 h-10 bg-amber-500 rounded-full wave-bar wave-7 shrink-0"></div>
+                  <div class="w-1.5 h-7 bg-amber-500 rounded-full wave-bar wave-8 shrink-0"></div>
+                  <div class="w-1.5 h-4 bg-amber-500 rounded-full wave-bar wave-9 shrink-0"></div>
                 </div>
 
                 <p class="text-base font-medium text-slate-800">
@@ -875,10 +965,10 @@
             </div>
 
             <!-- Bottom Action -->
-            <div class="pt-1">
+            <div class="mobile-safe-footer pt-1">
               <button onclick="confirmCrossed()" aria-label="Confirm crosswalk completed and resume navigation route" class="w-full py-3.5 rounded-full bg-neutral-900 text-white font-bold text-sm shadow-md hover:bg-black transition active:scale-95 flex items-center justify-center space-x-2">
                 <span>Crosswalk Completed — Resume Route</span>
-                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-white shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
               </button>
             </div>
           </div>
