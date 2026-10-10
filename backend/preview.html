@@ -220,10 +220,11 @@
         <span id="speech-status-label">Voice: On</span>
       </button>
 
-      <!-- Auto Walk Toggle -->
-      <button onclick="toggleWalkSimulation()" id="walk-sim-btn" role="switch" aria-checked="true" aria-label="Auto-walk simulation active. Tap to pause." class="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-amber-500 text-white text-xs font-semibold hover:bg-amber-600 transition shadow-sm">
-        <span id="walk-sim-label">Auto-Walk: ON</span>
-      </button>
+      <!-- Real-Time Physical Movement Tracker (No Fake Simulation) -->
+      <div id="real-movement-pill" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 text-white text-xs font-medium shadow-sm border border-slate-700" title="Live Pedometer & GPS Physical Distance Tracker">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" aria-hidden="true"></span>
+        <span class="font-mono text-[11px]">Walked: <strong id="real-steps-display" class="text-emerald-400">0</strong> steps (<strong id="real-dist-display" class="text-emerald-400">0.0m</strong>)</span>
+      </div>
     </nav>
   </header>
 
@@ -626,14 +627,19 @@
                 </button>
               </div>
 
-              <!-- Quick safety triggers for testing -->
-              <div class="flex justify-center gap-2 mt-2" role="group" aria-label="Simulation test triggers">
-                <button onclick="navigateTo('obstacleAlert')" aria-label="Simulate obstacle hazard detection" class="px-2.5 py-1 bg-red-600/80 text-white hover:bg-red-700 rounded-xl text-[11px] font-bold transition flex items-center gap-1 shadow-sm backdrop-blur-sm active:scale-95">
-                  <span aria-hidden="true">⚠️</span> Simulate Obstacle
-                </button>
-                <button onclick="navigateTo('crosswalkSafety')" aria-label="Simulate approaching crosswalk quiet mode" class="px-2.5 py-1 bg-amber-500/80 text-black hover:bg-amber-600 rounded-xl text-[11px] font-bold transition flex items-center gap-1 shadow-sm backdrop-blur-sm active:scale-95">
-                  <span aria-hidden="true">🚶</span> Simulate Crosswalk
-                </button>
+              <!-- Real-Time LiDAR Depth Corridor & Spatial Direction HUD -->
+              <div id="nav-lidar-corridor-hud" class="w-full mt-2 py-2 px-3 rounded-2xl bg-black/85 backdrop-blur-md border border-emerald-500/50 text-white shadow-xl flex items-center justify-between">
+                <div class="flex items-center space-x-2.5">
+                  <span id="nav-direction-arrow" class="text-2xl text-emerald-400 font-extrabold select-none">⬆️</span>
+                  <div class="flex flex-col text-left">
+                    <span id="nav-corridor-status" class="text-[11px] font-bold text-emerald-300 tracking-wide uppercase">WALK STRAIGHT • PATH CLEAR</span>
+                    <span id="nav-depth-reading" class="text-[10px] text-slate-300 font-mono">Depth ahead: <strong id="nav-depth-meters" class="text-white">4.0m</strong> • Center clear</span>
+                  </div>
+                </div>
+                <div class="flex flex-col items-end">
+                  <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">LiDAR Lanes</span>
+                  <span id="nav-lateral-lanes" class="text-[10px] font-mono font-bold text-emerald-400">L:3.5m | C:4.0m | R:3.5m</span>
+                </div>
               </div>
             </div>
 
@@ -809,9 +815,9 @@
                 <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 fill-current" viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>
               </div>
               <div class="flex flex-col">
-                <h2 id="obstacle-screen-title" class="text-xl font-bold text-red-600 leading-tight">Obstacle ahead</h2>
+                <h2 id="obstacle-screen-title" class="text-xl font-bold text-red-600 leading-tight">Obstacle Danger Alert</h2>
                 <p id="obstacle-screen-subtitle" class="text-xs text-slate-800 font-medium leading-relaxed mt-0.5">
-                  Two meters ahead,<br>construction barrier on right.
+                  Scanning for collision hazards ahead with LiDAR depth & YOLO camera vision.
                 </p>
               </div>
             </div>
@@ -826,15 +832,15 @@
               
               <!-- Floating Obstacle Detail Card -->
               <div class="relative z-10 bg-white/95 backdrop-blur-md rounded-2xl p-3.5 border border-slate-100 shadow-md flex items-center space-x-3">
-                <div id="obstacle-card-icon" class="w-10 h-10 rounded-full bg-orange-100 text-orange-500 flex items-center justify-center text-xl flex-shrink-0" role="img" aria-label="Hazard icon">
-                  🚧
+                <div id="obstacle-card-icon" class="w-10 h-10 rounded-full bg-red-100 text-red-600 flex items-center justify-center text-xl flex-shrink-0" role="img" aria-label="Hazard icon">
+                  ⚠️
                 </div>
                 <div class="flex flex-col flex-1">
                   <div class="flex items-center justify-between">
-                    <h3 id="obstacle-card-title" class="font-bold text-slate-900 text-sm leading-tight">Construction barrier</h3>
-                    <span id="obstacle-card-dist-badge" class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700">2.0m</span>
+                    <h3 id="obstacle-card-title" class="font-bold text-slate-900 text-sm leading-tight">Active Hazard Sensing</h3>
+                    <span id="obstacle-card-dist-badge" class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700">Live</span>
                   </div>
-                  <p id="obstacle-card-sub" class="text-xs text-slate-600 mt-0.5">On the right, 2 meters ahead.</p>
+                  <p id="obstacle-card-sub" class="text-xs text-slate-600 mt-0.5">Point camera forward in walking path.</p>
                 </div>
               </div>
             </div>
@@ -1129,12 +1135,26 @@
     // State management
     let activeRoute = 'home';
     let voiceEnabled = true;
-    let autoWalkEnabled = true;
     let webSpeechRec = null;
     let currentDistance = 120;
     let currentWaypointIdx = 0;
     let navigationInterval = null;
     let previousActiveElement = null;
+
+    // Real Physical Movement & Pedometer State (Zero Fake Timers)
+    let totalPhysicalSteps = 0;
+    let totalPhysicalMeters = 0.0;
+    let lastGpsWalkLat = null;
+    let lastGpsWalkLon = null;
+    let lastPedometerAccelMag = 9.8;
+    let lastPedometerStepTime = 0;
+
+    // Real-Time LiDAR & Depth Corridor State
+    let currentLidarDepthAhead = 4.0;
+    let currentLidarDepthLeft = 3.5;
+    let currentLidarDepthRight = 3.5;
+    let currentSteeringDirection = 'WALK STRAIGHT';
+    let lastSteeringSpeechTime = 0;
 
     const allScreens = [
       'home',
@@ -1455,6 +1475,74 @@
       if (window.DeviceOrientationEvent) {
         window.addEventListener('deviceorientation', handleOrientationEvent, true);
       }
+
+      initPedometerSensor();
+    }
+
+    function initPedometerSensor() {
+      if (window.DeviceMotionEvent) {
+        window.addEventListener('devicemotion', (evt) => {
+          const acc = evt.accelerationIncludingGravity || evt.acceleration;
+          if (!acc || acc.x === null || acc.y === null || acc.z === null) return;
+          const mag = Math.sqrt(acc.x * acc.x + acc.y * acc.y + acc.z * acc.z);
+          const delta = Math.abs(mag - lastPedometerAccelMag);
+          lastPedometerAccelMag = mag;
+          const now = Date.now();
+          // Real step detection: acceleration peak > 11.8 m/s^2 or dynamic delta > 2.6 m/s^2, debounced by 320ms
+          if ((mag > 11.8 || delta > 2.6) && (now - lastPedometerStepTime > 320)) {
+            lastPedometerStepTime = now;
+            totalPhysicalSteps++;
+            onPhysicalStepOrMovement(0.75, 'step'); // ~0.75m per pedestrian step stride
+          }
+        }, true);
+      }
+    }
+
+    function onPhysicalStepOrMovement(deltaMeters, source) {
+      totalPhysicalMeters += deltaMeters;
+      updateMovementDisplayUI();
+
+      if (activeRoute !== 'activeNavigation') return;
+
+      if (currentDistance > deltaMeters) {
+        currentDistance = Math.max(0, Math.round(currentDistance - deltaMeters));
+        stepWalkedMeters += deltaMeters;
+        const distNumEl = document.getElementById('nav-distance-num');
+        if (distNumEl) distNumEl.innerText = currentDistance;
+        const currentManeuver = currentWaypoints[currentWaypointIdx]?.maneuver || 'Head straight';
+        const manTextEl = document.getElementById('nav-maneuver-text');
+        if (manTextEl) manTextEl.innerText = currentDistance > 0 ? `${currentManeuver} in ${currentDistance}m` : currentManeuver;
+
+        // Periodic voice distance updates on exact milestones
+        if (currentDistance === 50 || currentDistance === 25 || currentDistance === 10) {
+          triggerHaptic([50]);
+          speakText(`${currentDistance} meters remaining.`);
+        }
+      } else {
+        // Current waypoint completed by physical walking!
+        currentWaypointIdx++;
+        if (currentWaypointIdx < currentWaypoints.length) {
+          currentDistance = currentWaypoints[currentWaypointIdx].distance;
+          stepWalkedMeters = 0;
+          renderActiveWaypoint();
+          triggerHaptic([70, 40, 70]);
+          speakText(`Waypoint reached. ${currentWaypoints[currentWaypointIdx].instruction}`);
+        } else {
+          currentDistance = 0;
+          const distNumEl = document.getElementById('nav-distance-num');
+          if (distNumEl) distNumEl.innerText = 0;
+          speakText(`You have arrived at ${currentDestinationTitle}. Navigation complete.`);
+          triggerHaptic([120, 60, 120, 60, 200]);
+          setTimeout(() => navigateTo('home'), 4000);
+        }
+      }
+    }
+
+    function updateMovementDisplayUI() {
+      const stepsEl = document.getElementById('real-steps-display');
+      const distEl = document.getElementById('real-dist-display');
+      if (stepsEl) stepsEl.innerText = totalPhysicalSteps;
+      if (distEl) distEl.innerText = totalPhysicalMeters.toFixed(1) + 'm';
     }
 
     function handleGpsSuccess(pos) {
@@ -1463,6 +1551,19 @@
       userGps.lon = pos.coords.longitude;
       userGps.accuracy = Math.round(pos.coords.accuracy || 5);
       userGps.isRealGps = true;
+
+      // Real physical GPS movement calculation
+      if (lastGpsWalkLat !== null && lastGpsWalkLon !== null) {
+        const dMeters = calculateHaversineKm(lastGpsWalkLat, lastGpsWalkLon, userGps.lat, userGps.lon) * 1000;
+        if (dMeters >= 1.8 && dMeters < 50) {
+          lastGpsWalkLat = userGps.lat;
+          lastGpsWalkLon = userGps.lon;
+          onPhysicalStepOrMovement(dMeters, 'gps');
+        }
+      } else {
+        lastGpsWalkLat = userGps.lat;
+        lastGpsWalkLon = userGps.lon;
+      }
 
       // Update orientation heading if provided by GPS
       if (pos.coords.heading !== null && !isNaN(pos.coords.heading) && pos.coords.heading >= 0) {
@@ -2450,8 +2551,86 @@
         ctx.fillText(labelText, pillX + 6, pillY + 14);
       });
 
+      // Multi-Lane LiDAR Corridor Clearance Analysis
+      let minLeftDist = 5.0;
+      let minCenterDist = 5.0;
+      let minRightDist = 5.0;
+      let closestCenter = null;
+
+      activeObjects.forEach(obj => {
+        if (obj.lane === 'left') {
+          if (obj.distance < minLeftDist) minLeftDist = obj.distance;
+        } else if (obj.lane === 'center') {
+          if (obj.distance < minCenterDist) {
+            minCenterDist = obj.distance;
+            closestCenter = obj;
+          }
+        } else if (obj.lane === 'right') {
+          if (obj.distance < minRightDist) minRightDist = obj.distance;
+        }
+      });
+
+      currentLidarDepthAhead = minCenterDist;
+      currentLidarDepthLeft = minLeftDist;
+      currentLidarDepthRight = minRightDist;
+
+      // Intelligent Spatial Direction Decision (WHERE TO WALK)
+      let directionStatus = 'WALK STRAIGHT • PATH CLEAR';
+      let directionArrow = '⬆️';
+      let guidanceSpoken = '';
+      let statusClass = 'text-emerald-300';
+      let borderClass = 'border-emerald-500/50';
+
+      if (minCenterDist >= 2.2) {
+        directionStatus = 'WALK STRAIGHT • PATH CLEAR';
+        directionArrow = '⬆️';
+        statusClass = 'text-emerald-300';
+        borderClass = 'border-emerald-500/50';
+      } else if (minCenterDist < 0.8) {
+        directionStatus = 'STOP • COLLISION HAZARD';
+        directionArrow = '🛑';
+        statusClass = 'text-red-400 font-extrabold animate-pulse';
+        borderClass = 'border-red-500';
+        guidanceSpoken = `Stop! ${closestCenter ? closestCenter.label : 'Obstacle'} directly ahead at ${minCenterDist.toFixed(1)} meters!`;
+      } else {
+        // Obstacle 0.8m - 2.2m in walking path
+        if (minLeftDist >= minRightDist && minLeftDist >= 1.8) {
+          directionStatus = 'VEER LEFT 15° • CLEAR OPENING';
+          directionArrow = '↖️';
+          statusClass = 'text-amber-300 font-bold';
+          borderClass = 'border-amber-500';
+          guidanceSpoken = `Caution: ${closestCenter ? closestCenter.label : 'Obstacle'} ${minCenterDist.toFixed(1)} meters ahead in center path. Clear opening on your left. Veer left 15 degrees.`;
+        } else if (minRightDist > minLeftDist && minRightDist >= 1.8) {
+          directionStatus = 'VEER RIGHT 15° • CLEAR OPENING';
+          directionArrow = '↗️';
+          statusClass = 'text-amber-300 font-bold';
+          borderClass = 'border-amber-500';
+          guidanceSpoken = `Caution: ${closestCenter ? closestCenter.label : 'Obstacle'} ${minCenterDist.toFixed(1)} meters ahead in center path. Clear opening on your right. Veer right 15 degrees.`;
+        } else {
+          directionStatus = 'SLOW DOWN • NARROW CORRIDOR';
+          directionArrow = '⚠️';
+          statusClass = 'text-orange-300 font-bold';
+          borderClass = 'border-orange-500';
+          guidanceSpoken = `Caution: Narrow pathway. ${closestCenter ? closestCenter.label : 'Obstacle'} ${minCenterDist.toFixed(1)} meters in walking path. Proceed carefully.`;
+        }
+      }
+
+      // Update Screen 5 Corridor HUD
+      const hudEl = document.getElementById('nav-lidar-corridor-hud');
+      const arrEl = document.getElementById('nav-direction-arrow');
+      const statEl = document.getElementById('nav-corridor-status');
+      const depthEl = document.getElementById('nav-depth-meters');
+      const lanesEl = document.getElementById('nav-lateral-lanes');
+      if (arrEl) arrEl.innerText = directionArrow;
+      if (statEl) {
+        statEl.innerText = directionStatus;
+        statEl.className = 'text-[11px] font-bold tracking-wide uppercase ' + statusClass;
+      }
+      if (depthEl) depthEl.innerText = minCenterDist.toFixed(1) + 'm';
+      if (lanesEl) lanesEl.innerText = `L:${minLeftDist.toFixed(1)}m | C:${minCenterDist.toFixed(1)}m | R:${minRightDist.toFixed(1)}m`;
+      if (hudEl) hudEl.className = `w-full mt-2 py-2 px-3 rounded-2xl bg-black/85 backdrop-blur-md border ${borderClass} text-white shadow-xl flex items-center justify-between`;
+
       // Update Top HUD Hazard Status Badge
-      const closestCenter = activeObjects.find(o => o.lane === 'center');
       const badge = document.getElementById('nav-live-hazard-badge');
       const pathText = document.getElementById('nav-path-status-text');
       const yoloCount = document.getElementById('nav-yolo-count');
@@ -2473,12 +2652,119 @@
         }
       }
 
-      // Safety Voice Warning Throttle
-      if (closestCenter && closestCenter.distance < 2.2 && (now - lastSpokenObstacleTime > 5500)) {
+      // Draw Ground Perspective Corridor & Chevrons on Canvas
+      drawLidarCorridorOverlay(ctx, canvas, minLeftDist, minCenterDist, minRightDist, directionArrow, directionStatus);
+
+      // Emergency or Directional Voice Guidance (Throttled)
+      if (guidanceSpoken && (now - lastSpokenObstacleTime > 5000)) {
         lastSpokenObstacleTime = now;
-        triggerHaptic([80, 50, 80]);
-        speakText(`Caution: ${closestCenter.label.toLowerCase()} ${closestCenter.distance.toFixed(1)} meters ahead in your walking path.`);
+        triggerHaptic(minCenterDist < 0.8 ? [150, 50, 150, 50, 200] : [80, 50, 80]);
+        speakText(guidanceSpoken);
+
+        // If Critical Stop, navigate to Screen 8 with real obstacle details
+        if (minCenterDist < 0.8 && closestCenter) {
+          updateLidarState(closestCenter.distance, closestCenter.label, closestCenter.lane, false);
+          navigateTo('obstacleAlert');
+        }
       }
+    }
+
+    function drawLidarCorridorOverlay(ctx, canvas, minLeft, minCenter, minRight, arrowSymbol, directionStatus) {
+      const w = canvas.width;
+      const h = canvas.height;
+      const vpX = w / 2;
+      const vpY = h * 0.40;
+      const laneW = w / 3;
+
+      ctx.save();
+
+      // 1. Center Walking Path Corridor (Ground Perspective Polygon)
+      ctx.beginPath();
+      ctx.moveTo(laneW, h);
+      ctx.lineTo(2 * laneW, h);
+      ctx.lineTo(vpX + 25, vpY);
+      ctx.lineTo(vpX - 25, vpY);
+      ctx.closePath();
+
+      if (minCenter >= 2.2) {
+        ctx.fillStyle = 'rgba(16, 185, 129, 0.18)'; // Green pathway
+        ctx.strokeStyle = 'rgba(16, 185, 129, 0.7)';
+      } else if (minCenter >= 1.0) {
+        ctx.fillStyle = 'rgba(245, 158, 11, 0.28)'; // Amber caution
+        ctx.strokeStyle = 'rgba(245, 158, 11, 0.85)';
+      } else {
+        ctx.fillStyle = 'rgba(239, 68, 68, 0.38)'; // Red hazard
+        ctx.strokeStyle = 'rgba(239, 68, 68, 0.95)';
+      }
+      ctx.lineWidth = 2.5;
+      ctx.fill();
+      ctx.stroke();
+
+      // Ground Walking Chevrons inside Center Path
+      const numChevrons = 3;
+      for (let i = 1; i <= numChevrons; i++) {
+        const t = i / (numChevrons + 1);
+        const cy = h - (h - vpY) * t;
+        const halfW = 25 + (laneW * 0.5 - 25) * (1 - t);
+        ctx.beginPath();
+        ctx.moveTo(vpX - halfW * 0.6, cy + 8);
+        ctx.lineTo(vpX, cy - 6);
+        ctx.lineTo(vpX + halfW * 0.6, cy + 8);
+        ctx.strokeStyle = minCenter >= 2.2 ? 'rgba(52, 211, 153, 0.8)' : (minCenter >= 1.0 ? 'rgba(251, 191, 36, 0.85)' : 'rgba(248, 113, 113, 0.95)');
+        ctx.lineWidth = 3;
+        ctx.stroke();
+      }
+
+      // 2. Left Lateral Lane Guide
+      ctx.beginPath();
+      ctx.moveTo(0, h);
+      ctx.lineTo(laneW, h);
+      ctx.lineTo(vpX - 25, vpY);
+      ctx.lineTo(vpX - 70, vpY);
+      ctx.closePath();
+      ctx.fillStyle = minLeft >= 2.0 ? 'rgba(59, 130, 246, 0.08)' : 'rgba(239, 68, 68, 0.16)';
+      ctx.strokeStyle = 'rgba(148, 163, 184, 0.35)';
+      ctx.lineWidth = 1.5;
+      ctx.fill();
+      ctx.stroke();
+
+      // 3. Right Lateral Lane Guide
+      ctx.beginPath();
+      ctx.moveTo(2 * laneW, h);
+      ctx.lineTo(w, h);
+      ctx.lineTo(vpX + 70, vpY);
+      ctx.lineTo(vpX + 25, vpY);
+      ctx.closePath();
+      ctx.fillStyle = minRight >= 2.0 ? 'rgba(59, 130, 246, 0.08)' : 'rgba(239, 68, 68, 0.16)';
+      ctx.strokeStyle = 'rgba(148, 163, 184, 0.35)';
+      ctx.lineWidth = 1.5;
+      ctx.fill();
+      ctx.stroke();
+
+      // Dynamic Guidance Arrow & Clearance Pill on Ground
+      const arrowY = h - 60;
+      ctx.font = 'bold 24px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillStyle = minCenter >= 2.2 ? '#10B981' : (minCenter >= 1.0 ? '#F59E0B' : '#EF4444');
+      ctx.fillText(arrowSymbol, vpX, arrowY);
+
+      // Depth Ahead Tag
+      ctx.font = 'bold 10px monospace';
+      const depthTag = `L:${minLeft.toFixed(1)}m | C:${minCenter.toFixed(1)}m | R:${minRight.toFixed(1)}m`;
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+      const textW = ctx.measureText(depthTag).width + 14;
+      if (ctx.roundRect) {
+        ctx.beginPath();
+        ctx.roundRect(vpX - textW / 2, arrowY + 16, textW, 18, 5);
+        ctx.fill();
+      } else {
+        ctx.fillRect(vpX - textW / 2, arrowY + 16, textW, 18);
+      }
+      ctx.fillStyle = minCenter >= 2.2 ? '#34D399' : (minCenter >= 1.0 ? '#FBBF24' : '#F87171');
+      ctx.fillText(depthTag, vpX, arrowY + 25);
+
+      ctx.restore();
     }
 
     async function triggerSignboardScan(quiet = false) {
@@ -3211,9 +3497,12 @@
       startAlwaysOpenBackCamera();
 
       if (navigationInterval) clearInterval(navigationInterval);
-      if (autoWalkEnabled) {
-        navigationInterval = setInterval(progressWalking, 2200);
-      }
+      navigationInterval = null;
+
+      // Reset baseline for real GPS & step tracking
+      lastGpsWalkLat = userGps.lat;
+      lastGpsWalkLon = userGps.lon;
+      updateMovementDisplayUI();
     }
 
     function renderActiveWaypoint() {
@@ -3223,41 +3512,6 @@
       document.getElementById('nav-distance-num').innerText = currentDistance;
       document.getElementById('nav-maneuver-text').innerText = wp.maneuver;
       document.getElementById('nav-maneuver-icon').innerText = wp.icon;
-    }
-
-    function progressWalking() {
-      if (activeRoute !== 'activeNavigation') return;
-
-      if (currentDistance > 10) {
-        currentDistance -= 10;
-        stepWalkedMeters += 10;
-        document.getElementById('nav-distance-num').innerText = currentDistance;
-        const currentManeuver = currentWaypoints[currentWaypointIdx]?.maneuver || 'Head straight';
-        document.getElementById('nav-maneuver-text').innerText = currentDistance > 0 ? `${currentManeuver} in ${currentDistance}m` : currentManeuver;
-
-        if (currentDistance === 50) {
-          triggerHaptic([50]);
-          speakText(`50 meters remaining.`);
-        }
-      } else {
-        // Next waypoint
-        currentWaypointIdx++;
-        if (currentWaypointIdx < currentWaypoints.length) {
-          currentDistance = currentWaypoints[currentWaypointIdx].distance;
-          stepWalkedMeters = 0;
-          obstacleTriggeredThisStep = false;
-          trafficTriggeredThisStep = false;
-          metersSinceObstacle = 0;
-          renderActiveWaypoint();
-          speakText(currentWaypoints[currentWaypointIdx].instruction);
-        } else {
-          clearInterval(navigationInterval);
-          navigationInterval = null;
-          speakText(`You have arrived at ${currentDestinationTitle}. Navigation complete.`);
-          triggerHaptic([120, 60, 120, 60, 200]);
-          setTimeout(() => navigateTo('home'), 3500);
-        }
-      }
     }
 
     function repeatCurrentStep() {
@@ -3318,9 +3572,6 @@
 
       setTimeout(() => {
         navigateTo('activeNavigation');
-        if (autoWalkEnabled && !navigationInterval) {
-          navigationInterval = setInterval(progressWalking, 2200);
-        }
       }, 400);
     }
 
@@ -3329,9 +3580,6 @@
       speakText("Crosswalk completed. Resuming route.");
       setTimeout(() => {
         navigateTo('activeNavigation');
-        if (autoWalkEnabled && !navigationInterval) {
-          navigationInterval = setInterval(progressWalking, 2200);
-        }
       }, 400);
     }
 
@@ -3359,29 +3607,6 @@
         window.speechSynthesis.cancel();
       }
       announceToScreenReader(voiceEnabled ? "Voice guidance enabled" : "Voice guidance muted");
-    }
-
-    function toggleWalkSimulation() {
-      autoWalkEnabled = !autoWalkEnabled;
-      const lbl = document.getElementById('walk-sim-label');
-      const btn = document.getElementById('walk-sim-btn');
-      btn.setAttribute('aria-checked', autoWalkEnabled ? 'true' : 'false');
-      btn.setAttribute('aria-label', autoWalkEnabled ? 'Auto-walk simulation active. Tap to pause.' : 'Auto-walk simulation paused. Tap to resume.');
-      if (autoWalkEnabled) {
-        lbl.innerText = "Auto-Walk: ON";
-        btn.classList.remove('bg-slate-500');
-        btn.classList.add('bg-amber-500');
-        if (activeRoute === 'activeNavigation' && !navigationInterval) {
-          navigationInterval = setInterval(progressWalking, 2200);
-        }
-        announceToScreenReader("Auto-walk simulation enabled");
-      } else {
-        lbl.innerText = "Auto-Walk: OFF";
-        btn.classList.remove('bg-amber-500');
-        btn.classList.add('bg-slate-500');
-        if (navigationInterval) clearInterval(navigationInterval);
-        announceToScreenReader("Auto-walk simulation paused");
-      }
     }
 
     function triggerHaptic(pattern) {

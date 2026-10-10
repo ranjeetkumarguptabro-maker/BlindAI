@@ -18,8 +18,6 @@ public final class NavigationService: NSObject, NavigationServiceProtocol, Obser
     private let hapticsService = HapticsService.shared
     private let locationManager = CLLocationManager()
     
-    private var simulationTimer: Timer?
-    
     private let waypoints: [NavigationInstruction] = [
         NavigationInstruction(
             title: "Navigation",
@@ -77,13 +75,14 @@ public final class NavigationService: NSObject, NavigationServiceProtocol, Obser
         let initialPrompt = "Starting walking route to \(routeName). \(currentInstruction.mainInstruction) in \(remainingDistanceMeters) meters."
         speechService.speak(initialPrompt)
         
-        // Trigger GPS or realistic walking countdown simulation
-        startWalkingSimulation()
+        // Start live location updates for real physical walking
+        lastLocation = nil
+        locationManager.startUpdatingLocation()
     }
     
     public func stopRoute() {
-        simulationTimer?.invalidate()
-        simulationTimer = nil
+        locationManager.stopUpdatingLocation()
+        lastLocation = nil
         
         // Stop LiDAR scanning when navigation ends
         ARKitLiDARScannerService.shared.stopScanning()
@@ -101,25 +100,36 @@ public final class NavigationService: NSObject, NavigationServiceProtocol, Obser
         speechService.speak(text)
     }
     
-    private func startWalkingSimulation() {
-        simulationTimer?.invalidate()
-        // Simulate walking progress every 2.5 seconds (steps through distance and waypoints)
-        simulationTimer = Timer.scheduledTimer(withTimeInterval: 2.2, repeats: true) { [weak self] _ in
-            guard let self = self, self.isNavigating else { return }
-            
-            if self.remainingDistanceMeters > 5 {
-                self.remainingDistanceMeters -= 4
-                self.updateCurrentInstructionDistance()
-                
-                // Voice guidance milestones
-                if self.remainingDistanceMeters == 30 || self.remainingDistanceMeters == 15 {
-                    self.speechService.speak("\(self.currentInstruction.mainInstruction) in \(self.remainingDistanceMeters) meters.")
-                    self.hapticsService.impact(style: .light)
-                }
-            } else {
-                // Waypoint reached! Transition to next waypoint
-                self.advanceToNextWaypoint()
+    private var lastLocation: CLLocation?
+    
+    public func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        guard isNavigating, let newLocation = locations.last else { return }
+        if let previous = lastLocation {
+            let delta = Int(newLocation.distance(from: previous))
+            if delta >= 2 { // filter out GPS jitter (< 2m)
+                lastLocation = newLocation
+                progressPhysicalMovement(by: delta)
             }
+        } else {
+            lastLocation = newLocation
+        }
+    }
+    
+    public func progressPhysicalMovement(by meters: Int) {
+        guard isNavigating else { return }
+        
+        if remainingDistanceMeters > meters {
+            remainingDistanceMeters -= meters
+            updateCurrentInstructionDistance()
+            
+            // Voice guidance milestones
+            if remainingDistanceMeters == 30 || remainingDistanceMeters == 15 {
+                speechService.speak("\(currentInstruction.mainInstruction) in \(remainingDistanceMeters) meters.")
+                hapticsService.impact(style: .light)
+            }
+        } else {
+            // Waypoint reached by physical walking! Transition to next waypoint
+            advanceToNextWaypoint()
         }
     }
     
@@ -156,8 +166,7 @@ public final class NavigationService: NSObject, NavigationServiceProtocol, Obser
             speechService.speak("\(currentInstruction.mainInstruction) in \(remainingDistanceMeters) meters.")
         } else {
             // Arrival reached!
-            simulationTimer?.invalidate()
-            simulationTimer = nil
+            locationManager.stopUpdatingLocation()
             stateMachine.transition(to: .arrival)
             hapticsService.notification(type: .success)
             speechService.speak("You have arrived at your destination: \(routeName).")
