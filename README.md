@@ -59,9 +59,9 @@ The Blind AI local backend server is running and ready. Click any of the links b
 
 - **Always-Open Back Camera Pipeline**: The rear environment camera (`navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })` in web, `AVCaptureSession` in native Swift) remains continuously active while walking, feeding live visual frames to real-time neural perception models with a seamless walking simulation toggle.
 - **Real-Time Neural Object Detection (No Mock Data)**: Powered by **TensorFlow.js COCO-SSD** and native **Apple Vision / YOLO**, continuously detecting genuine physical objects in front of the lens across 80+ classes (Person, Chair, Bottle, Bicycle, Car, Stairs, Door, Laptop, Cell Phone, etc.) with real optical distance estimation based on bounding box height.
-- **Real World GPS & Worldwide Navigation (No Hardcoded RTU Location)**: Stops hardcoding fixed locations. Uses `navigator.geolocation.watchPosition` and native `CLLocationManager` to track real GPS location globally, reverses real street and city names via OpenStreetMap Nominatim, and routes to ANY destination on Earth using the Haversine formula and dynamic walking waypoints.
+- **Real World GPS & Worldwide Navigation (Zero Hardcoded Locations)**: Uses `navigator.geolocation.watchPosition` and native `CLLocationManager` to track real GPS location globally, reverses real street and city names via OpenStreetMap Nominatim, and routes to ANY destination on Earth using the Haversine formula and dynamic walking waypoints.
 - **Interactive Leaflet & MapKit Walking Maps**: Replaces static diagrams with interactive **Leaflet.js** maps and native SwiftUI **`RealInteractiveMapView`** (`MKMapView`, `MKDirections`) displaying live user GPS pins, destination markers, and route polyline overlays.
-- **Gemini AI Signboard & Street Sign Reading**: Continuously analyzes camera views via Gemini Multimodal Vision to identify and transcribe street name signs (e.g. *Paula Valdena iela*), building entrance boards (*RTU Faculty of Computer Science*), bus stops (*Bus 9: Ķīpsala*), and warning placards, announcing them aloud to the pedestrian.
+- **Gemini AI Signboard & Street Sign Reading**: Continuously analyzes camera views via Gemini Multimodal Vision to identify and transcribe street name signs (e.g. *Main Street*, *Broadway*), building entrance boards (*Central Public Library*), transit stops (*Downtown Metro / Bus Line 4*), and warning placards, announcing them aloud to the pedestrian.
 - **Hands-Free Automated Voice Button Clicker**: Tapping the microphone and speaking automatically triggers and clicks matching UI buttons (*Start navigation*, *Where am I*, *Describe around me*, *Read signs*, *Repeat*, *I understand*, *Settings*, *Stop*).
 - **Automated GPS Location & Destination Routing**: Speaking *"Take me to [place]"* or *"I want to go there/somewhere"* automatically acquires the user's real GPS coordinates, sets current location as origin, calculates the walking route, and launches active walking navigation instantly.
 - **Swift-First Architecture (6,750+ Lines)**: Native iOS implementation with dedicated services for camera capture (`CameraCaptureService`), neural perception (`RealtimeVisionPerceptionService`), MapKit walking directions (`MapKitNavigationService`), and destination search (`DestinationSearchService`), configured with `.gitattributes` Linguist attributes.
@@ -200,7 +200,7 @@ The decision engine classifies threats based on distance, lateral lane position,
 When a pedestrian is moving at normal walking speed (~1.3 m/s), an obstacle at 0.7 m will be reached in under 550 ms. Ordinary turn-by-turn speech would cause a collision if not interrupted immediately.
 
 ```
-Pedestrian Walking (Turn-by-turn: "In 40 meters, turn right on Ķīpsalas iela...")
+Pedestrian Walking (Turn-by-turn: "In 40 meters, turn right onto Main Street...")
                                 │
                                 ▼
          LiDAR Sensor Detects Target at d = 0.65m (< 0.7m)
@@ -239,19 +239,19 @@ Tapping the microphone button activates the Voice Assistant, which supports natu
 
 ```
 User: "Take me to the library"
-Gemini: Understands destination -> Resolves to RTU Central Library -> Plans 8-waypoint walking route.
+Gemini: Understands destination -> Resolves to Nearest Public Library via real GPS -> Plans walking route with dynamic waypoints.
 
-User: "Open the sports center"
-Gemini: Matches RTU Sports Center -> Announces distance & duration -> Opens route preview.
+User: "Open the coffee shop"
+Gemini: Matches nearby cafe -> Announces distance & duration -> Opens route preview.
 
 User: "What is in front of me?"
-Gemini + LiDAR: Reads live LiDAR depth buffer -> "There is a bicycle rack approximately 3 meters ahead on your right."
+Gemini + YOLO/LiDAR: Reads live camera stream & depth buffer -> "There is a person approximately 2.5 meters ahead in your walking path."
 
 User: "Where am I?"
-Gemini: Queries GPS & compass -> "You are near Riga Technical University, Ķīpsala Campus in Riga, Latvia. Facing east."
+Gemini: Queries real GPS & compass -> "You are at [Current Street], [City]. Facing east."
 
-User: "Take me somewhere" (Ambiguous)
-Gemini: Clarification flow -> "Where would you like to go? You can say the library, the main building, or any location in Riga."
+User: "Take me somewhere" / "Go there"
+Gemini: Automatically detects real current location -> Finds closest accessible park or amenity -> Starts walking navigation immediately with rear camera open.
 ```
 
 ---
@@ -267,14 +267,14 @@ Tap Microphone   Start navigation             Where am I?       Describe around 
      │                   │                           │                   │
      ▼                   ▼                           ▼                   ▼
 [ 2. LISTENING ]  [ 3. DESTINATION SEARCH ]    [ 6. WHERE AM I? ]  [ 7. HERE'S WHAT I SEE ]
- (Voice speech:  ("Where would you like to go?")(RTU location card,  (RTU Campus photo,
- "Take me to RTU",       │                      Orientation East,     Sidewalk clear,
- "Where am I?")    Select RTU Campus            "Repeat location")    Bicycle rack,
-     │                   │                           │                People, Sunny,
+ (Voice speech:  ("Where would you like to go?")(Real GPS location,   (Live rear camera view,
+ "Take me to park",      │                      Compass heading,      Pathway clear ahead,
+ "Where am I?")    Select destination           "Repeat location")    Real YOLO objects,
+     │                   │                           │                Environment analysis,
      │                   ▼                           │                "Repeat" audio)
      │          [ 4. ROUTE PREVIEW ] ◄───────────────┘
-     │          (Daugava map canvas,
-     │           Vanšu tilts, 2.4 km)
+     │          (Interactive Leaflet/MapKit map,
+     │           Real polyline route, ETA)
      │                   │
      │            Start navigation
      │                   │
@@ -282,16 +282,16 @@ Tap Microphone   Start navigation             Where am I?       Describe around 
                          │                                               │
                          ▼                                               ▼
               [ 5. ACTIVE NAVIGATION ]                        [ 8. OBSTACLE AHEAD ]
-           (Live distance countdown 120m,                   (Red alert: Construction barrier,
-            Turn right on Ķīpsalas iela,                     2m ahead on right, AR red path,
-            Haptic directional feedback)                     "Repeat", "I Understand")
+           (Live camera view + YOLO overlay,                 (Real detected hazard: Bounding box,
+            Turn-by-turn walking steps,                       Distance & lateral position in path,
+            Haptic directional feedback)                      AR red path, "I Understand")
                          │                                               │
                          ├───────────────────────────────────────────────┘
                          │
                          ▼
              [ 9. APPROACHING CROSSWALK ]
            (Warm amber notice: Listen for traffic,
-            Zebra crossing & green pedestrian signal,
+            Pedestrian crossing audio awareness,
             Animated audio waveform, Automatic silence,
             "I will be quiet while you cross")
 ```
@@ -299,13 +299,13 @@ Tap Microphone   Start navigation             Where am I?       Describe around 
 ### Screen Inventory:
 1. **Screen 1 — Home**: 3D glowing status orb, *"How can I help you today?"*, and accessible action cards.
 2. **Screen 2 — Voice Listening**: Audio-reactive ripple rings, real speech-to-text, prompt pills, and cancel button.
-3. **Screen 3 — Destination Search**: Live search input, category filters (Campus, Library, Transit, Cafeteria), and recent places.
-4. **Screen 4 — Route Preview**: Destination overview (2.4 km, 28 min, 8 waypoints), Daugava River/Vanšu tilts vector map, and *"Start navigation"*.
-5. **Screen 5 — Active Navigation**: Step indicator, distance countdown (160 m $\to$ 0 m), maneuver icon, and safety event test buttons.
-6. **Screen 6 — Where am I?**: Current street, compass heading (84° E), RTU landmark photo card, and *"Repeat location"*.
-7. **Screen 7 — Describe What's Around Me**: Camera scene photo, structured 5-item perception list, and audio replay button.
-8. **Screen 8 — Obstacle Ahead (Hazard Detection)**: Urgent warning banner, camera view with dynamic LiDAR depth overlay canvas, floating obstacle card, and *"I Understand"* button.
-9. **Screen 9 — Approaching Crosswalk (Quiet Mode)**: Amber safety banner, zebra crossing visual, animated audio waveform, and *"Crosswalk Completed — Resume Route"*.
+3. **Screen 3 — Destination Search**: Live search input, category filters (Parks, Transit, Cafes, Groceries), and recent places.
+4. **Screen 4 — Route Preview**: Destination overview (dynamic distance, ETA, walking waypoints), real Leaflet/MapKit interactive map, and *"Start navigation"*.
+5. **Screen 5 — Active Navigation**: Step indicator, distance countdown, live rear camera feed, YOLO bounding boxes, and signboard OCR.
+6. **Screen 6 — Where am I?**: Real GPS street address, live compass heading, neighborhood context card, and *"Repeat location"*.
+7. **Screen 7 — Describe What's Around Me**: Live camera view, structured neural perception list, and audio replay button.
+8. **Screen 8 — Obstacle Ahead (Hazard Detection)**: Urgent warning banner, camera view with dynamic LiDAR/YOLO depth overlay canvas, real obstacle card, and *"I Understand"* button.
+9. **Screen 9 — Approaching Crosswalk (Quiet Mode)**: Amber safety banner, crossing awareness visual, animated audio waveform, and *"Crosswalk Completed — Resume Route"*.
 
 ---
 

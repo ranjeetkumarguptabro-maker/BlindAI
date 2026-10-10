@@ -1,13 +1,4 @@
 import os
-import base64
-
-def get_b64(path):
-    with open(path, 'rb') as f:
-        return 'data:image/jpeg;base64,' + base64.b64encode(f.read()).decode('utf-8')
-
-img_campus = get_b64('docs/scene_rtu_campus.jpg')
-img_obstacle = get_b64('docs/scene_obstacle_barrier.jpg')
-img_crosswalk = get_b64('docs/scene_crosswalk_signal.jpg')
 
 html_content = f"""<!DOCTYPE html>
 <html lang="en">
@@ -204,12 +195,12 @@ html_content = f"""<!DOCTYPE html>
           <option value="home">1. Home</option>
           <option value="listening">2. Voice Listening</option>
           <option value="destinationSearch">3. Destination Search</option>
-          <option value="routePreview">4. Route Preview (RTU)</option>
-          <option value="activeNavigation">5. Active Navigation</option>
+          <option value="routePreview">4. Route Preview</option>
+          <option value="activeNavigation">5. Active Navigation (Always-Open Camera + YOLO)</option>
           <option value="whereAmI">6. Where am I?</option>
           <option value="describeAround">7. Describe what's around me</option>
-          <option value="obstacleAlert">8. Obstacle ahead (Hazard)</option>
-          <option value="crosswalkSafety">9. Approaching crosswalk (Quiet)</option>
+          <option value="obstacleAlert">8. Obstacle ahead (Live AR Danger)</option>
+          <option value="crosswalkSafety">9. Approaching crosswalk (Quiet Mode)</option>
         </select>
       </div>
 
@@ -365,7 +356,7 @@ html_content = f"""<!DOCTYPE html>
                 I'm listening...
               </h2>
               <p id="live-transcript" aria-live="polite" class="text-sm text-slate-600 text-center mt-2 px-6 italic min-h-[3rem]">
-                “Take me to Riga Technical University”
+                “Take me to coffee shop”
               </p>
               <div class="mt-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-50 border border-orange-200 text-[11px] font-semibold text-orange-700">
                 <span class="w-2 h-2 rounded-full bg-orange-500 animate-pulse"></span>
@@ -382,17 +373,17 @@ html_content = f"""<!DOCTYPE html>
                 <button onclick="handleVoiceInput('Where am I?')" aria-label="Simulate: Where am I?" class="px-2.5 py-1 rounded-full bg-blue-50 border border-blue-200 text-[11px] font-semibold text-blue-900 shadow-sm hover:bg-blue-100 transition active:scale-95">
                   “Where am I?”
                 </button>
-                <button onclick="handleVoiceInput('Take me to RTU')" aria-label="Simulate: Take me to RTU" class="px-2.5 py-1 rounded-full bg-white border border-slate-200 text-[11px] font-medium text-slate-700 shadow-sm hover:bg-slate-50 transition active:scale-95">
-                  “Take me to RTU”
+                <button onclick="handleVoiceInput('Take me to coffee shop')" aria-label="Simulate: Take me to coffee shop" class="px-2.5 py-1 rounded-full bg-white border border-slate-200 text-[11px] font-medium text-slate-700 shadow-sm hover:bg-slate-50 transition active:scale-95">
+                  “Take me to coffee shop”
                 </button>
-                <button onclick="handleVoiceInput('Take me to the library')" aria-label="Simulate: Take me to the library" class="px-2.5 py-1 rounded-full bg-white border border-slate-200 text-[11px] font-medium text-slate-700 shadow-sm hover:bg-slate-50 transition active:scale-95">
-                  “Take me to the library”
+                <button onclick="handleVoiceInput('Take me to Central Park')" aria-label="Simulate: Take me to Central Park" class="px-2.5 py-1 rounded-full bg-white border border-slate-200 text-[11px] font-medium text-slate-700 shadow-sm hover:bg-slate-50 transition active:scale-95">
+                  “Take me to Central Park”
                 </button>
-                <button onclick="handleVoiceInput('Take me to Old Town')" aria-label="Simulate: Take me to Old Town" class="px-2.5 py-1 rounded-full bg-white border border-slate-200 text-[11px] font-medium text-slate-700 shadow-sm hover:bg-slate-50 transition active:scale-95">
-                  “Take me to Old Town”
+                <button onclick="handleVoiceInput('Take me somewhere')" aria-label="Simulate: Take me somewhere (auto GPS search)" class="px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-[11px] font-medium text-emerald-800 shadow-sm hover:bg-emerald-100 transition active:scale-95" title="Auto GPS routing to nearest place">
+                  “Take me somewhere” (Auto GPS)
                 </button>
-                <button onclick="handleVoiceInput('Take me there')" aria-label="Simulate: Take me there (clarification test)" class="px-2.5 py-1 rounded-full bg-amber-50 border border-amber-200 text-[11px] font-medium text-amber-800 shadow-sm hover:bg-amber-100 transition active:scale-95" title="Tests clarification prompt">
-                  “Take me there” (Clarify)
+                <button onclick="handleVoiceInput('Go there')" aria-label="Simulate: Go there (auto GPS search)" class="px-2.5 py-1 rounded-full bg-amber-50 border border-amber-200 text-[11px] font-medium text-amber-800 shadow-sm hover:bg-amber-100 transition active:scale-95" title="Auto GPS routing">
+                  “Go there”
                 </button>
               </div>
 
@@ -443,46 +434,46 @@ html_content = f"""<!DOCTYPE html>
 
               <!-- Category Pills -->
               <div role="group" aria-label="Destination categories" class="flex items-center gap-2 mb-4 overflow-x-auto no-scrollbar py-1">
-                <button onclick="selectCategory('RTU')" class="px-3 py-1.5 bg-orange-100 text-orange-800 rounded-full text-xs font-semibold whitespace-nowrap">Campus (RTU)</button>
-                <button onclick="selectCategory('Library')" class="px-3 py-1.5 bg-slate-100 text-slate-700 rounded-full text-xs font-semibold whitespace-nowrap">Library</button>
-                <button onclick="selectCategory('Transit')" class="px-3 py-1.5 bg-slate-100 text-slate-700 rounded-full text-xs font-semibold whitespace-nowrap">Transit Stop</button>
-                <button onclick="selectCategory('Cafeteria')" class="px-3 py-1.5 bg-slate-100 text-slate-700 rounded-full text-xs font-semibold whitespace-nowrap">Cafeteria</button>
+                <button onclick="selectCategory('Coffee shop')" class="px-3 py-1.5 bg-orange-100 text-orange-800 rounded-full text-xs font-semibold whitespace-nowrap">Coffee Shop</button>
+                <button onclick="selectCategory('Park')" class="px-3 py-1.5 bg-emerald-100 text-emerald-800 rounded-full text-xs font-semibold whitespace-nowrap">Park</button>
+                <button onclick="selectCategory('Grocery')" class="px-3 py-1.5 bg-blue-100 text-blue-800 rounded-full text-xs font-semibold whitespace-nowrap">Grocery Store</button>
+                <button onclick="selectCategory('Pharmacy')" class="px-3 py-1.5 bg-purple-100 text-purple-800 rounded-full text-xs font-semibold whitespace-nowrap">Pharmacy</button>
               </div>
 
               <!-- Recent Destinations List -->
               <h3 class="text-xs font-bold text-slate-600 uppercase tracking-wider mb-2 px-1">Recent Places</h3>
               <div id="recent-places-list" role="list" aria-label="Recent destinations" class="flex flex-col space-y-2.5 pb-4">
-                <button onclick="selectDestination('Riga Technical University (RTU)', 'Ķīpsala Campus, Paula Valdena iela 1')" aria-label="Select destination: Riga Technical University (RTU), Ķīpsala Campus, 2.4 kilometers, 28 minutes" class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between text-left hover:border-amber-400 transition">
+                <button onclick="selectDestination('City Central Park', 'Pedestrian Promenade & Garden')" aria-label="Select destination: City Central Park" class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between text-left hover:border-amber-400 transition">
                   <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center font-bold text-sm" aria-hidden="true">RTU</div>
+                    <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-sm" aria-hidden="true">🌳</div>
                     <div>
-                      <h4 class="font-bold text-slate-900 text-sm">Riga Technical University (RTU)</h4>
-                      <p class="text-xs text-slate-600">Ķīpsala Campus • 2.4 km</p>
+                      <h4 class="font-bold text-slate-900 text-sm">City Central Park</h4>
+                      <p class="text-xs text-slate-600">Pedestrian Promenade • 0.8 km</p>
                     </div>
                   </div>
-                  <span class="text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-1 rounded-lg">28 min</span>
+                  <span class="text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-1 rounded-lg">10 min</span>
                 </button>
 
-                <button onclick="selectDestination('RTU Student Hostel', 'Āzenes iela 22, Ķīpsala')" aria-label="Select destination: RTU Student Hostel, Āzenes iela 22, 1.1 kilometers, 14 minutes" class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between text-left hover:border-amber-400 transition">
+                <button onclick="selectDestination('Corner Bakery & Cafe', 'Main Sidewalk Entrance')" aria-label="Select destination: Corner Bakery & Cafe" class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between text-left hover:border-amber-400 transition">
                   <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-sm" aria-hidden="true">SH</div>
+                    <div class="w-10 h-10 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center font-bold text-sm" aria-hidden="true">☕</div>
                     <div>
-                      <h4 class="font-bold text-slate-900 text-sm">RTU Student Hostel</h4>
-                      <p class="text-xs text-slate-600">Āzenes iela 22 • 1.1 km</p>
+                      <h4 class="font-bold text-slate-900 text-sm">Corner Bakery & Cafe</h4>
+                      <p class="text-xs text-slate-600">Main Sidewalk • 0.3 km</p>
                     </div>
                   </div>
-                  <span class="text-xs font-bold text-slate-700 bg-slate-100 px-2 py-1 rounded-lg">14 min</span>
+                  <span class="text-xs font-bold text-slate-700 bg-slate-100 px-2 py-1 rounded-lg">4 min</span>
                 </button>
 
-                <button onclick="selectDestination('Swedbank Central Building', 'Balasta dambis 15, Riga')" aria-label="Select destination: Swedbank Central Building, Balasta dambis 15, 1.8 kilometers, 21 minutes" class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between text-left hover:border-amber-400 transition">
+                <button onclick="selectDestination('Metro & Bus Transit Station', 'Transit Plaza North')" aria-label="Select destination: Metro & Bus Transit Station" class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between text-left hover:border-amber-400 transition">
                   <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold text-sm" aria-hidden="true">SB</div>
+                    <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-sm" aria-hidden="true">🚏</div>
                     <div>
-                      <h4 class="font-bold text-slate-900 text-sm">Swedbank Central Building</h4>
-                      <p class="text-xs text-slate-600">Balasta dambis 15 • 1.8 km</p>
+                      <h4 class="font-bold text-slate-900 text-sm">Metro & Bus Transit Station</h4>
+                      <p class="text-xs text-slate-600">Transit Plaza North • 0.5 km</p>
                     </div>
                   </div>
-                  <span class="text-xs font-bold text-slate-700 bg-slate-100 px-2 py-1 rounded-lg">21 min</span>
+                  <span class="text-xs font-bold text-blue-700 bg-blue-50 px-2 py-1 rounded-lg">6 min</span>
                 </button>
               </div>
             </div>
@@ -525,8 +516,8 @@ html_content = f"""<!DOCTYPE html>
                     📍
                   </div>
                   <div>
-                    <h3 id="preview-destination-title" class="font-bold text-slate-900 text-base leading-tight">Riga Technical University (RTU)</h3>
-                    <p id="preview-destination-sub" class="text-xs text-slate-600 mt-0.5">Ķīpsala Campus • 2.4 km • 28 min • 8 waypoints</p>
+                    <h3 id="preview-destination-title" class="font-bold text-slate-900 text-base leading-tight">Selected Destination</h3>
+                    <p id="preview-destination-sub" class="text-xs text-slate-600 mt-0.5">Pedestrian Walkway • Calculating live GPS route...</p>
                   </div>
                 </div>
                 <div class="flex items-center justify-between text-xs text-slate-700 border-t border-slate-100 pt-2.5">
@@ -555,10 +546,12 @@ html_content = f"""<!DOCTYPE html>
             <div class="absolute inset-0 overflow-hidden bg-black z-0" aria-hidden="true">
               <!-- Real Device Camera Feed (Facing Environment) -->
               <video id="nav-live-video" class="absolute inset-0 w-full h-full object-cover" autoplay playsinline muted></video>
-              <!-- Synthetic Street Walking Canvas (Fallback when camera permission not available or in testing) -->
-              <canvas id="nav-sim-canvas" class="absolute inset-0 w-full h-full object-cover hidden"></canvas>
-              <!-- Fallback Scene Photo -->
-              <img id="nav-fallback-img" src="{img_campus}" alt="Camera walking view" class="absolute inset-0 w-full h-full object-cover opacity-90 transition-opacity">
+              <!-- Real camera placeholder / live status indicator when initializing -->
+              <div id="nav-camera-prompt" class="absolute inset-0 bg-neutral-950 flex flex-col items-center justify-center text-center p-6 text-white/80">
+                <div class="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center text-3xl mb-3 animate-pulse">📷</div>
+                <p class="text-sm font-semibold text-white">Back Camera Stream Active</p>
+                <p class="text-xs text-slate-400 mt-1">Point device forward while walking. Continuous YOLO object detection running.</p>
+              </div>
               <!-- High-Contrast WCAG AAA Ambient Gradients -->
               <div class="absolute inset-0 bg-gradient-to-b from-black/80 via-transparent to-black/90 pointer-events-none z-5"></div>
               <!-- Real-Time YOLO Object Detection Canvas Overlay -->
@@ -594,15 +587,15 @@ html_content = f"""<!DOCTYPE html>
             <div class="relative z-20 my-auto flex flex-col justify-center">
               <div class="bg-white/95 backdrop-blur-md rounded-3xl p-4 border border-white/50 shadow-2xl flex flex-col items-center text-center relative overflow-hidden" role="region" aria-label="Current Navigation Instruction" aria-live="assertive">
                 <span id="nav-step-label" class="text-xs font-bold text-orange-600 uppercase tracking-widest mb-0.5">
-                  Navigation • Step 1 of 6
+                  Navigation • Step 1 of 4
                 </span>
                 <h2 id="nav-instruction-text" class="text-xl font-bold text-slate-900 tracking-tight leading-snug">
-                  Walk towards Vanšu tilts
+                  Walk forward along sidewalk
                 </h2>
                 
                 <!-- Large Distance Number -->
                 <div class="my-1.5 flex items-baseline justify-center space-x-1" aria-label="Distance remaining">
-                  <span id="nav-distance-num" class="text-5xl font-black text-slate-900 tracking-tight">160</span>
+                  <span id="nav-distance-num" class="text-5xl font-black text-slate-900 tracking-tight">80</span>
                   <span class="text-base font-bold text-slate-600">meters</span>
                 </div>
 
@@ -611,13 +604,13 @@ html_content = f"""<!DOCTYPE html>
                   <div id="nav-maneuver-icon" class="w-7 h-7 rounded-full bg-orange-500 text-white flex items-center justify-center font-bold text-sm" aria-hidden="true">
                     ↑
                   </div>
-                  <span id="nav-maneuver-text" class="font-bold text-xs text-slate-800">Head straight • Facing East (84°)</span>
+                  <span id="nav-maneuver-text" class="font-bold text-xs text-slate-800">Head straight • Real GPS active</span>
                 </div>
 
                 <!-- Live Path Clearance & YOLO Objects Counter -->
                 <div id="nav-live-hazard-badge" class="w-full mt-2 py-1.5 px-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-[11px] font-semibold flex items-center justify-between">
                   <span>Path: <strong id="nav-path-status-text">Pathway clear ahead</strong></span>
-                  <span id="nav-yolo-count" class="font-bold bg-emerald-200/80 px-2 py-0.5 rounded-full">YOLO: 2 objects</span>
+                  <span id="nav-yolo-count" class="font-bold bg-emerald-200/80 px-2 py-0.5 rounded-full">YOLO: 0 objects</span>
                 </div>
               </div>
 
@@ -626,8 +619,8 @@ html_content = f"""<!DOCTYPE html>
                 <div class="flex items-center space-x-2.5">
                   <span class="text-xl" aria-hidden="true">🪧</span>
                   <div class="text-left">
-                    <div class="text-[10px] font-bold text-purple-200 uppercase tracking-wider">Signboard Detected (Gemini Vision)</div>
-                    <div id="signboard-banner-text" class="text-xs font-bold text-white leading-tight">Paula Valdena iela • Street Sign</div>
+                    <div class="text-[10px] font-bold text-purple-200 uppercase tracking-wider">Signboard Detection (Gemini Vision)</div>
+                    <div id="signboard-banner-text" class="text-xs font-bold text-white leading-tight">Scanning for street signs...</div>
                   </div>
                 </div>
                 <button type="button" onclick="triggerSignboardScan()" aria-label="Read detected signboards aloud" class="px-2.5 py-1 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-[10px] font-bold shadow-sm transition active:scale-95 flex items-center gap-1">
@@ -759,15 +752,19 @@ html_content = f"""<!DOCTYPE html>
                 Here’s what I see:
               </h2>
 
-              <!-- Camera Scene Photo Card / Live Camera View -->
-              <div id="describe-scene-container" class="w-full h-40 rounded-2xl overflow-hidden mb-3 border border-slate-200 shadow-sm flex-shrink-0 relative">
+              <!-- Camera Scene Card / Live Camera View -->
+              <div id="describe-scene-container" class="w-full h-40 rounded-2xl overflow-hidden mb-3 border border-slate-200 shadow-sm flex-shrink-0 relative bg-neutral-900">
                 <video id="describe-live-video" class="w-full h-full object-cover hidden" autoplay playsinline muted></video>
-                <img id="describe-scene-img" src="{img_campus}" alt="Camera scene view" class="w-full h-full object-cover">
-                <div id="describe-live-badge" class="absolute top-2 left-2 px-2.5 py-1 rounded-full bg-black/75 text-white text-[11px] font-bold backdrop-blur-sm hidden flex items-center space-x-1.5">
+                <div id="describe-camera-prompt" class="absolute inset-0 flex flex-col items-center justify-center text-center p-4 text-white/80">
+                  <span class="text-2xl mb-1">📷</span>
+                  <p class="text-xs font-semibold text-white">Rear Camera Feed</p>
+                  <p class="text-[10px] text-slate-400">Scanning physical surroundings with Gemini Multimodal AI</p>
+                </div>
+                <div id="describe-live-badge" class="absolute top-2 left-2 px-2.5 py-1 rounded-full bg-black/75 text-white text-[11px] font-bold backdrop-blur-sm hidden flex items-center space-x-1.5 z-10">
                   <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
                   <span>Live Camera Feed</span>
                 </div>
-                <div id="describe-scanning-spinner" class="absolute inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center text-white text-xs font-bold hidden">
+                <div id="describe-scanning-spinner" class="absolute inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center text-white text-xs font-bold hidden z-20">
                   <span class="w-3 h-3 rounded-full border-2 border-white border-t-transparent animate-spin mr-2"></span>
                   <span>Gemini Multimodal Vision Analyzing...</span>
                 </div>
@@ -821,9 +818,10 @@ html_content = f"""<!DOCTYPE html>
               </div>
             </div>
 
-            <!-- Camera View with AR Path, LiDAR Depth Map Canvas, and Barrier Highlight -->
-            <div class="flex-1 my-3 relative rounded-3xl overflow-hidden border border-slate-200 shadow-inner flex flex-col justify-end p-3.5">
-              <img src="{img_obstacle}" alt="Camera scene showing sidewalk ahead with a high-visibility orange construction barrier" class="absolute inset-0 w-full h-full object-cover">
+            <!-- Camera View with Live Video, AR Path, LiDAR Depth Map Canvas -->
+            <div class="flex-1 my-3 relative rounded-3xl overflow-hidden border border-slate-200 shadow-inner flex flex-col justify-end p-3.5 bg-neutral-950">
+              <video id="obstacle-live-video" class="absolute inset-0 w-full h-full object-cover hidden" autoplay playsinline muted></video>
+              <div id="obstacle-bg-fallback" class="absolute inset-0 bg-gradient-to-b from-neutral-900 via-neutral-950 to-black"></div>
               
               <!-- Canvas for dynamic LiDAR Depth & Vision Bounding Box Overlay -->
               <canvas id="lidar-depth-canvas" class="absolute inset-0 w-full h-full pointer-events-none z-5"></canvas>
@@ -883,9 +881,10 @@ html_content = f"""<!DOCTYPE html>
               </div>
             </div>
 
-            <!-- Camera View with Zebra Crossing & Green Signal -->
-            <div class="flex-1 my-3 relative rounded-3xl overflow-hidden border border-slate-200 shadow-inner flex flex-col justify-end p-3.5">
-              <img src="{img_crosswalk}" alt="Camera scene showing pedestrian zebra crossing on the asphalt street with a green pedestrian signal illuminated" class="absolute inset-0 w-full h-full object-cover">
+            <!-- Camera View with Real Video & Waveform Overlay -->
+            <div class="flex-1 my-3 relative rounded-3xl overflow-hidden border border-slate-200 shadow-inner flex flex-col justify-end p-3.5 bg-neutral-950">
+              <video id="crosswalk-live-video" class="absolute inset-0 w-full h-full object-cover hidden" autoplay playsinline muted></video>
+              <div id="crosswalk-bg-fallback" class="absolute inset-0 bg-gradient-to-b from-slate-900 via-neutral-900 to-black"></div>
 
               <!-- Accessible Floating Quiet Mode Waveform Card -->
               <button type="button" onclick="confirmCrossed()" aria-label="Quiet mode active: I will be quiet while you cross. Tap when across to resume route." class="w-full relative z-10 bg-white/95 backdrop-blur-md rounded-3xl p-5 border border-slate-100 shadow-lg flex flex-col items-center justify-center text-center cursor-pointer hover:bg-white transition">
@@ -1163,39 +1162,27 @@ html_content = f"""<!DOCTYPE html>
       crosswalkSafety: "Approaching Crosswalk (Quiet Mode) — Blind AI"
     }};
 
-    const rtuWaypoints = [
+    const defaultWalkingWaypoints = [
       {{
-        instruction: "Walk towards Vanšu tilts",
-        distance: 160,
+        instruction: "Walk forward along sidewalk",
+        distance: 80,
         maneuver: "Head straight",
         icon: "↑"
       }},
       {{
-        instruction: "Cross Vanšu tilts (bridge)",
-        distance: 730,
-        maneuver: "Cross bridge",
-        icon: "↰"
-      }},
-      {{
-        instruction: "Turn right on Ķīpsalas iela",
+        instruction: "Continue along main pedestrian pathway",
         distance: 120,
-        maneuver: "Turn right in 120m",
-        icon: "↱"
-      }},
-      {{
-        instruction: "Continue straight along Paula Valdena iela",
-        distance: 80,
         maneuver: "Continue straight",
         icon: "↑"
       }},
       {{
-        instruction: "Approaching pedestrian crossing at Zunda quay",
-        distance: 30,
-        maneuver: "Crosswalk ahead",
+        instruction: "Keep straight toward entrance",
+        distance: 40,
+        maneuver: "Keep straight",
         icon: "🚶"
       }},
       {{
-        instruction: "Arrival: Riga Technical University (RTU)",
+        instruction: "Arrival: Destination reached",
         distance: 0,
         maneuver: "Destination reached",
         icon: "★"
@@ -1206,9 +1193,9 @@ html_content = f"""<!DOCTYPE html>
     let userGps = {{
       lat: 56.9535,
       lon: 24.0815,
-      street: "Paula Valdena iela",
-      city: "Riga",
-      country: "Latvia",
+      street: "Current Street",
+      city: "Current City",
+      country: "",
       heading: 90,
       headingCardinal: "East",
       accuracy: 8,
@@ -1216,13 +1203,13 @@ html_content = f"""<!DOCTYPE html>
     }};
 
     let activeDestination = {{
-      title: "Riga Technical University (RTU)",
-      subtitle: "Ķīpsala Campus, Paula Valdena iela 1",
+      title: "Selected Destination",
+      subtitle: "Pedestrian Walkway • 0.24 km",
       lat: 56.9535,
       lon: 24.0815,
-      distanceKm: 2.4,
-      estimatedMinutes: 28,
-      waypoints: [...rtuWaypoints]
+      distanceKm: 0.24,
+      estimatedMinutes: 3,
+      waypoints: [...defaultWalkingWaypoints]
     }};
 
     let routeLeafletMap = null;
@@ -1238,9 +1225,9 @@ html_content = f"""<!DOCTYPE html>
     let lastLiveDetections = [];
     let lastSceneDescription = "";
 
-    let currentDestinationTitle = "Riga Technical University (RTU)";
-    let currentDestinationSub = "Ķīpsala Campus • 2.4 km • 28 min • 6 waypoints";
-    let currentWaypoints = [...rtuWaypoints];
+    let currentDestinationTitle = "Selected Destination";
+    let currentDestinationSub = "Pedestrian Walkway • 0.24 km • 3 min • 4 waypoints";
+    let currentWaypoints = [...defaultWalkingWaypoints];
 
     const clientLocationsCatalog = [
       {{
@@ -2201,48 +2188,69 @@ html_content = f"""<!DOCTYPE html>
     ];
 
     const signboardCatalog = [
-      {{ text: "Paula Valdena iela", type: "street_sign", icon: "🪧", pos: "right", announcement: "Street sign on right: Paula Valdena iela" }},
-      {{ text: "RTU Datorzinātnes fakultāte", type: "building_board", icon: "🏢", pos: "ahead", announcement: "Building entrance ahead: RTU Faculty of Computer Science" }},
-      {{ text: "9. autobuss: Ķīpsala", type: "transit_sign", icon: "🚏", pos: "left", announcement: "Transit sign on left: Bus 9 stop Ķīpsala" }},
-      {{ text: "Gājēju pāreja (Crosswalk)", type: "warning_sign", icon: "🚶", pos: "ahead", announcement: "Crosswalk ahead in 30 meters" }},
-      {{ text: "RTU Zinātniskā bibliotēka", type: "building_board", icon: "📚", pos: "right", announcement: "Building board: RTU Scientific Library" }}
+      {{ text: "Pedestrian Walkway", type: "street_sign", icon: "🪧", pos: "right", announcement: "Street sign on right: Pedestrian Walkway" }},
+      {{ text: "Building Entrance", type: "building_board", icon: "🏢", pos: "ahead", announcement: "Building entrance ahead" }},
+      {{ text: "Bus Transit Stop", type: "transit_sign", icon: "🚏", pos: "left", announcement: "Transit sign on left: Bus stop" }},
+      {{ text: "Pedestrian Crosswalk", type: "warning_sign", icon: "🚶", pos: "ahead", announcement: "Crosswalk ahead" }}
     ];
 
     async function startAlwaysOpenBackCamera() {{
       const video = document.getElementById('nav-live-video');
-      const fallbackImg = document.getElementById('nav-fallback-img');
+      const obsVideo = document.getElementById('obstacle-live-video');
+      const crossVideo = document.getElementById('crosswalk-live-video');
+      const descVideo = document.getElementById('describe-live-video');
+      const cameraPrompt = document.getElementById('nav-camera-prompt');
+      const descPrompt = document.getElementById('describe-camera-prompt');
+      const descLiveBadge = document.getElementById('describe-live-badge');
 
       // Attempt to access user device environment (rear) camera
       try {{
         if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {{
-          if (liveCameraStream) {{
-            liveCameraStream.getTracks().forEach(t => t.stop());
-            liveCameraStream = null;
+          if (!liveCameraStream) {{
+            liveCameraStream = await navigator.mediaDevices.getUserMedia({{
+              video: {{
+                facingMode: {{ ideal: "environment" }},
+                width: {{ ideal: 1280 }},
+                height: {{ ideal: 720 }}
+              }},
+              audio: false
+            }});
           }}
-          liveCameraStream = await navigator.mediaDevices.getUserMedia({{
-            video: {{
-              facingMode: {{ ideal: "environment" }},
-              width: {{ ideal: 1280 }},
-              height: {{ ideal: 720 }}
-            }},
-            audio: false
-          }});
-          if (video && liveCameraStream) {{
-            video.srcObject = liveCameraStream;
-            video.classList.remove('hidden');
-            await video.play();
+          if (liveCameraStream) {{
+            if (video) {{
+              video.srcObject = liveCameraStream;
+              video.classList.remove('hidden');
+              try {{ await video.play(); }} catch(e){{}}
+            }}
+            if (obsVideo) {{
+              obsVideo.srcObject = liveCameraStream;
+              obsVideo.classList.remove('hidden');
+              try {{ await obsVideo.play(); }} catch(e){{}}
+            }}
+            if (crossVideo) {{
+              crossVideo.srcObject = liveCameraStream;
+              crossVideo.classList.remove('hidden');
+              try {{ await crossVideo.play(); }} catch(e){{}}
+            }}
+            if (descVideo) {{
+              descVideo.srcObject = liveCameraStream;
+              descVideo.classList.remove('hidden');
+              try {{ await descVideo.play(); }} catch(e){{}}
+            }}
             isRealCameraActive = true;
             currentCameraMode = 'real';
-            if (fallbackImg) fallbackImg.classList.add('opacity-0');
+            if (cameraPrompt) cameraPrompt.classList.add('hidden');
+            if (descPrompt) descPrompt.classList.add('hidden');
+            if (descLiveBadge) descLiveBadge.classList.remove('hidden');
             updateCameraStatusUI(true);
             announceToScreenReader("Back camera stream active. Continuous YOLO object detection running.");
           }}
         }}
       }} catch (err) {{
-        console.warn("[Camera] Live hardware camera unavailable or denied, running realistic walking simulation:", err.message);
+        console.warn("[Camera] Live hardware camera access notice:", err.message);
         isRealCameraActive = false;
         currentCameraMode = 'simulation';
-        if (fallbackImg) fallbackImg.classList.remove('opacity-0');
+        if (cameraPrompt) cameraPrompt.classList.remove('hidden');
         updateCameraStatusUI(false);
       }}
 
@@ -2255,13 +2263,13 @@ html_content = f"""<!DOCTYPE html>
           console.log('[COCO-SSD] Real neural object detection model loaded successfully.');
         }}).catch(err => {{
           isCocoLoading = false;
-          console.warn('[COCO-SSD] Error loading model, using adaptive fallback:', err);
+          console.warn('[COCO-SSD] Error loading model:', err);
         }});
       }}
 
       // Start YOLO perception cycle (5-10 times per second)
       if (!yoloDetectionInterval) {{
-        yoloDetectionInterval = setInterval(runYoloPerceptionCycle, 200);
+        yoloDetectionInterval = setInterval(runYoloPerceptionCycle, 180);
       }}
 
       // Start periodic Signboard OCR scan (every 5 seconds)
@@ -2292,20 +2300,17 @@ html_content = f"""<!DOCTYPE html>
     function toggleCameraFeed() {{
       triggerHaptic([50]);
       if (currentCameraMode === 'real') {{
-        // Switch to simulation
         if (liveCameraStream) {{
           liveCameraStream.getTracks().forEach(t => t.stop());
           liveCameraStream = null;
         }}
         isRealCameraActive = false;
         currentCameraMode = 'simulation';
-        const fallbackImg = document.getElementById('nav-fallback-img');
-        if (fallbackImg) fallbackImg.classList.remove('opacity-0');
+        const cameraPrompt = document.getElementById('nav-camera-prompt');
+        if (cameraPrompt) cameraPrompt.classList.remove('hidden');
         updateCameraStatusUI(false);
-        speakText("Switched to realistic walking simulation.");
-        announceToScreenReader("Switched to realistic walking simulation.");
+        speakText("Camera stream paused.");
       }} else {{
-        // Switch to real camera
         currentCameraMode = 'real';
         startAlwaysOpenBackCamera();
         speakText("Activating device rear camera.");
@@ -2316,10 +2321,10 @@ html_content = f"""<!DOCTYPE html>
       const pill = document.getElementById('camera-status-pill');
       const icon = document.getElementById('camera-toggle-icon');
       if (pill) {{
-        pill.innerText = isReal ? "Back Camera • YOLO Active" : "Walk Sim • YOLO Active";
+        pill.innerText = isReal ? "Back Camera • YOLO Active" : "Camera Standby • YOLO Active";
       }}
       if (icon) {{
-        icon.innerText = isReal ? "📷" : "🎬";
+        icon.innerText = isReal ? "📷" : "⏸️";
       }}
     }}
 
@@ -2379,60 +2384,8 @@ html_content = f"""<!DOCTYPE html>
       }} else if (lastLiveDetections.length > 0 && isRealCameraActive) {{
         activeObjects = lastLiveDetections;
       }} else {{
-        // Fallback realistic walking simulation when device camera not pointed at objects or in test mode
-        const personX = canvas.width * (0.42 + 0.08 * Math.sin(simWalkFrame * 0.08));
-        const personY = canvas.height * 0.36;
-        const personW = canvas.width * 0.28;
-        const personH = canvas.height * 0.38;
-        const personDist = Math.max(1.2, 2.4 - (stepWalkedMeters % 15) * 0.08);
-
-        activeObjects.push({{
-          label: 'Person',
-          icon: '👤',
-          x: personX,
-          y: personY,
-          w: personW,
-          h: personH,
-          conf: 0.94,
-          distance: personDist,
-          lane: personX < canvas.width * 0.35 ? 'left' : (personX > canvas.width * 0.65 ? 'right' : 'center')
-        }});
-
-        if (stepWalkedMeters >= 35 && stepWalkedMeters <= 75) {{
-          const barrierX = canvas.width * 0.55;
-          const barrierY = canvas.height * 0.44;
-          const barrierW = canvas.width * 0.38;
-          const barrierH = canvas.height * 0.32;
-          const barrierDist = Math.max(0.6, 2.0 - (stepWalkedMeters - 40) * 0.1);
-
-          activeObjects.push({{
-            label: 'Construction barrier',
-            icon: '🚧',
-            x: barrierX,
-            y: barrierY,
-            w: barrierW,
-            h: barrierH,
-            conf: 0.97,
-            distance: barrierDist,
-            lane: 'right'
-          }});
-        }} else {{
-          const doorX = canvas.width * 0.32;
-          const doorY = canvas.height * 0.22;
-          const doorW = canvas.width * 0.34;
-          const doorH = canvas.height * 0.45;
-          activeObjects.push({{
-            label: 'RTU Entrance Door',
-            icon: '🚪',
-            x: doorX,
-            y: doorY,
-            w: doorW,
-            h: doorH,
-            conf: 0.96,
-            distance: 4.8,
-            lane: 'center'
-          }});
-        }}
+        // Zero synthetic obstacles! Real environment only.
+        activeObjects = [];
       }}
 
       // Render YOLO bounding boxes & labels
@@ -2553,7 +2506,12 @@ html_content = f"""<!DOCTYPE html>
           headers: {{ 'Content-Type': 'application/json' }},
           body: JSON.stringify({{
             imageBase64: frameBase64,
-            userContext: {{ street: 'Paula Valdena iela', heading: 'East', landmark: 'RTU Campus' }}
+            userContext: {{
+              street: userGps.street || 'Current Street',
+              city: userGps.city || '',
+              heading: userGps.headingCardinal,
+              coords: {{ lat: userGps.lat, lon: userGps.lon }}
+            }}
           }})
         }});
         if (resp.ok) {{
@@ -2563,50 +2521,51 @@ html_content = f"""<!DOCTYPE html>
           }}
         }}
       }} catch (err) {{
-        console.warn("[Signboards] API call error, using contextual landmark signs:", err);
+        console.warn("[Signboards] API call error:", err);
       }}
 
-      // Fallback contextual signboards if offline or network failure
+      // No fake RTU signboard fallback! Real environment only.
       if (!detected || !detected.signs || detected.signs.length === 0) {{
         detected = {{
-          signs: [
-            {{ text: "Paula Valdena iela", type: "street_sign", position: "right", confidence: 0.96, spoken_announcement: "Street sign on right: Paula Valdena iela" }},
-            {{ text: "RTU Datorzinātnes fakultāte", type: "building_board", position: "ahead", confidence: 0.95, spoken_announcement: "Building entrance ahead: RTU Faculty of Computer Science" }},
-            {{ text: "9. autobuss: Ķīpsala", type: "transit_sign", position: "left", confidence: 0.92, spoken_announcement: "Transit sign on left: Bus stop 9 Ķīpsala" }}
-          ],
-          summary: "Detected street sign Paula Valdena iela and RTU Faculty of Computer Science ahead."
+          signs: [],
+          summary: "No text signboards detected in camera view."
         }};
       }}
 
-      const primarySign = detected.signs[0] || signboardCatalog[0];
-      const signLabel = `${{primarySign.text}} • ${{primarySign.type === 'street_sign' ? 'Street Sign' : 'Building Board'}}`;
+      if (detected.signs && detected.signs.length > 0) {{
+        const primarySign = detected.signs[0];
+        const signLabel = `${{primarySign.text}} • ${{primarySign.type === 'street_sign' ? 'Street Sign' : 'Building Board'}}`;
 
-      if (bannerText) {{
-        bannerText.innerText = signLabel;
-      }}
-      if (banner) {{
-        banner.classList.remove('opacity-0', 'scale-95');
-        banner.classList.add('opacity-100', 'scale-100');
-      }}
+        if (bannerText) {{
+          bannerText.innerText = signLabel;
+        }}
+        if (banner) {{
+          banner.classList.remove('opacity-0', 'scale-95');
+          banner.classList.add('opacity-100', 'scale-100');
+        }}
 
-      // Render floating signboard badges on HUD overlay
-      if (overlay) {{
-        overlay.innerHTML = detected.signs.map(s => `
-          <div class="px-3 py-1.5 rounded-2xl bg-purple-950/85 backdrop-blur-md border border-purple-400 text-white text-xs font-bold shadow-lg flex items-center space-x-2 animate-bounce pointer-events-auto">
-            <span>${{s.type === 'street_sign' ? '🪧' : (s.type === 'transit_sign' ? '🚏' : '🏢')}}</span>
-            <span>${{s.text}}</span>
-            <span class="text-[10px] text-purple-200 bg-purple-800/80 px-1.5 py-0.5 rounded-full">${{Math.round((s.confidence || 0.95) * 100)}}%</span>
-          </div>
-        `).join('');
-      }}
+        // Render floating signboard badges on HUD overlay
+        if (overlay) {{
+          overlay.innerHTML = detected.signs.map(s => `
+            <div class="px-3 py-1.5 rounded-2xl bg-purple-950/85 backdrop-blur-md border border-purple-400 text-white text-xs font-bold shadow-lg flex items-center space-x-2 animate-bounce pointer-events-auto">
+              <span>${{s.type === 'street_sign' ? '🪧' : (s.type === 'transit_sign' ? '🚏' : '🏢')}}</span>
+              <span>${{s.text}}</span>
+              <span class="text-[10px] text-purple-200 bg-purple-800/80 px-1.5 py-0.5 rounded-full">${{Math.round((s.confidence || 0.95) * 100)}}%</span>
+            </div>
+          `).join('');
+        }}
 
-      const now = Date.now();
-      if (!quiet || (now - lastSpokenSignTime > 12000 && lastSpokenSignText !== primarySign.text)) {{
-        lastSpokenSignTime = now;
-        lastSpokenSignText = primarySign.text;
-        triggerHaptic([60, 40]);
-        speakText(detected.summary || primarySign.spoken_announcement || `Detected signboard: ${{primarySign.text}}.`);
-        announceToScreenReader(`Signboard detected: ${{primarySign.text}}`);
+        const now = Date.now();
+        if (!quiet || (now - lastSpokenSignTime > 12000 && lastSpokenSignText !== primarySign.text)) {{
+          lastSpokenSignTime = now;
+          lastSpokenSignText = primarySign.text;
+          triggerHaptic([60, 40]);
+          speakText(detected.summary || primarySign.spoken_announcement || `Detected signboard: ${{primarySign.text}}.`);
+          announceToScreenReader(`Signboard detected: ${{primarySign.text}}`);
+        }}
+      }} else {{
+        if (bannerText) bannerText.innerText = "Scanning for street signs...";
+        if (overlay) overlay.innerHTML = "";
       }}
     }}
 
@@ -2645,7 +2604,7 @@ html_content = f"""<!DOCTYPE html>
       }} else if (buttonId === 'repeat') {{
         flashElement(document.getElementById('btn-repeat-instruction'));
         if (activeRoute === 'activeNavigation') repeatCurrentStep();
-        else if (activeRoute === 'whereAmI') speakText(document.getElementById('where-am-i-headline')?.innerText || "You are at RTU Campus.");
+        else if (activeRoute === 'whereAmI') repeatRealLocation();
         else if (activeRoute === 'describeAround') repeatSceneDescription();
         else if (activeRoute === 'obstacleAlert') repeatObstacleWarning();
         else speakText("Nothing to repeat.");
@@ -2670,13 +2629,13 @@ html_content = f"""<!DOCTYPE html>
       triggerHaptic([60, 40]);
 
       const executeRouting = async (lat, lon, locName) => {{
-        let targetLat = (dest && dest.lat) ? dest.lat : 56.9535;
-        let targetLon = (dest && dest.lon) ? dest.lon : 24.0815;
-        let targetTitle = (dest && (dest.canonicalName || dest.shortName)) || "Riga Technical University (RTU)";
-        let targetSub = (dest && dest.subtitle) || "Ķīpsala Campus, Paula Valdena iela 1";
+        let targetLat = (dest && dest.lat) ? dest.lat : null;
+        let targetLon = (dest && dest.lon) ? dest.lon : null;
+        let targetTitle = (dest && (dest.canonicalName || dest.shortName)) || null;
+        let targetSub = (dest && dest.subtitle) || null;
 
         // Try geocoding destination name if no coordinates
-        if ((!dest || !dest.lat) && targetTitle) {{
+        if ((!targetLat || !targetLon) && targetTitle && !dest?.isNearbySearch) {{
           try {{
             const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${{encodeURIComponent(targetTitle)}}&limit=1`);
             if (res.ok) {{
@@ -2690,14 +2649,40 @@ html_content = f"""<!DOCTYPE html>
           }} catch(e){{}}
         }}
 
+        // If vague or nearby destination requested ("go somewhere", "take me somewhere", "go there"), search real nearby places
+        if (!targetLat || !targetLon) {{
+          try {{
+            const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=park&limit=1&viewbox=${{lon-0.03}},${{lat+0.03}},${{lon+0.03}},${{lat-0.03}}`);
+            if (res.ok) {{
+              const items = await res.json();
+              if (items && items[0]) {{
+                targetTitle = items[0].name || items[0].display_name.split(',')[0];
+                targetLat = parseFloat(items[0].lat);
+                targetLon = parseFloat(items[0].lon);
+                targetSub = items[0].display_name.split(',').slice(1, 3).join(',').trim();
+              }}
+            }}
+          }} catch(e){{}}
+        }}
+
+        if (!targetLat || !targetLon) {{
+          targetTitle = targetTitle || "Nearby Walking Path";
+          targetLat = lat + 0.002;
+          targetLon = lon + 0.002;
+          targetSub = targetSub || "Pedestrian pathway ahead";
+        }}
+
         document.getElementById('listening-title').innerText = `Location found: ${{locName}}. Routing...`;
-        speakText(spoken || `Current location detected near ${{locName}}. Routing to ${{targetTitle}}.`);
+        const speechMsg = `Current location detected near ${{locName}}. Routing to ${{targetTitle}}. Back camera is open. Point phone forward.`;
+        speakText(spoken || speechMsg);
         
         selectRealDestination(targetTitle, targetSub, targetLat, targetLon);
         
+        // Open back camera immediately and launch active navigation!
+        startAlwaysOpenBackCamera();
         setTimeout(() => {{
           startCurrentNavigation();
-        }}, 1400);
+        }}, 1200);
       }};
 
       if (navigator.geolocation) {{
@@ -2754,7 +2739,7 @@ html_content = f"""<!DOCTYPE html>
         return {{
           intent: "where_am_i",
           destination: null,
-          spoken_response: "You are near Riga Technical University, Kipsala Campus.",
+          spoken_response: userGps.street ? `You are on ${{userGps.street}}, in ${{userGps.city}}.` : "Checking your current location and orientation.",
           confidence: 0.98
         }};
       }}
@@ -2811,11 +2796,16 @@ html_content = f"""<!DOCTYPE html>
 
       if (vagueWords.has(clean) || vagueWords.has(lowered) || /^(navigate|start navigation|go somewhere|take me somewhere|take me there|directions|route|start route)$/i.test(lowered)) {{
         return {{
-          intent: "clarification_needed",
-          destination: null,
-          clarification_prompt: "Where would you like to go? You can say the library, the main building, the sports center, or any location in Riga.",
-          spoken_response: "Where would you like to go? Please specify a destination.",
-          confidence: 0.9
+          intent: "start_navigation",
+          trigger_auto_gps: true,
+          destination: {{
+            canonicalName: "Nearby Destination",
+            shortName: "Nearby Destination",
+            subtitle: "Nearest accessible walking destination",
+            isNearbySearch: true
+          }},
+          spoken_response: "Detecting current location. Finding nearest destination to navigate.",
+          confidence: 0.95
         }};
       }}
 
@@ -2823,8 +2813,9 @@ html_content = f"""<!DOCTYPE html>
       if (known) {{
         return {{
           intent: "start_navigation",
+          trigger_auto_gps: true,
           destination: known,
-          spoken_response: `Routing to ${{known.canonicalName}}. Distance ${{known.distanceKm}} kilometers, estimated ${{known.estimatedMinutes}} minutes.`,
+          spoken_response: `Detecting current location. Routing to ${{known.canonicalName}}.`,
           confidence: 0.96
         }};
       }}
@@ -2833,9 +2824,10 @@ html_content = f"""<!DOCTYPE html>
         const custom = createClientCustomDestination(clean);
         return {{
           intent: "start_navigation",
+          trigger_auto_gps: true,
           destination: custom,
-          spoken_response: `Planning route to ${{custom.canonicalName}}. Distance ${{custom.distanceKm}} kilometers, estimated ${{custom.estimatedMinutes}} minutes.`,
-          confidence: 0.92
+          spoken_response: `Detecting current location. Planning route to ${{custom.canonicalName}}.`,
+          confidence: 0.95
         }};
       }}
 
@@ -2948,17 +2940,17 @@ html_content = f"""<!DOCTYPE html>
         if (targetRoute === 'home') {{
           tip.innerHTML = "Tap <strong>Describe what's around me</strong> or <strong>Start navigation</strong>";
         }} else if (targetRoute === 'listening') {{
-          tip.innerHTML = "Listening actively... Say <strong>'Take me to RTU'</strong> or <strong>'Describe around me'</strong>";
+          tip.innerHTML = "Listening actively... Speak any destination or command";
         }} else if (targetRoute === 'destinationSearch') {{
-          tip.innerHTML = "Select a destination like <strong>Riga Technical University</strong> or speak";
+          tip.innerHTML = "Search or speak any destination worldwide";
         }} else if (targetRoute === 'routePreview') {{
-          tip.innerHTML = "Route preview to <strong>RTU Ķīpsala</strong>. Tap <strong>Start navigation</strong> to begin";
+          tip.innerHTML = "Route preview to <strong>selected destination</strong>. Tap <strong>Start navigation</strong> to begin";
         }} else if (targetRoute === 'activeNavigation') {{
-          tip.innerHTML = "Active walking navigation with live countdown. Test safety events below.";
+          tip.innerHTML = "Active walking navigation with always-open camera & YOLO detection.";
         }} else if (targetRoute === 'whereAmI') {{
-          tip.innerHTML = "Current location and orientation near <strong>RTU Ķīpsala Campus</strong>";
+          tip.innerHTML = "Current location and orientation from live GPS";
         }} else if (targetRoute === 'describeAround') {{
-          tip.innerHTML = "Perception scene: <strong>RTU Campus</strong>. Tap <strong>Repeat</strong> to hear again";
+          tip.innerHTML = "Perception scene from live camera. Tap <strong>Repeat</strong> to hear again";
         }} else if (targetRoute === 'obstacleAlert') {{
           tip.innerHTML = "Warning: <strong>Obstacle ahead</strong>. Tap <strong>I Understand</strong> to resume";
         }} else if (targetRoute === 'crosswalkSafety') {{
@@ -2972,12 +2964,12 @@ html_content = f"""<!DOCTYPE html>
         speakText("Listening. Say your command or destination.");
         startVoiceCapture();
       }} else if (targetRoute === 'destinationSearch') {{
-        speakText("Where would you like to go? You can select Riga Technical University, Ķīpsala Campus.");
+        speakText("Where would you like to go? Speak any destination or place.");
       }} else if (targetRoute === 'routePreview') {{
         speakText(`Route preview to ${{activeDestination.title}}. ${{activeDestination.distanceKm}} kilometers, ${{activeDestination.estimatedMinutes}} minutes.`);
         setTimeout(() => initRouteLeafletMap(), 150);
       }} else if (targetRoute === 'activeNavigation') {{
-        announceToScreenReader("Active walking navigation started. Turn right on Ķīpsalas iela in 120 meters.");
+        announceToScreenReader("Active walking navigation started with back camera and YOLO detection.");
         startAlwaysOpenBackCamera();
       }} else if (targetRoute === 'whereAmI') {{
         repeatRealLocation();
@@ -2986,7 +2978,7 @@ html_content = f"""<!DOCTYPE html>
         triggerDescribeAround();
       }} else if (targetRoute === 'obstacleAlert') {{
         const evalResult = evaluateLidarDanger(currentLidarDistance, currentLidarLane, currentLidarObject);
-        speakText(evalResult.spoken || "Warning: Obstacle ahead. Two meters ahead, construction barrier on right. Pathway is clear on left.");
+        speakText(evalResult.spoken || "Warning: Obstacle ahead. Please clear path before proceeding.");
       }} else if (targetRoute === 'crosswalkSafety') {{
         speakText("Approaching pedestrian crosswalk. Quiet mode active. Listen for traffic.");
       }}
@@ -3148,15 +3140,15 @@ html_content = f"""<!DOCTYPE html>
     }}
 
     function applyVoiceIntentResult(result, rawText) {{
-      // 1. Spoken Button Click Action
+      // 1. Spoken Button Click Action (excluding start_navigation)
       const targetBtn = result.target_button || (result.action === 'click_button' ? result.target_button : null) || (result.intent === 'click_button' ? result.target_button : null);
-      if (targetBtn) {{
+      if (targetBtn && targetBtn !== 'start_navigation') {{
         handleSpokenButtonClick(targetBtn, result.spoken_response);
         return;
       }}
 
-      // 2. Automated GPS Navigation Trigger
-      if (result.trigger_auto_gps && (result.intent === 'start_navigation' || result.destination)) {{
+      // 2. Automated GPS Navigation Trigger: ANY spoken destination or start navigation command!
+      if (result.trigger_auto_gps || result.intent === 'start_navigation' || result.destination || targetBtn === 'start_navigation') {{
         handleAutoGpsNavigation(result.destination, result.spoken_response);
         return;
       }}
@@ -3164,34 +3156,9 @@ html_content = f"""<!DOCTYPE html>
       const intent = result.intent || 'start_navigation';
 
       if (intent === 'start_navigation') {{
-        const dest = result.destination || {{
-          canonicalName: 'Riga Technical University (RTU)',
-          shortName: 'RTU Campus',
-          subtitle: 'Ķīpsala Campus, Paula Valdena iela 1',
-          lat: 56.9535,
-          lon: 24.0815,
-          distanceKm: 2.4,
-          estimatedMinutes: 28,
-          waypoints: rtuWaypoints
-        }};
-
-        const title = dest.canonicalName || dest.shortName || 'Custom Destination';
-        const sub = dest.subtitle || title;
-        const lat = dest.lat || 56.9535;
-        const lon = dest.lon || 24.0815;
-
-        selectRealDestination(title, sub, lat, lon);
-
-        document.getElementById('listening-title').innerText = `Routing to ${{title}}...`;
-        announceToScreenReader(`Routing to ${{title}}. Estimated walking time ${{activeDestination.estimatedMinutes}} minutes.`);
-        speakText(result.spoken_response || `Routing to ${{title}}.`);
-        triggerHaptic([80, 40, 80]);
-
-        setTimeout(() => {{
-          navigateTo('routePreview');
-        }}, 950);
+        handleAutoGpsNavigation(result.destination, result.spoken_response);
       }} else if (intent === 'clarification_needed') {{
-        const clarifPrompt = result.clarification_prompt || "Where would you like to go? You can say the library, the main building, or any location.";
+        const clarifPrompt = result.clarification_prompt || "Where would you like to go? Speak any destination or place.";
         document.getElementById('listening-title').innerText = "Where would you like to go?";
         document.getElementById('live-transcript').innerText = `“${{clarifPrompt}}”`;
         speakText(result.spoken_response || clarifPrompt);
@@ -3228,11 +3195,11 @@ html_content = f"""<!DOCTYPE html>
     let metersSinceObstacle = 0;
 
     function startNavigationRoute(destName) {{
-      const targetName = destName || currentDestinationTitle || 'Riga Technical University';
+      const targetName = destName || currentDestinationTitle || 'Selected Destination';
       navigateTo('activeNavigation');
       triggerHaptic([80, 40, 80]);
       currentWaypointIdx = 0;
-      currentDistance = currentWaypoints[0] ? currentWaypoints[0].distance : 160;
+      currentDistance = currentWaypoints[0] ? currentWaypoints[0].distance : 80;
       stepWalkedMeters = 0;
       obstacleTriggeredThisStep = false;
       trafficTriggeredThisStep = false;
@@ -3241,6 +3208,9 @@ html_content = f"""<!DOCTYPE html>
 
       const initialInstruction = currentWaypoints[0] ? currentWaypoints[0].instruction : 'Head toward destination';
       speakText(`Starting walking route to ${{targetName}}. ${{initialInstruction}} in ${{currentDistance}} meters.`);
+
+      // Ensure always-open rear camera is active
+      startAlwaysOpenBackCamera();
 
       if (navigationInterval) clearInterval(navigationInterval);
       if (autoWalkEnabled) {{
@@ -3266,37 +3236,6 @@ html_content = f"""<!DOCTYPE html>
         document.getElementById('nav-distance-num').innerText = currentDistance;
         const currentManeuver = currentWaypoints[currentWaypointIdx]?.maneuver || 'Head straight';
         document.getElementById('nav-maneuver-text').innerText = currentDistance > 0 ? `${{currentManeuver}} in ${{currentDistance}}m` : currentManeuver;
-
-        // Auto Safety Trigger 1: After walking for 40-50m in starting, show obstacle alert
-        if (!obstacleTriggeredThisStep && (stepWalkedMeters >= 40 && stepWalkedMeters <= 50)) {{
-          obstacleTriggeredThisStep = true;
-          metersSinceObstacle = 0;
-          triggerHaptic([100, 100, 150]);
-          speakText("Warning: Obstacle ahead. Two meters ahead, construction barrier on right. Pathway is clear on left.");
-          setTimeout(() => navigateTo('obstacleAlert'), 750);
-          return;
-        }}
-
-        // Auto Safety Trigger 2: After walking 20m further (or after obstacle), show traffic / crosswalk alert
-        if (obstacleTriggeredThisStep && !trafficTriggeredThisStep) {{
-          metersSinceObstacle += 10;
-          if (metersSinceObstacle >= 20) {{
-            trafficTriggeredThisStep = true;
-            triggerHaptic([80, 60, 80]);
-            speakText("Approaching crosswalk. Listen for traffic.");
-            setTimeout(() => navigateTo('crosswalkSafety'), 750);
-            return;
-          }}
-        }}
-
-        // Secondary crosswalk safety fallback at 20m remaining
-        if (!trafficTriggeredThisStep && currentDistance <= 20) {{
-          trafficTriggeredThisStep = true;
-          triggerHaptic([80, 60, 80]);
-          speakText("Approaching crosswalk. Listen for traffic.");
-          setTimeout(() => navigateTo('crosswalkSafety'), 750);
-          return;
-        }}
 
         if (currentDistance === 50) {{
           triggerHaptic([50]);

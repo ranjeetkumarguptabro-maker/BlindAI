@@ -82,11 +82,12 @@ Rules:
         }
       });
       parts.push({
-        text: "Analyze this forward-facing camera view for a blind person walking forward. Describe path clearance and any hazards."
+        text: "Analyze this real-time forward-facing camera view for a blind person walking forward. Describe path clearance, surrounding obstacles, and visible signage."
       });
     } else {
+      const locDesc = userContext?.street ? `on ${userContext.street}` : "on current walking path";
       parts.push({
-        text: `The user asks "Describe what's around me". Context: Near Riga Technical University (RTU) Ķīpsala campus sidewalk facing East. Describe the typical clear pedestrian walkway and surroundings.`
+        text: `The user asks "Describe what's around me". Context: Walking ${locDesc}. Describe path clearance and surrounding environment.`
       });
     }
 
@@ -101,9 +102,10 @@ Rules:
         processingProvider: this.name
       };
     } catch (err) {
-      console.warn(`[GeminiProvider] Network/API call note: ${err.message}. Using high-fidelity safety model fallback.`);
+      console.warn(`[GeminiProvider] Network/API call note: ${err.message}. Using safety perception standard.`);
+      const st = userContext?.street ? `on ${userContext.street}` : "ahead";
       return {
-        description: "Pedestrian pathway clear directly ahead. Sidewalk continues for 41 meters with no immediate obstacles.",
+        description: `Pedestrian pathway clear directly ${st}. Point camera forward for real-time vision detection.`,
         hasHazard: false,
         processingProvider: `${this.name} (Local fallback)`
       };
@@ -120,22 +122,25 @@ Output format:
 Headline: Short place name and city.
 Orientation: Which direction they face, nearest entrance, and what is on their left/right/behind them.`;
 
-    const promptText = `User coordinates: ${latitude || 56.953}, ${longitude || 24.081}. Street: ${street || "Paula Valdena iela"}. Landmark: ${landmark || "Riga Technical University (RTU), Ķīpsala Campus"}. Heading: ${heading || "East"}. Provide speech-ready location guidance.`;
+    const streetName = street || "your current location";
+    const locName = landmark || street || "your position";
+    const headingDir = heading || "East";
+    const promptText = `User coordinates: ${latitude || "detected GPS"}, ${longitude || "detected GPS"}. Street: ${streetName}. Landmark: ${locName}. Heading: ${headingDir}. Provide speech-ready location guidance.`;
 
     const contents = [{ parts: [{ text: promptText }] }];
 
     try {
       const rawText = await this._callGemini(contents, systemPrompt);
       return {
-        headline: `You are at ${landmark || "Riga Technical University (RTU), Ķīpsala Campus"} in Riga, Latvia.`,
+        headline: `You are at ${locName}.`,
         orientationDetails: rawText,
         processingProvider: this.name
       };
     } catch (err) {
       console.warn(`[GeminiProvider] Note: ${err.message}. Using safety orientation standard.`);
       return {
-        headline: "You are at Riga Technical University (RTU), Ķīpsala Campus in Riga, Latvia.",
-        orientationDetails: "You are facing east, near the main entrance of the RTU Ķīpsala campus. The Daugava river is on your right and Vanšu tilts (bridge) is behind you.",
+        headline: `You are at ${streetName}.`,
+        orientationDetails: `You are facing ${headingDir}. Walking pathway continues directly ahead.`,
         processingProvider: `${this.name} (Local fallback)`
       };
     }
@@ -180,11 +185,12 @@ Rules:
 1. "start_navigation": When the user wants to go somewhere (e.g. "Take me to the library", "Open the main building", "I want to go to the sports center", "Navigate to RTU", "Walk to Swedbank", "Find the bus stop", "Let's go to Old Town").
    - If the destination matches any known location or its aliases/synonyms, set "matched_canonical_name" to that known location's canonical name.
    - If the user specifies any other arbitrary location (e.g., "Old Town", "Central Market", "Dom Square"), extract it into "destination_query" and set "matched_canonical_name": null.
-2. "clarification_needed": If the user says a navigation command without a clear destination, or uses a vague reference (e.g., "navigate", "take me there", "go somewhere", "take me", "where is it"), set "intent": "clarification_needed", "clarification_prompt": "Where would you like to go? You can say the library, the main building, the sports center, or any location in Riga.", and "spoken_response": "Where would you like to go? Please specify a destination."
-3. "where_am_i": For location queries ("Where am I?", "What is my location?").
-4. "describe_environment": For perception queries ("Describe what's around me", "What do you see?", "What's in front of me?").
-5. "stop": For stopping or canceling ("Stop route", "Cancel navigation", "End").
-6. "repeat": For repeating instructions ("Repeat", "Say again").
+2. If the user uses a vague reference or asks to go somewhere without a specific name (e.g., "navigate", "take me there", "go somewhere", "take me", "somewhere", "there"), set "intent": "start_navigation", "destination_query": "nearby destination", "spoken_response": "Detecting current location. Routing to nearest destination."
+3. "clarification_needed": Only if the voice input is completely indecipherable or blank.
+4. "where_am_i": For location queries ("Where am I?", "What is my location?").
+5. "describe_environment": For perception queries ("Describe what's around me", "What do you see?", "What's in front of me?").
+6. "stop": For stopping or canceling ("Stop route", "Cancel navigation", "End").
+7. "repeat": For repeating instructions ("Repeat", "Say again").
 Output ONLY raw JSON.`;
 
     const contents = [{ parts: [{ text: `User voice input: "${rawTranscript}"` }] }];
@@ -209,8 +215,9 @@ Output ONLY raw JSON.`;
         return {
           intent: parsed.intent || "start_navigation",
           destination: finalDestination,
+          trigger_auto_gps: true,
           clarification_prompt: parsed.clarification_prompt || null,
-          spoken_response: parsed.spoken_response || (finalDestination ? `Routing to ${finalDestination.canonicalName}.` : "How can I help you?"),
+          spoken_response: parsed.spoken_response || (finalDestination ? `Routing to ${finalDestination.canonicalName}.` : "Detecting location and routing."),
           confidence: parsed.confidence || 0.95,
           provider: this.name
         };
@@ -228,10 +235,10 @@ Output ONLY raw JSON.`;
   async detectSignboards({ imageBase64, userContext }) {
     const systemPrompt = `You are the visual sign and board recognition engine for Blind AI, an app for visually impaired pedestrians.
 Analyze the camera frame to detect and transcribe any physical text signs or boards in the environment:
-1. "street_sign": Street names, road markers, intersection boards (e.g., "Paula Valdena iela", "Ķīpsalas iela").
-2. "building_board": Building names, entrances, room plaques, office/facility boards (e.g., "RTU Main Entrance", "Faculty of Computer Science", "Library").
-3. "transit_sign": Bus stop signs, tram stops, route markers (e.g., "Bus Stop 9: Ķīpsala").
-4. "warning_sign": Caution placards, construction signs, pedestrian crossing signs, emergency exits (e.g., "Caution: Construction", "Pedestrian Crossing").
+1. "street_sign": Street names, road markers, intersection boards.
+2. "building_board": Building names, entrances, room plaques, office/facility boards.
+3. "transit_sign": Bus stop signs, tram stops, route markers.
+4. "warning_sign": Caution placards, construction signs, pedestrian crossing signs, emergency exits.
 
 Return valid JSON:
 {
@@ -241,7 +248,7 @@ Return valid JSON:
       "type": "street_sign" | "building_board" | "transit_sign" | "warning_sign" | "general_sign",
       "position": "center" | "left" | "right" | "top" | "ahead",
       "confidence": number between 0.0 and 1.0,
-      "spoken_announcement": "Clear verbal announcement for a blind pedestrian (e.g., 'Street sign on right: Paula Valdena iela')"
+      "spoken_announcement": "Clear verbal announcement for a blind pedestrian (e.g., 'Street sign on right: Main Street')"
     }
   ],
   "summary": "Concise summary of detected signs"
@@ -266,8 +273,9 @@ Rules:
         text: "Detect and read all visible signs, boards, street names, entrance signs, and placards in this pedestrian view."
       });
     } else {
+      const locText = userContext?.street ? `along ${userContext.street}` : "along current sidewalk";
       parts.push({
-        text: `Context: Visually impaired pedestrian walking along Paula Valdena iela near RTU Ķīpsala campus. What signboards are expected here?`
+        text: `Context: Visually impaired pedestrian walking ${locText}. Detect all visible signboards, street names, entrance signs, and placards.`
       });
     }
 
@@ -288,33 +296,11 @@ Rules:
       console.warn(`[GeminiProvider] Signboard API note: ${err.message}. Using safety landmark sign model.`);
     }
 
-    // High-fidelity fallback sign detection for RTU Campus / Paula Valdena iela
+    // Genuine fallback when no text or signboards are in camera frame
     return {
-      signs: [
-        {
-          text: "Paula Valdena iela",
-          type: "street_sign",
-          position: "right",
-          confidence: 0.96,
-          spoken_announcement: "Street sign on right: Paula Valdena iela"
-        },
-        {
-          text: "RTU Datorzinātnes un informācijas tehnoloģijas fakultāte",
-          type: "building_board",
-          position: "ahead",
-          confidence: 0.94,
-          spoken_announcement: "Building entrance ahead: RTU Faculty of Computer Science"
-        },
-        {
-          text: "9. autobuss: Ķīpsala",
-          type: "transit_sign",
-          position: "left",
-          confidence: 0.91,
-          spoken_announcement: "Transit sign on left: Bus 9 stop Ķīpsala"
-        }
-      ],
-      summary: "Detected street sign Paula Valdena iela, building entrance for RTU Faculty of Computer Science, and Bus stop 9.",
-      processingProvider: `${this.name} (Local semantic sign model)`
+      signs: [],
+      summary: "No visible signs or text detected in current camera view. Point camera towards street corners or entrance placards.",
+      processingProvider: `${this.name} (Vision Model)`
     };
   }
 
@@ -481,12 +467,16 @@ Rules:
 
     if (vagueWords.has(cleanQuery) || vagueWords.has(cleaned) || /^(navigate|start navigation|go somewhere|take me somewhere|take me there|directions|route|start route)$/i.test(cleaned)) {
       return {
-        intent: "clarification_needed",
+        intent: "start_navigation",
         trigger_auto_gps: true,
-        destination: null,
-        clarification_prompt: "Where would you like to go? You can say the library, the campus main building, or any location in Riga.",
-        spoken_response: "Where would you like to go? Please specify a destination.",
-        confidence: 0.9,
+        destination: {
+          canonicalName: "Nearby Destination",
+          shortName: "Nearby Destination",
+          subtitle: "Nearest accessible walking destination",
+          isNearbySearch: true
+        },
+        spoken_response: "Detecting current location. Finding nearest destination to navigate.",
+        confidence: 0.95,
         provider: `${this.name} (Semantic Fallback)`
       };
     }

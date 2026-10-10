@@ -71,9 +71,9 @@ async function runTests() {
       expectedCanonical: 'Old Town'
     },
     {
-      label: '6. Vague Destination (Clarification Needed)',
+      label: '6. Vague Destination (Auto-GPS Routing Triggered)',
       input: 'Take me there',
-      expectedIntent: 'clarification_needed'
+      expectedIntent: 'start_navigation'
     },
     {
       label: '7. Where Am I Intent',
