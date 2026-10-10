@@ -251,6 +251,28 @@
   </style>
 </head>
 <body class="bg-slate-100 text-slate-900 font-sans antialiased min-h-screen p-0 md:p-6 flex flex-col items-center justify-center">
+  <!-- Universal Floating Voice HUD (Active across all screens when voice mic is listening) -->
+  <aside id="universal-voice-hud" aria-label="Live Voice Guidance and Listening HUD" aria-live="assertive" class="fixed top-4 left-1/2 -translate-x-1/2 w-[92%] max-w-md z-50 bg-neutral-950/95 backdrop-blur-md text-white rounded-3xl p-4 shadow-2xl border border-orange-500/40 hidden flex items-center gap-3 transition-all duration-300">
+    <div class="w-12 h-12 rounded-full bg-orange-500 text-white flex items-center justify-center shrink-0 shadow-lg relative">
+      <span class="absolute -inset-1 rounded-full bg-orange-500/40 animate-ping"></span>
+      <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-white relative z-10 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+      </svg>
+    </div>
+    <div class="flex flex-col min-w-0 flex-1">
+      <div class="flex items-center gap-1.5">
+        <span class="w-2 h-2 rounded-full bg-orange-400 animate-pulse shrink-0"></span>
+        <span id="voice-hud-status" class="text-[11px] font-bold text-orange-400 uppercase tracking-wider">Listening to your voice...</span>
+      </div>
+      <p id="voice-hud-text" class="text-sm font-bold text-white mt-0.5 leading-snug line-clamp-2">
+        Speak now — Say a place to go, or ask: "Is someone on my right?"
+      </p>
+    </div>
+    <button onclick="hideUniversalVoiceHUD()" aria-label="Dismiss voice assistant" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center shrink-0 text-xs font-bold transition">
+      ✕
+    </button>
+  </aside>
+
 
   <!-- Skip Navigation Link (WCAG 2.2 SC 2.4.1 Bypass Blocks) -->
   <a href="#screen-viewport" class="sr-only focus:not-sr-only bg-amber-600 text-white font-bold rounded-xl shadow-xl top-3 left-3 focus:outline-none focus:ring-4 focus:ring-amber-300">
@@ -362,7 +384,7 @@
             </div>
 
             <div class="flex flex-col items-center justify-center my-auto py-2">
-              <button type="button" onclick="navigateTo('listening')" aria-label="Activate voice listening assistant" class="relative flex items-center justify-center w-36 h-36 mb-4 cursor-pointer rounded-full focus:outline-none shrink-0">
+              <button type="button" onclick="triggerVoiceAssistant()" aria-label="Activate voice listening assistant" class="relative flex items-center justify-center w-36 h-36 mb-4 cursor-pointer rounded-full focus:outline-none shrink-0">
                 <div class="absolute w-44 h-44 rounded-full orb-glow ripple-ring-1 pointer-events-none" aria-hidden="true"></div>
                 <div class="absolute w-36 h-36 rounded-full orb-glow ripple-ring-2 pointer-events-none" aria-hidden="true"></div>
                 <div class="w-28 h-28 rounded-full orb-3d relative z-10 flex items-center justify-center shrink-0" aria-hidden="true">
@@ -420,7 +442,7 @@
 
             <!-- Bottom Mic Button -->
             <div class="mobile-safe-footer flex justify-center mt-3">
-              <button onclick="navigateTo('listening')" aria-label="Start voice listening assistant" class="w-16 h-16 rounded-full bg-black text-white flex items-center justify-center shadow-lg hover:bg-neutral-800 transition active:scale-95 shrink-0">
+              <button onclick="triggerVoiceAssistant()" aria-label="Start voice listening assistant" class="w-16 h-16 rounded-full bg-black text-white flex items-center justify-center shadow-lg hover:bg-neutral-800 transition active:scale-95 shrink-0">
                 <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/></svg>
               </button>
             </div>
@@ -519,7 +541,7 @@
                 <label for="destination-search-input" class="sr-only">Search destination or speak</label>
                 <input type="text" id="destination-search-input" oninput="filterDestinations(this.value)" placeholder="Search destination or speak..." aria-label="Search destination or speak" class="w-full bg-white border border-slate-200 rounded-2xl py-3 pl-11 pr-11 text-sm font-medium text-slate-800 placeholder-slate-500 shadow-sm focus:border-amber-500 transition">
                 <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-slate-500 absolute left-3.5 top-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-                <button onclick="navigateTo('listening')" aria-label="Search destination using voice" class="absolute right-3 top-3 text-orange-500 hover:text-orange-600 shrink-0">
+                <button onclick="triggerVoiceAssistant()" aria-label="Search destination using voice" class="absolute right-3 top-3 text-orange-500 hover:text-orange-600 shrink-0">
                   <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/></svg>
                 </button>
               </div>
@@ -572,7 +594,7 @@
 
             <!-- Bottom Mic Button -->
             <div class="mobile-safe-footer flex justify-center mt-2">
-              <button onclick="navigateTo('listening')" aria-label="Start voice listening assistant" class="w-16 h-16 rounded-full bg-black text-white flex items-center justify-center shadow-lg hover:bg-neutral-800 transition active:scale-95 shrink-0">
+              <button onclick="triggerVoiceAssistant()" aria-label="Start voice listening assistant" class="w-16 h-16 rounded-full bg-black text-white flex items-center justify-center shadow-lg hover:bg-neutral-800 transition active:scale-95 shrink-0">
                 <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/></svg>
               </button>
             </div>
@@ -716,7 +738,7 @@
             <!-- Bottom Hands-Free Voice Interaction Hub for Blind Pedestrians (No Button Clutter) -->
             <div class="mobile-safe-footer relative z-20 flex flex-col items-center justify-center pt-2 pb-1">
               <!-- Large Tactile Voice Mic Button (Tap to talk or ask anything) -->
-              <button onclick="startVoiceCapture()" id="nav-floating-mic-btn" aria-label="Tap to speak. Ask anything, say Yes, No, Repeat, or Stop." class="w-20 h-20 rounded-full bg-black text-white border-4 border-orange-500 flex items-center justify-center shadow-2xl hover:scale-105 active:scale-95 transition focus:ring-4 focus:ring-orange-400/50 relative group shrink-0">
+              <button onclick="triggerVoiceAssistant()" id="nav-floating-mic-btn" aria-label="Tap to speak. Ask anything, say Yes, No, Repeat, or Stop." class="w-20 h-20 rounded-full bg-black text-white border-4 border-orange-500 flex items-center justify-center shadow-2xl hover:scale-105 active:scale-95 transition focus:ring-4 focus:ring-orange-400/50 relative group shrink-0">
                 <span class="absolute -inset-1 rounded-full bg-orange-500/30 animate-ping group-hover:opacity-100 opacity-60"></span>
                 <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-orange-400 relative z-10 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/></svg>
               </button>
@@ -902,7 +924,7 @@
 
             <!-- Hands-Free Voice Response Hub for Obstacle Screen (No Buttons To Search For) -->
             <div class="mobile-safe-footer flex flex-col items-center justify-center pt-2 pb-1">
-              <button onclick="startVoiceCapture()" id="obstacle-voice-mic-btn" aria-label="Tap microphone to speak or say Yes, No, or Repeat" class="w-20 h-20 rounded-full bg-black text-white border-4 border-red-500 flex items-center justify-center shadow-2xl hover:scale-105 active:scale-95 transition focus:ring-4 focus:ring-red-400/50 relative group shrink-0">
+              <button onclick="triggerVoiceAssistant()" id="obstacle-voice-mic-btn" aria-label="Tap microphone to speak or say Yes, No, or Repeat" class="w-20 h-20 rounded-full bg-black text-white border-4 border-red-500 flex items-center justify-center shadow-2xl hover:scale-105 active:scale-95 transition focus:ring-4 focus:ring-red-400/50 relative group shrink-0">
                 <span class="absolute -inset-1 rounded-full bg-red-500/30 animate-ping group-hover:opacity-100 opacity-60"></span>
                 <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-red-400 relative z-10 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/></svg>
               </button>
@@ -3040,6 +3062,41 @@
       if (/^(no|nope|wait|hold on|pause|not yet)$/i.test(cleaned)) {
         return { intent: "negative", action: "negative", spoken_response: "Holding position. Let me know when you are ready to continue.", confidence: 0.99 };
       }
+      // 5e. Directional Queries (Right, Left, Ahead, Approaching person detection)
+      if (/^(is someone coming from (my |the )?right|is anyone (on|from) (my |the )?right|anyone on (my |the )?right|who is on (my |the )?right|what('s| is) on (my |the )?right|is there a person on (my |the )?right|look right|check right|person on (my |the )?right|is someone on (my |the )?right|someone on right)$/i.test(cleaned) ||
+          (/(someone|anyone|person|anybody|coming|approaching)/i.test(cleaned) && /(right)/i.test(cleaned)) ||
+          /(on my right|on the right|to my right|to the right)/i.test(cleaned)) {
+        return {
+          intent: "directional_query",
+          direction: "right",
+          target: "person",
+          spoken_response: "Scanning to your right. Point or turn your phone to the right to inspect.",
+          confidence: 0.99
+        };
+      }
+
+      if (/^(is someone coming from (my |the )?left|is anyone (on|from) (my |the )?left|anyone on (my |the )?left|who is on (my |the )?left|what('s| is) on (my |the )?left|is there a person on (my |the )?left|look left|check left|person on (my |the )?left|is someone on (my |the )?left|someone on left)$/i.test(cleaned) ||
+          (/(someone|anyone|person|anybody|coming|approaching)/i.test(cleaned) && /(left)/i.test(cleaned)) ||
+          /(on my left|on the left|to my left|to the left)/i.test(cleaned)) {
+        return {
+          intent: "directional_query",
+          direction: "left",
+          target: "person",
+          spoken_response: "Scanning to your left. Point or turn your phone to the left to inspect.",
+          confidence: 0.99
+        };
+      }
+
+      if (/^(is someone coming|is anyone coming|is someone approaching|is anyone approaching|is there someone|is there a person|who is coming|who is approaching|who is there|is someone in front of me|someone coming)$/i.test(cleaned)) {
+        return {
+          intent: "directional_query",
+          direction: "ahead",
+          target: "person",
+          spoken_response: "Scanning path ahead for approaching pedestrians.",
+          confidence: 0.99
+        };
+      }
+
       if (/^(where do i go|where to go|where should i go|which way|which direction|where to walk|guide me|navigate me)$/i.test(cleaned)) {
         const dir = currentSteeringDirection || 'WALK STRAIGHT';
         const depth = currentLidarDepthAhead ? `${currentLidarDepthAhead.toFixed(1)} meters` : 'path is clear';
@@ -3414,15 +3471,214 @@
       announceToScreenReader(`Filtered by category ${cat}`);
     }
 
+    // Universal Voice HUD & Microphone Assistant
+    function showUniversalVoiceHUD(statusText, bodyText, isListening = true) {
+      const hud = document.getElementById('universal-voice-hud');
+      const sEl = document.getElementById('voice-hud-status');
+      const tEl = document.getElementById('voice-hud-text');
+      if (sEl) sEl.innerText = statusText || 'Listening...';
+      if (tEl) tEl.innerText = bodyText || 'Speak now...';
+      if (hud) {
+        hud.classList.remove('hidden');
+        hud.classList.add('flex');
+      }
+      announceToScreenReader(`${statusText}: ${bodyText}`);
+    }
+
+    function hideUniversalVoiceHUD() {
+      const hud = document.getElementById('universal-voice-hud');
+      if (hud) {
+        hud.classList.add('hidden');
+        hud.classList.remove('flex');
+      }
+    }
+
+    function triggerVoiceAssistant() {
+      // 1. Immediately cancel any speech synthesis so mic doesn't hear TTS audio
+      if (window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+      }
+      triggerHaptic([40]);
+
+      // 2. Request orientation sensors permission on iOS if first user gesture
+      if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+        try {
+          DeviceOrientationEvent.requestPermission().then(state => {
+            if (state === 'granted') {
+              window.addEventListener('deviceorientation', handleOrientationEvent, true);
+            }
+          }).catch(() => {});
+        } catch(e){}
+      }
+
+      // 3. Show Universal Voice HUD
+      showUniversalVoiceHUD("Listening...", "Speak now — Say where to go or ask: "Is someone on my right?"", true);
+
+      // 4. Start audio speech capture
+      startVoiceCapture();
+    }
+
+    // Real-Time Directional Watch & Gyroscope State
+    let activeDirectionalWatch = null;
+    let currentCompassHeading = 0;
+    let lastDirectionalSpokenTime = 0;
+
+    function handleDirectionalQuery(direction, target, rawText) {
+      const dir = direction || 'right';
+
+      // 1. Inspect current live neural detections from YOLO
+      const targetLane = dir === 'right' ? 'right' : (dir === 'left' ? 'left' : 'center');
+      const matched = lastLiveDetections.filter(d => 
+        d.lane === targetLane || 
+        (dir === 'right' && d.x > 160) || 
+        (dir === 'left' && d.x < 160)
+      );
+
+      const personMatch = matched.find(d => d.label.toLowerCase() === 'person');
+      let responseSpeech = "";
+
+      if (personMatch) {
+        responseSpeech = `Yes, I see a person on your ${dir}, about ${personMatch.distance.toFixed(1)} meters away.`;
+      } else if (matched.length > 0) {
+        responseSpeech = `I see a ${matched[0].label} on your ${dir}, about ${matched[0].distance.toFixed(1)} meters away.`;
+      } else {
+        responseSpeech = `I don't see anyone on your ${dir} right now. Turn your phone to the ${dir} to scan.`;
+      }
+
+      showUniversalVoiceHUD(`Direction Check: ${dir.toUpperCase()}`, responseSpeech, false);
+      speakText(responseSpeech);
+      triggerHaptic([50]);
+
+      // 2. Arm Active Directional Watch: when phone turns right/left, answer live!
+      activeDirectionalWatch = {
+        direction: dir,
+        target: target || 'person',
+        armedAt: Date.now(),
+        initialHeading: currentCompassHeading,
+        fulfilled: false
+      };
+
+      // Update corridor HUD if on active navigation
+      const cStatus = document.getElementById('nav-corridor-status');
+      if (cStatus) {
+        cStatus.innerText = `SCANNING ${dir.toUpperCase()} • TURN PHONE ${dir.toUpperCase()}`;
+      }
+      const cArrow = document.getElementById('nav-direction-arrow');
+      if (cArrow) {
+        cArrow.innerText = dir === 'right' ? '➡️' : (dir === 'left' ? '⬅️' : '⬆️');
+      }
+
+      // Auto-expire watch after 12 seconds
+      setTimeout(() => {
+        if (activeDirectionalWatch && !activeDirectionalWatch.fulfilled) {
+          activeDirectionalWatch = null;
+          if (cStatus) cStatus.innerText = 'WALK STRAIGHT • PATH CLEAR';
+          if (cArrow) cArrow.innerText = '⬆️';
+        }
+      }, 12000);
+    }
+
+    function handleOrientationEvent(e) {
+      let heading = null;
+      if (e.webkitCompassHeading !== undefined) {
+        heading = e.webkitCompassHeading;
+      } else if (e.alpha !== null) {
+        heading = (360 - e.alpha) % 360;
+      }
+
+      if (heading !== null) {
+        currentCompassHeading = heading;
+      }
+
+      // Check if user is actively turning phone in response to a directional query
+      if (activeDirectionalWatch && !activeDirectionalWatch.fulfilled) {
+        checkPhoneTurnedResponse(e, heading);
+      }
+    }
+
+    function checkPhoneTurnedResponse(e, heading) {
+      if (!activeDirectionalWatch || activeDirectionalWatch.fulfilled) return;
+      if (Date.now() - activeDirectionalWatch.armedAt < 500) return;
+
+      const dir = activeDirectionalWatch.direction;
+      let turned = false;
+
+      // 1. Heading change detection
+      if (heading !== null && activeDirectionalWatch.initialHeading !== null) {
+        let diff = heading - activeDirectionalWatch.initialHeading;
+        while (diff > 180) diff -= 360;
+        while (diff < -180) diff += 360;
+
+        if (dir === 'right' && diff >= 20) turned = true;
+        if (dir === 'left' && diff <= -20) turned = true;
+      }
+
+      // 2. Gamma tilt fallback
+      if (!turned && e.gamma !== null) {
+        if (dir === 'right' && e.gamma > 20) turned = true;
+        if (dir === 'left' && e.gamma < -20) turned = true;
+      }
+
+      if (turned) {
+        activeDirectionalWatch.fulfilled = true;
+        triggerHaptic([60, 40]);
+
+        const now = Date.now();
+        if (now - lastDirectionalSpokenTime > 2000) {
+          lastDirectionalSpokenTime = now;
+          evaluateLiveTurnedSector(dir);
+        }
+      }
+    }
+
+    function evaluateLiveTurnedSector(dir) {
+      const persons = lastLiveDetections.filter(d => d.label.toLowerCase() === 'person');
+      const otherObjects = lastLiveDetections.filter(d => d.label.toLowerCase() !== 'person');
+
+      let reply = "";
+      if (persons.length > 0) {
+        const closest = persons[0];
+        reply = `Phone pointed ${dir}: Person detected ${closest.distance.toFixed(1)} meters ahead in camera view.`;
+      } else if (otherObjects.length > 0) {
+        const obj = otherObjects[0];
+        reply = `Phone pointed ${dir}: ${obj.label} detected ${obj.distance.toFixed(1)} meters ahead.`;
+      } else {
+        reply = `Phone pointed ${dir}: Area to your ${dir} is completely clear. No obstacles or persons detected.`;
+      }
+
+      showUniversalVoiceHUD(`Turned ${dir.toUpperCase()}`, reply, false);
+      speakText(reply);
+
+      setTimeout(() => {
+        const cStatus = document.getElementById('nav-corridor-status');
+        if (cStatus) cStatus.innerText = 'WALK STRAIGHT • PATH CLEAR';
+        const cArrow = document.getElementById('nav-direction-arrow');
+        if (cArrow) cArrow.innerText = '⬆️';
+        hideUniversalVoiceHUD();
+      }, 5000);
+    }
+
+    if (window.DeviceOrientationEvent) {
+      window.addEventListener('deviceorientation', handleOrientationEvent, true);
+    }
+
     // Voice recognition & Intent Handling
     function startVoiceCapture() {
-      document.getElementById('live-transcript').innerText = "Speak now...";
-      document.getElementById('island-mic-dot').classList.remove('bg-[#151515]');
-      document.getElementById('island-mic-dot').classList.add('bg-orange-500');
+      const liveTrans = document.getElementById('live-transcript');
+      if (liveTrans) liveTrans.innerText = "Speak now...";
+      
+      const islandDot = document.getElementById('island-mic-dot');
+      if (islandDot) {
+        islandDot.classList.remove('bg-[#151515]');
+        islandDot.classList.add('bg-orange-500');
+      }
 
       const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
       if (SpeechRec) {
-        if (!webSpeechRec) {
+        if (webSpeechRec) {
+          try { webSpeechRec.abort(); } catch(e){}
+        }
+        try {
           webSpeechRec = new SpeechRec();
           webSpeechRec.continuous = false;
           webSpeechRec.interimResults = true;
@@ -3430,15 +3686,31 @@
           webSpeechRec.onresult = (e) => {
             let transcript = "";
             for (let i = e.resultIndex; i < e.results.length; i++) transcript += e.results[i][0].transcript;
-            document.getElementById('live-transcript').innerText = '“' + transcript + '”';
-            if (e.results[0].isFinal) handleVoiceInput(transcript);
+            
+            const vText = document.getElementById('voice-hud-text');
+            if (vText) vText.innerText = '“' + transcript + '”';
+            if (liveTrans) liveTrans.innerText = '“' + transcript + '”';
+
+            if (e.results[0].isFinal) {
+              showUniversalVoiceHUD("Analyzing...", '“' + transcript + '”', false);
+              handleVoiceInput(transcript);
+            }
+          };
+          webSpeechRec.onerror = (e) => {
+            console.warn('[SpeechRec] Error:', e.error);
+            showUniversalVoiceHUD("Mic Ready", "Tap mic to speak destination or question.", false);
+            setTimeout(hideUniversalVoiceHUD, 3500);
           };
           webSpeechRec.onend = () => {
-            document.getElementById('island-mic-dot').classList.remove('bg-orange-500');
-            document.getElementById('island-mic-dot').classList.add('bg-[#151515]');
+            if (islandDot) {
+              islandDot.classList.remove('bg-orange-500');
+              islandDot.classList.add('bg-[#151515]');
+            }
           };
+          webSpeechRec.start();
+        } catch(e) {
+          console.warn('[SpeechRec] Launch error:', e);
         }
-        try { webSpeechRec.start(); } catch(e){}
       }
     }
 
@@ -3484,7 +3756,15 @@
       }
 
       // 2. Automated GPS Navigation Trigger: ANY spoken destination or start navigation command!
+      // 2. Directional Perception Query: "is someone coming from my right?", "what is on my left?"
+      if (result.intent === 'directional_query' || result.action === 'directional_query' || result.direction) {
+        handleDirectionalQuery(result.direction || 'right', result.target || 'person', rawText);
+        return;
+      }
+
+      // 3. Automated GPS Navigation Trigger: ANY spoken destination or start navigation command!
       if (result.trigger_auto_gps || result.intent === 'start_navigation' || result.destination || targetBtn === 'start_navigation') {
+        hideUniversalVoiceHUD();
         handleAutoGpsNavigation(result.destination, result.spoken_response);
         return;
       }
@@ -3836,29 +4116,8 @@
       }
     });
 
-    function toggleSimulatorChrome() {
-      const isShowing = document.body.classList.toggle('show-simulator');
-      const icon = document.getElementById('mode-icon');
-      const text = document.getElementById('mode-text');
-      const btn = document.getElementById('toggle-mobile-mode-btn');
-      if (isShowing) {
-        if (icon) icon.innerText = '🛠️';
-        if (text) text.innerText = 'Tools: ON';
-        if (btn) btn.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500 text-white transition shadow-sm';
-      } else {
-        if (icon) icon.innerText = '📱';
-        if (text) text.innerText = 'Mobile View';
-        if (btn) btn.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-neutral-900 text-white transition shadow-sm';
-      }
-    }
   </script>
 
-  <!-- Floating View Mode Switcher (Tap to toggle Developer Simulator Tools on or off) -->
-  <aside aria-label="Simulator View Mode Switcher" class="fixed bottom-4 right-4 z-50 flex items-center gap-2 bg-white/95 backdrop-blur-md border border-slate-300 rounded-full p-1.5 shadow-xl text-xs font-semibold text-slate-700">
-    <button type="button" id="toggle-mobile-mode-btn" onclick="toggleSimulatorChrome()" aria-label="Toggle between Pure Mobile View and Developer Simulator Tools" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-neutral-900 text-white transition hover:bg-neutral-800 active:scale-95 shadow-sm">
-      <span id="mode-icon">📱</span>
-      <span id="mode-text">Mobile View</span>
-    </button>
-  </aside>
+
 </body>
 </html>

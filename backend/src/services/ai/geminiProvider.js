@@ -409,6 +409,47 @@ Rules:
       };
     }
 
+    // 5e. Directional Queries (Right, Left, Approaching, Person Detection)
+    if (/^(is someone coming from (my |the )?right|is anyone (on|from) (my |the )?right|anyone on (my |the )?right|who is on (my |the )?right|what('s| is) on (my |the )?right|is there a person on (my |the )?right|look right|check right|person on (my |the )?right|is someone on (my |the )?right|someone on right)$/i.test(cleaned) ||
+        (/\b(someone|anyone|person|anybody|coming|approaching)\b/i.test(cleaned) && /\b(right)\b/i.test(cleaned)) ||
+        /\b(on my right|on the right|to my right|to the right)\b/i.test(cleaned)) {
+      return {
+        intent: "directional_query",
+        direction: "right",
+        target: "person",
+        action: "directional_query",
+        spoken_response: "Scanning to your right. Point or turn your phone to the right to inspect.",
+        confidence: 0.99,
+        provider: `${this.name} (Directional Perception Match)`
+      };
+    }
+
+    if (/^(is someone coming from (my |the )?left|is anyone (on|from) (my |the )?left|anyone on (my |the )?left|who is on (my |the )?left|what('s| is) on (my |the )?left|is there a person on (my |the )?left|look left|check left|person on (my |the )?left|is someone on (my |the )?left|someone on left)$/i.test(cleaned) ||
+        (/\b(someone|anyone|person|anybody|coming|approaching)\b/i.test(cleaned) && /\b(left)\b/i.test(cleaned)) ||
+        /\b(on my left|on the left|to my left|to the left)\b/i.test(cleaned)) {
+      return {
+        intent: "directional_query",
+        direction: "left",
+        target: "person",
+        action: "directional_query",
+        spoken_response: "Scanning to your left. Point or turn your phone to the left to inspect.",
+        confidence: 0.99,
+        provider: `${this.name} (Directional Perception Match)`
+      };
+    }
+
+    if (/^(is someone coming|is anyone coming|is someone approaching|is anyone approaching|is there someone|is there a person|who is coming|who is approaching|who is there|is someone in front of me|someone coming)$/i.test(cleaned)) {
+      return {
+        intent: "directional_query",
+        direction: "ahead",
+        target: "person",
+        action: "directional_query",
+        spoken_response: "Scanning path ahead for approaching pedestrians.",
+        confidence: 0.99,
+        provider: `${this.name} (Directional Perception Match)`
+      };
+    }
+
     // 6. Settings
     if (/^(settings|open settings|audio settings|preferences)$/i.test(cleaned)) {
       return {

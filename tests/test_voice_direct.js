@@ -76,6 +76,21 @@ async function runDirectTests() {
       label: '13. Obstacle Query ("Is there anything in my way?")',
       input: 'is there anything in my way',
       expectedIntent: 'obstacle_query'
+    },
+    {
+      label: '14. Directional Right Query ("Is someone coming from my right?")',
+      input: 'is someone coming from my right',
+      expectedIntent: 'directional_query'
+    },
+    {
+      label: '15. Directional Left Query ("What is on my left?")',
+      input: 'what is on my left',
+      expectedIntent: 'directional_query'
+    },
+    {
+      label: '16. Approaching Person Query ("Is someone approaching?")',
+      input: 'is someone approaching',
+      expectedIntent: 'directional_query'
     }
   ];
 
