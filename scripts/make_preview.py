@@ -584,53 +584,30 @@ html_content = f"""<!DOCTYPE html>
               </div>
             </div>
 
-            <!-- Floating Navigation Turn-by-Turn HUD Card (Z-20 Relative) -->
-            <div class="relative z-20 my-auto flex flex-col justify-center">
-              <div class="bg-white/95 backdrop-blur-md rounded-3xl p-4 border border-white/50 shadow-2xl flex flex-col items-center text-center relative overflow-hidden" role="region" aria-label="Current Navigation Instruction" aria-live="assertive">
-                <span id="nav-step-label" class="text-xs font-bold text-orange-600 uppercase tracking-widest mb-0.5">
-                  Navigation • Step 1 of 4
-                </span>
-                <h2 id="nav-instruction-text" class="text-xl font-bold text-slate-900 tracking-tight leading-snug">
-                  Walk forward along sidewalk
-                </h2>
-                
-                <!-- Large Distance Number -->
-                <div class="my-1.5 flex items-baseline justify-center space-x-1" aria-label="Distance remaining">
-                  <span id="nav-distance-num" class="text-5xl font-black text-slate-900 tracking-tight">80</span>
-                  <span class="text-base font-bold text-slate-600">meters</span>
-                </div>
-
-                <!-- Maneuver Direction Banner -->
-                <div class="w-full bg-slate-50 border border-slate-200 rounded-2xl py-2 px-3 flex items-center justify-center space-x-2 text-slate-700">
-                  <div id="nav-maneuver-icon" class="w-7 h-7 rounded-full bg-orange-500 text-white flex items-center justify-center font-bold text-sm" aria-hidden="true">
+            <!-- Floating Compact Navigation Turn-by-Turn HUD (Z-20 Relative) -->
+            <div class="relative z-20 my-auto flex flex-col justify-center space-y-2">
+              <div class="bg-black/85 backdrop-blur-md rounded-2xl py-2.5 px-3.5 border border-white/20 shadow-xl flex items-center justify-between text-white" role="region" aria-label="Current Navigation Instruction" aria-live="assertive">
+                <div class="flex items-center space-x-2.5">
+                  <div id="nav-maneuver-icon" class="w-8 h-8 rounded-full bg-orange-500 text-white flex items-center justify-center font-black text-sm shrink-0" aria-hidden="true">
                     ↑
                   </div>
-                  <span id="nav-maneuver-text" class="font-bold text-xs text-slate-800">Head straight • Real GPS active</span>
-                </div>
-
-                <!-- Live Path Clearance & YOLO Objects Counter -->
-                <div id="nav-live-hazard-badge" class="w-full mt-2 py-1.5 px-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-[11px] font-semibold flex items-center justify-between">
-                  <span>Path: <strong id="nav-path-status-text">Pathway clear ahead</strong></span>
-                  <span id="nav-yolo-count" class="font-bold bg-emerald-200/80 px-2 py-0.5 rounded-full">YOLO: 0 objects</span>
-                </div>
-              </div>
-
-              <!-- Real-Time Signboard Callout Banner (Gemini AI Vision) -->
-              <div id="signboard-callout-banner" class="mt-2.5 bg-purple-900/90 backdrop-blur-md border border-purple-400/50 rounded-2xl p-2.5 text-white flex items-center justify-between shadow-xl transition-all" role="status" aria-live="polite">
-                <div class="flex items-center space-x-2.5">
-                  <span class="text-xl" aria-hidden="true">🪧</span>
-                  <div class="text-left">
-                    <div class="text-[10px] font-bold text-purple-200 uppercase tracking-wider">Signboard Detection (Gemini Vision)</div>
-                    <div id="signboard-banner-text" class="text-xs font-bold text-white leading-tight">Scanning for street signs...</div>
+                  <div class="flex flex-col text-left">
+                    <span id="nav-step-label" class="text-[10px] font-bold text-orange-400 uppercase tracking-wider">
+                      Step 1 of 4
+                    </span>
+                    <h2 id="nav-instruction-text" class="text-xs font-bold text-white tracking-tight leading-snug">
+                      Walk forward along sidewalk
+                    </h2>
                   </div>
                 </div>
-                <button type="button" onclick="triggerSignboardScan()" aria-label="Read detected signboards aloud" class="px-2.5 py-1 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-[10px] font-bold shadow-sm transition active:scale-95 flex items-center gap-1">
-                  <span>Read aloud</span>
-                </button>
+                <div class="flex items-baseline space-x-1 pl-2 shrink-0">
+                  <span id="nav-distance-num" class="text-2xl font-black text-white">80</span>
+                  <span class="text-[10px] font-bold text-slate-300">m</span>
+                </div>
               </div>
 
               <!-- Real-Time LiDAR Depth Corridor & Spatial Direction HUD -->
-              <div id="nav-lidar-corridor-hud" class="w-full mt-2 py-2 px-3 rounded-2xl bg-black/85 backdrop-blur-md border border-emerald-500/50 text-white shadow-xl flex items-center justify-between">
+              <div id="nav-lidar-corridor-hud" class="w-full py-2 px-3 rounded-2xl bg-black/85 backdrop-blur-md border border-emerald-500/50 text-white shadow-xl flex items-center justify-between">
                 <div class="flex items-center space-x-2.5">
                   <span id="nav-direction-arrow" class="text-2xl text-emerald-400 font-extrabold select-none">⬆️</span>
                   <div class="flex flex-col text-left">
@@ -645,31 +622,16 @@ html_content = f"""<!DOCTYPE html>
               </div>
             </div>
 
-            <!-- Bottom Voice & Navigation Controls (Z-20 Relative) -->
-            <div class="relative z-20 flex flex-col space-y-2 pt-1">
-              <!-- Large Floating Voice Mic Button -->
-              <div class="flex flex-col items-center justify-center">
-                <button onclick="startVoiceCapture()" id="nav-floating-mic-btn" aria-label="Tap microphone to speak any button name or destination" class="w-16 h-16 rounded-full bg-black text-white border-2 border-orange-500 flex items-center justify-center shadow-2xl hover:scale-105 active:scale-95 transition">
-                  <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/></svg>
-                </button>
-                <p class="text-[11px] text-white/95 text-center font-bold drop-shadow mt-1">Tap mic & speak any button or destination</p>
-              </div>
-
-              <!-- Quick Action Row -->
-              <div class="grid grid-cols-2 gap-2">
-                <button onclick="repeatCurrentStep()" id="btn-repeat-instruction" aria-label="Repeat current navigation instruction" class="py-2.5 rounded-2xl bg-white/95 backdrop-blur-md border border-slate-200 text-slate-800 font-bold text-xs shadow-sm hover:bg-white transition active:scale-[0.99] flex items-center justify-center space-x-1.5">
-                  <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/></svg>
-                  <span>Repeat</span>
-                </button>
-                <button onclick="triggerSignboardScan()" id="btn-detect-signs" aria-label="Read all signboards and street signs ahead" class="py-2.5 rounded-2xl bg-purple-600 text-white font-bold text-xs shadow-md hover:bg-purple-700 transition active:scale-[0.99] flex items-center justify-center space-x-1.5">
-                  <span>🪧 Read signs</span>
-                </button>
-              </div>
-
-              <!-- Stop Route Button -->
-              <button onclick="stopNavigationRoute()" id="btn-stop-route" aria-label="Stop navigation route and return to home screen" class="w-full py-3 rounded-2xl bg-black/90 backdrop-blur-md text-white font-bold text-xs shadow-md hover:bg-black transition active:scale-[0.99] flex items-center justify-center space-x-2 border border-white/20">
-                <span>Stop route</span>
+            <!-- Bottom Hands-Free Voice Interaction Hub for Blind Pedestrians (No Button Clutter) -->
+            <div class="relative z-20 flex flex-col items-center justify-center pt-2 pb-1">
+              <!-- Large Tactile Voice Mic Button (Tap to talk or ask anything) -->
+              <button onclick="startVoiceCapture()" id="nav-floating-mic-btn" aria-label="Tap to speak. Ask anything, say Yes, No, Repeat, or Stop." class="w-20 h-20 rounded-full bg-black text-white border-4 border-orange-500 flex items-center justify-center shadow-2xl hover:scale-105 active:scale-95 transition focus:ring-4 focus:ring-orange-400/50 relative group">
+                <span class="absolute -inset-1 rounded-full bg-orange-500/30 animate-ping group-hover:opacity-100 opacity-60"></span>
+                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-orange-400 relative z-10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/></svg>
               </button>
+              <p class="text-xs text-white text-center font-bold drop-shadow mt-2">
+                Tap mic & speak • Ask anything, say <span class="text-orange-400">"Yes"</span>, <span class="text-orange-400">"No"</span>, <span class="text-orange-400">"Repeat"</span>, or <span class="text-orange-400">"Stop"</span>
+              </p>
             </div>
           </div>
 
@@ -847,19 +809,15 @@ html_content = f"""<!DOCTYPE html>
               </div>
             </div>
 
-            <!-- Bottom Action Buttons -->
-            <div class="flex flex-col space-y-2.5 pt-1">
-              <!-- Repeat button -->
-              <button onclick="repeatObstacleWarning()" aria-label="Repeat obstacle warning" class="w-full py-3.5 rounded-full bg-white border border-slate-200 text-slate-900 font-bold text-sm shadow-sm hover:bg-slate-50 transition active:scale-95 flex items-center justify-center space-x-2">
-                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-slate-800" fill="currentColor" viewBox="0 0 24 24"><path d="M13.5 4.06c0-1.336-1.616-2.005-2.56-1.06l-4.5 4.5H4.5A2.25 2.25 0 0 0 2.25 9.75v4.5A2.25 2.25 0 0 0 4.5 16.5h1.94l4.5 4.5c.944.945 2.56.276 2.56-1.06V4.06ZM18.584 5.106a.75.75 0 0 1 1.06 0c3.808 3.807 3.808 9.98 0 13.788a.75.75 0 0 1-1.06-1.06 8.25 8.25 0 0 0 0-11.668.75.75 0 0 1 0-1.06Z"/></svg>
-                <span>Repeat</span>
+            <!-- Hands-Free Voice Response Hub for Obstacle Screen (No Buttons To Search For) -->
+            <div class="flex flex-col items-center justify-center pt-2 pb-1">
+              <button onclick="startVoiceCapture()" id="obstacle-voice-mic-btn" aria-label="Tap microphone to speak or say Yes, No, or Repeat" class="w-20 h-20 rounded-full bg-black text-white border-4 border-red-500 flex items-center justify-center shadow-2xl hover:scale-105 active:scale-95 transition focus:ring-4 focus:ring-red-400/50 relative group">
+                <span class="absolute -inset-1 rounded-full bg-red-500/30 animate-ping group-hover:opacity-100 opacity-60"></span>
+                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-red-400 relative z-10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/></svg>
               </button>
-
-              <!-- I Understand button -->
-              <button onclick="acknowledgeObstacle()" aria-label="I Understand obstacle warning, resume navigation path" class="w-full py-3.5 rounded-full bg-neutral-900 text-white font-bold text-sm shadow-md hover:bg-black transition active:scale-95 flex items-center justify-center space-x-2">
-                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
-                <span>I Understand</span>
-              </button>
+              <p class="text-xs text-slate-800 font-bold text-center mt-2">
+                Speak <span class="text-red-600 font-black">"Yes"</span> / <span class="text-red-600 font-black">"Okay"</span> to resume, or ask where to step
+              </p>
             </div>
           </div>
 
@@ -2888,14 +2846,14 @@ html_content = f"""<!DOCTYPE html>
         flashElement(document.getElementById('btn-detect-signs'));
         triggerSignboardScan(false);
       }} else if (buttonId === 'repeat') {{
-        flashElement(document.getElementById('btn-repeat-instruction'));
+        flashElement(document.getElementById('btn-repeat-instruction') || document.getElementById('nav-floating-mic-btn'));
         if (activeRoute === 'activeNavigation') repeatCurrentStep();
         else if (activeRoute === 'whereAmI') repeatRealLocation();
         else if (activeRoute === 'describeAround') repeatSceneDescription();
         else if (activeRoute === 'obstacleAlert') repeatObstacleWarning();
         else speakText("Nothing to repeat.");
       }} else if (buttonId === 'acknowledge_obstacle') {{
-        flashElement(document.getElementById('btn-i-understand'));
+        flashElement(document.getElementById('btn-i-understand') || document.getElementById('obstacle-voice-mic-btn'));
         acknowledgeObstacle();
       }} else if (buttonId === 'settings') {{
         openSettingsModal();
@@ -2903,7 +2861,7 @@ html_content = f"""<!DOCTYPE html>
         flashElement(document.getElementById('btn-toggle-camera'));
         toggleCameraFeed();
       }} else if (buttonId === 'stop_route') {{
-        flashElement(document.getElementById('btn-stop-route'));
+        flashElement(document.getElementById('btn-stop-route') || document.getElementById('btn-nav-back'));
         stopNavigationRoute();
       }}
     }}
@@ -3007,8 +2965,35 @@ html_content = f"""<!DOCTYPE html>
       if (/^(repeat|say again|what was that|repeat instruction|repeat location|repeat warning)$/i.test(cleaned)) {{
         return {{ intent: "click_button", target_button: "repeat", action: "click_button", spoken_response: "Repeating last instruction.", confidence: 0.99 }};
       }}
-      if (/^(i understand|understand|dismiss|dismiss obstacle|got it|clear|okay|ok)$/i.test(cleaned)) {{
-        return {{ intent: "click_button", target_button: "acknowledge_obstacle", action: "click_button", spoken_response: "Obstacle acknowledged. Resuming route.", confidence: 0.99 }};
+      if (/^(yes|yeah|yep|sure|ok|okay|i understand|understand|dismiss|dismiss obstacle|got it|clear|resume|continue|proceed|affirmative)$/i.test(cleaned)) {{
+        if (activeRoute === 'obstacleAlert') {{
+          return {{ intent: "click_button", target_button: "acknowledge_obstacle", action: "click_button", spoken_response: "Obstacle acknowledged. Resuming route.", confidence: 0.99 }};
+        }} else {{
+          return {{ intent: "affirmative", action: "affirmative", spoken_response: "Path is clear. Continue straight.", confidence: 0.99 }};
+        }}
+      }}
+      if (/^(no|nope|wait|hold on|pause|not yet)$/i.test(cleaned)) {{
+        return {{ intent: "negative", action: "negative", spoken_response: "Holding position. Let me know when you are ready to continue.", confidence: 0.99 }};
+      }}
+      if (/^(where do i go|where to go|where should i go|which way|which direction|where to walk|guide me|navigate me)$/i.test(cleaned)) {{
+        const dir = currentSteeringDirection || 'WALK STRAIGHT';
+        const depth = currentLidarDepthAhead ? `${{currentLidarDepthAhead.toFixed(1)}} meters` : 'path is clear';
+        return {{
+          intent: "guidance_query",
+          action: "guidance_query",
+          spoken_response: `${{dir}}. Forward clearance is ${{depth}}.`,
+          confidence: 0.99
+        }};
+      }}
+      if (/^(is there anything in my way|is the path clear|is there an obstacle|what('s| is) in my way|what('s| is) ahead|any obstacles)$/i.test(cleaned)) {{
+        return {{
+          intent: "obstacle_query",
+          action: "obstacle_query",
+          spoken_response: (activeObjects && activeObjects.length > 0)
+            ? `Detected ${{activeObjects.map(o => `${{o.label}} ${{o.distance.toFixed(1)}} meters on ${{o.lane}}`).join(', ')}}.`
+            : "Pathway is completely clear ahead for over 4 meters.",
+          confidence: 0.99
+        }};
       }}
       if (/^(settings|open settings|audio settings|preferences)$/i.test(cleaned)) {{
         return {{ intent: "click_button", target_button: "settings", action: "click_button", spoken_response: "Opening settings.", confidence: 0.99 }};
@@ -3441,7 +3426,25 @@ html_content = f"""<!DOCTYPE html>
 
       const intent = result.intent || 'start_navigation';
 
-      if (intent === 'start_navigation') {{
+      if (intent === 'affirmative') {{
+        if (activeRoute === 'obstacleAlert') {{
+          acknowledgeObstacle();
+        }} else {{
+          speakText(result.spoken_response || "Path is clear. Continue straight.");
+          triggerHaptic([40]);
+        }}
+      }} else if (intent === 'negative') {{
+        speakText(result.spoken_response || "Holding position. Let me know when you are ready to continue.");
+        triggerHaptic([60, 40]);
+      }} else if (intent === 'guidance_query') {{
+        const dir = currentSteeringDirection || 'WALK STRAIGHT';
+        const depth = currentLidarDepthAhead ? `${{currentLidarDepthAhead.toFixed(1)}} meters` : 'clear';
+        speakText(result.spoken_response || `${{dir}}. Forward clearance is ${{depth}}.`);
+        triggerHaptic([50]);
+      }} else if (intent === 'obstacle_query') {{
+        speakText(result.spoken_response || "Scanning ahead. Pathway is clear.");
+        triggerHaptic([50]);
+      }} else if (intent === 'start_navigation') {{
         handleAutoGpsNavigation(result.destination, result.spoken_response);
       }} else if (intent === 'clarification_needed') {{
         const clarifPrompt = result.clarification_prompt || "Where would you like to go? Speak any destination or place.";

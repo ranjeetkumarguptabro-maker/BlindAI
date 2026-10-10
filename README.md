@@ -301,10 +301,10 @@ Tap Microphone   Start navigation             Where am I?       Describe around 
 2. **Screen 2 — Voice Listening**: Audio-reactive ripple rings, real speech-to-text, prompt pills, and cancel button.
 3. **Screen 3 — Destination Search**: Live search input, category filters (Parks, Transit, Cafes, Groceries), and recent places.
 4. **Screen 4 — Route Preview**: Destination overview (dynamic distance, ETA, walking waypoints), real Leaflet/MapKit interactive map, and *"Start navigation"*.
-5. **Screen 5 — Active Navigation**: Step indicator, distance countdown, live rear camera feed, YOLO bounding boxes, and signboard OCR.
+5. **Screen 5 — Active Navigation**: Step indicator, distance countdown, live rear camera feed, YOLO bounding boxes, signboard OCR, and a single **large tactile microphone** with continuous autonomous audio guidance (zero visual button clutter).
 6. **Screen 6 — Where am I?**: Real GPS street address, live compass heading, neighborhood context card, and *"Repeat location"*.
 7. **Screen 7 — Describe What's Around Me**: Live camera view, structured neural perception list, and audio replay button.
-8. **Screen 8 — Obstacle Ahead (Hazard Detection)**: Urgent warning banner, camera view with dynamic LiDAR/YOLO depth overlay canvas, real obstacle card, and *"I Understand"* button.
+8. **Screen 8 — Obstacle Ahead (Hazard Detection)**: Urgent warning banner, camera view with dynamic LiDAR/YOLO depth overlay canvas, real obstacle card, and **hands-free voice resumption** (speak *"Yes"* or *"Okay"* to resume immediately without searching for on-screen buttons).
 9. **Screen 9 — Approaching Crosswalk (Quiet Mode)**: Amber safety banner, crossing awareness visual, animated audio waveform, and *"Crosswalk Completed — Resume Route"*.
 
 ---

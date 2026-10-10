@@ -56,6 +56,26 @@ async function runDirectTests() {
       label: '9. Stop Navigation Intent',
       input: 'Stop navigation',
       expectedIntent: 'stop'
+    },
+    {
+      label: '10. Affirmative Hands-Free Response ("Yes" / "Okay")',
+      input: 'yes',
+      expectedIntent: 'affirmative'
+    },
+    {
+      label: '11. Negative Hands-Free Response ("No" / "Wait")',
+      input: 'wait',
+      expectedIntent: 'negative'
+    },
+    {
+      label: '12. Active Guidance Query ("Where do I go?")',
+      input: 'where do i go',
+      expectedIntent: 'guidance_query'
+    },
+    {
+      label: '13. Obstacle Query ("Is there anything in my way?")',
+      input: 'is there anything in my way',
+      expectedIntent: 'obstacle_query'
     }
   ];
 

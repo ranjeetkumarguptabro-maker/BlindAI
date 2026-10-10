@@ -363,16 +363,49 @@ Rules:
       };
     }
 
-    // 5. I Understand / Dismiss Obstacle
-    if (/^(i understand|understand|dismiss|dismiss obstacle|got it|clear|okay|ok)$/i.test(cleaned)) {
+    // 5. Affirmative / I Understand / Dismiss Obstacle
+    if (/^(yes|yeah|yep|sure|ok|okay|i understand|understand|dismiss|dismiss obstacle|got it|clear|resume|continue|proceed|affirmative)$/i.test(cleaned)) {
       return {
-        intent: "click_button",
+        intent: "affirmative",
         target_button: "acknowledge_obstacle",
         button_id: "acknowledge_obstacle",
         action: "click_button",
         spoken_response: "Obstacle acknowledged. Resuming route.",
         confidence: 0.99,
-        provider: `${this.name} (Semantic Button Match)`
+        provider: `${this.name} (Semantic Voice Match)`
+      };
+    }
+
+    // 5b. Negative / Hold / Wait
+    if (/^(no|nope|wait|hold on|pause|not yet)$/i.test(cleaned)) {
+      return {
+        intent: "negative",
+        action: "negative",
+        spoken_response: "Holding position. Let me know when you are ready to continue.",
+        confidence: 0.99,
+        provider: `${this.name} (Semantic Voice Match)`
+      };
+    }
+
+    // 5c. Guidance Query
+    if (/^(where do i go|where to go|where should i go|which way|which direction|where to walk|guide me|navigate me)$/i.test(cleaned)) {
+      return {
+        intent: "guidance_query",
+        action: "guidance_query",
+        spoken_response: "Walk straight ahead. Pathway is clear.",
+        confidence: 0.99,
+        provider: `${this.name} (Semantic Voice Match)`
+      };
+    }
+
+    // 5d. Obstacle Query
+    if (/^(is there anything in my way|is the path clear|is there an obstacle|what('s| is) in my way|what('s| is) ahead|any obstacles)$/i.test(cleaned)) {
+      return {
+        intent: "obstacle_query",
+        action: "obstacle_query",
+        spoken_response: "Pathway is completely clear ahead for over 4 meters.",
+        confidence: 0.99,
+        provider: `${this.name} (Semantic Voice Match)`
       };
     }
 
