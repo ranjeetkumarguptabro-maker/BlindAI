@@ -116,6 +116,18 @@ async function runDirectTests() {
       label: '21. Stairs Ahead Query ("Are there stairs?")',
       input: 'are there stairs',
       expectedIntent: 'stairs_query'
+    },
+    {
+      label: '22. Sunlight High Contrast Toggle ("High contrast")',
+      input: 'high contrast',
+      expectedIntent: 'click_button',
+      expectedTargetButton: 'toggle_high_contrast'
+    },
+    {
+      label: '23. Night Vision Filter Toggle ("Night vision")',
+      input: 'night vision',
+      expectedIntent: 'click_button',
+      expectedTargetButton: 'toggle_night_vision'
     }
   ];
 
@@ -134,8 +146,12 @@ async function runDirectTests() {
         const destName = data.destination?.canonicalName;
         destMatch = destName && destName.toLowerCase().includes(tc.expectedCanonical.toLowerCase());
       }
+      let btnMatch = true;
+      if (tc.expectedTargetButton) {
+        btnMatch = data.target_button === tc.expectedTargetButton || data.action === tc.expectedTargetButton;
+      }
 
-      if (intentMatch && destMatch) {
+      if (intentMatch && destMatch && btnMatch) {
         passed++;
         console.log(`✅ [PASS] ${tc.label} ("${tc.input}")`);
         console.log(`   -> Intent: ${data.intent}`);

@@ -689,6 +689,14 @@ html_content = f"""<!DOCTYPE html>
               </div>
 
               <div class="flex items-center gap-1.5 shrink-0">
+                <!-- Sunlight High Contrast Toggle -->
+                <button type="button" onclick="toggleHighContrastMode()" id="btn-contrast-mode" aria-label="Toggle sunlight high-contrast mode" class="w-11 h-11 rounded-full bg-black/60 backdrop-blur-md border border-white/30 flex items-center justify-center text-white hover:bg-black/80 shadow-md transition active:scale-95 text-base shrink-0" title="Sunlight High Contrast">
+                  <span id="contrast-mode-icon" aria-hidden="true">☀️</span>
+                </button>
+                <!-- Night Vision AR Filter Toggle -->
+                <button type="button" onclick="toggleNightVisionMode()" id="btn-night-vision" aria-label="Toggle night-vision low-light filter" class="w-11 h-11 rounded-full bg-black/60 backdrop-blur-md border border-white/30 flex items-center justify-center text-white hover:bg-black/80 shadow-md transition active:scale-95 text-base shrink-0" title="Night Vision Filter">
+                  <span id="nightvision-mode-icon" aria-hidden="true">🌙</span>
+                </button>
                 <!-- Camera / Simulation Toggle Button -->
                 <button type="button" onclick="toggleCameraFeed()" id="btn-toggle-camera" aria-label="Toggle between real rear camera and simulated walking stream" class="w-11 h-11 rounded-full bg-black/60 backdrop-blur-md border border-white/30 flex items-center justify-center text-white hover:bg-black/80 shadow-md transition active:scale-95 text-base shrink-0" title="Toggle camera feed mode">
                   <span id="camera-toggle-icon" aria-hidden="true">📷</span>
@@ -1211,6 +1219,18 @@ html_content = f"""<!DOCTYPE html>
         <div class="flex justify-between items-center py-2 border-b border-slate-100">
           <span>Current Location</span>
           <span class="font-bold text-slate-900">Riga, Latvia</span>
+        </div>
+        <div class="flex justify-between items-center py-2 border-b border-slate-100">
+          <span>Sunlight Contrast Filter</span>
+          <button type="button" onclick="toggleHighContrastMode()" class="px-2.5 py-1 text-xs font-bold rounded-lg bg-slate-100 text-slate-800 hover:bg-slate-200">
+            <span id="setting-contrast-status">Disabled</span>
+          </button>
+        </div>
+        <div class="flex justify-between items-center py-2 border-b border-slate-100">
+          <span>Night Vision Filter</span>
+          <button type="button" onclick="toggleNightVisionMode()" class="px-2.5 py-1 text-xs font-bold rounded-lg bg-slate-100 text-slate-800 hover:bg-slate-200">
+            <span id="setting-nightvision-status">Disabled</span>
+          </button>
         </div>
       </div>
       <button onclick="closeSettingsModal()" aria-label="Save and close settings modal" class="w-full py-3 bg-black text-white font-bold rounded-2xl hover:bg-neutral-800 transition">Done</button>
@@ -2675,6 +2695,74 @@ html_content = f"""<!DOCTYPE html>
       }}
     }}
 
+    // ==================== DYNAMIC SUNLIGHT CONTRAST & NIGHT VISION AR FILTERS ====================
+    let isHighContrastMode = false;
+    let isNightVisionMode = false;
+
+    function applyVisualFilterToCameras() {{
+      const videoIds = ['nav-live-video', 'describe-live-video', 'obstacle-live-video', 'crosswalk-live-video'];
+      let filterStr = 'none';
+      if (isHighContrastMode) {{
+        filterStr = 'contrast(240%) brightness(130%) grayscale(100%)';
+      }} else if (isNightVisionMode) {{
+        filterStr = 'contrast(260%) brightness(170%) saturate(190%) hue-rotate(90deg)';
+      }}
+
+      videoIds.forEach(id => {{
+        const el = document.getElementById(id);
+        if (el) el.style.filter = filterStr;
+      }});
+
+      const cIcon = document.getElementById('contrast-mode-icon');
+      if (cIcon) cIcon.textContent = isHighContrastMode ? '🔆' : '☀️';
+      const cBtn = document.getElementById('btn-contrast-mode');
+      if (cBtn) {{
+        if (isHighContrastMode) {{
+          cBtn.classList.add('ring-2', 'ring-amber-400', 'bg-amber-500/40');
+        }} else {{
+          cBtn.classList.remove('ring-2', 'ring-amber-400', 'bg-amber-500/40');
+        }}
+      }}
+
+      const nvIcon = document.getElementById('nightvision-mode-icon');
+      if (nvIcon) nvIcon.textContent = isNightVisionMode ? '🟢' : '🌙';
+      const nvBtn = document.getElementById('btn-night-vision');
+      if (nvBtn) {{
+        if (isNightVisionMode) {{
+          nvBtn.classList.add('ring-2', 'ring-emerald-400', 'bg-emerald-500/40');
+        }} else {{
+          nvBtn.classList.remove('ring-2', 'ring-emerald-400', 'bg-emerald-500/40');
+        }}
+      }}
+
+      const cSetting = document.getElementById('setting-contrast-status');
+      if (cSetting) cSetting.textContent = isHighContrastMode ? 'Enabled' : 'Disabled';
+      const nvSetting = document.getElementById('setting-nightvision-status');
+      if (nvSetting) nvSetting.textContent = isNightVisionMode ? 'Enabled' : 'Disabled';
+    }}
+
+    function toggleHighContrastMode(forceVal) {{
+      isHighContrastMode = (typeof forceVal === 'boolean') ? forceVal : !isHighContrastMode;
+      if (isHighContrastMode) isNightVisionMode = false;
+      applyVisualFilterToCameras();
+      const msg = isHighContrastMode ? 'Sunlight high contrast mode enabled.' : 'High contrast mode disabled.';
+      announceToScreenReader(msg);
+      speakText(msg);
+      triggerHaptic([60, 40]);
+      showUniversalVoiceHUD('Display Mode', msg, false);
+    }}
+
+    function toggleNightVisionMode(forceVal) {{
+      isNightVisionMode = (typeof forceVal === 'boolean') ? forceVal : !isNightVisionMode;
+      if (isNightVisionMode) isHighContrastMode = false;
+      applyVisualFilterToCameras();
+      const msg = isNightVisionMode ? 'Night vision filter enabled.' : 'Night vision filter disabled.';
+      announceToScreenReader(msg);
+      speakText(msg);
+      triggerHaptic([60, 40]);
+      showUniversalVoiceHUD('Display Mode', msg, false);
+    }}
+
     async function runYoloPerceptionCycle() {{
       if (activeRoute !== 'activeNavigation') return;
       simWalkFrame++;
@@ -3314,6 +3402,12 @@ html_content = f"""<!DOCTYPE html>
       }} else if (buttonId === 'crosswalk_mode') {{
         flashElement(document.getElementById('btn-crosswalk-mode'));
         setTimeout(() => navigateTo('crosswalkSafety'), 400);
+      }} else if (buttonId === 'toggle_high_contrast') {{
+        flashElement(document.getElementById('btn-contrast-mode'));
+        toggleHighContrastMode();
+      }} else if (buttonId === 'toggle_night_vision') {{
+        flashElement(document.getElementById('btn-night-vision'));
+        toggleNightVisionMode();
       }} else if (buttonId === 'stop_route') {{
         flashElement(document.getElementById('btn-stop-route') || document.getElementById('btn-nav-back'));
         stopNavigationRoute();
@@ -3545,6 +3639,24 @@ html_content = f"""<!DOCTYPE html>
       }}
       if (/^(camera|switch camera|toggle camera|turn camera on|open camera|back camera)$/i.test(cleaned)) {{
         return {{ intent: "click_button", target_button: "toggle_camera", action: "click_button", spoken_response: "Toggling back camera.", confidence: 0.98 }};
+      }}
+      if (/^(toggle )?(high contrast|sunlight mode|bright mode|contrast mode)$/i.test(cleaned)) {{
+        return {{
+          intent: "click_button",
+          target_button: "toggle_high_contrast",
+          action: "toggle_high_contrast",
+          spoken_response: "Toggling sunlight high contrast mode.",
+          confidence: 0.99
+        }};
+      }}
+      if (/^(toggle )?(night vision|low light mode|dark vision|dark mode)$/i.test(cleaned)) {{
+        return {{
+          intent: "click_button",
+          target_button: "toggle_night_vision",
+          action: "toggle_night_vision",
+          spoken_response: "Toggling night vision low light filter.",
+          confidence: 0.99
+        }};
       }}
       if (/^(stop|cancel|end navigation|stop navigation|stop route|halt)/i.test(cleaned)) {{
         return {{ intent: "click_button", target_button: "stop_route", action: "click_button", spoken_response: "Navigation stopped.", confidence: 0.99 }};

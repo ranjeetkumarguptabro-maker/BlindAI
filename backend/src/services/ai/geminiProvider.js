@@ -510,6 +510,32 @@ Rules:
       };
     }
 
+    // 5k. High Contrast / Sunlight Mode
+    if (/^(toggle )?(high contrast|sunlight mode|bright mode|contrast mode)$/i.test(cleaned)) {
+      return {
+        intent: "click_button",
+        target_button: "toggle_high_contrast",
+        button_id: "toggle_high_contrast",
+        action: "toggle_high_contrast",
+        spoken_response: "Toggling sunlight high contrast mode.",
+        confidence: 0.99,
+        provider: `${this.name} (Vision Filter Match)`
+      };
+    }
+
+    // 5l. Night Vision Mode
+    if (/^(toggle )?(night vision|low light mode|dark vision|dark mode)$/i.test(cleaned)) {
+      return {
+        intent: "click_button",
+        target_button: "toggle_night_vision",
+        button_id: "toggle_night_vision",
+        action: "toggle_night_vision",
+        spoken_response: "Toggling night vision low light filter.",
+        confidence: 0.99,
+        provider: `${this.name} (Vision Filter Match)`
+      };
+    }
+
     // 6. Settings
     if (/^(settings|open settings|audio settings|preferences)$/i.test(cleaned)) {
       return {
