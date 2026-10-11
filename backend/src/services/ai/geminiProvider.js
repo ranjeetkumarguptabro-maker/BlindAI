@@ -536,6 +536,17 @@ Rules:
       };
     }
 
+    // 5m. Steps & Pedometer Pace Query
+    if (/^(how many steps|how much have i walked|step count|how many steps did i walk|my steps|walking pace|walking speed)$/i.test(cleaned)) {
+      return {
+        intent: "steps_query",
+        action: "steps_query",
+        spoken_response: "Checking step count and walking pace from accelerometer.",
+        confidence: 0.99,
+        provider: `${this.name} (Pedometer Telemetry Match)`
+      };
+    }
+
     // 6. Settings
     if (/^(settings|open settings|audio settings|preferences)$/i.test(cleaned)) {
       return {

@@ -742,6 +742,8 @@ html_content = f"""<!DOCTYPE html>
                   <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Perception</span>
                   <span id="nav-lateral-lanes" class="text-[10px] font-mono font-bold text-emerald-400 whitespace-nowrap">Optical View: Clear Ahead</span>
                 </div>
+              </div>
+
               <!-- Real-Time Top-Down Proximity Radar HUD -->
               <div id="nav-mini-radar-container" class="w-full py-1.5 px-3 rounded-2xl bg-black/85 backdrop-blur-md border border-white/20 text-white shadow-xl flex items-center justify-between">
                 <div class="flex items-center space-x-2.5 min-w-0 flex-1">
@@ -753,6 +755,20 @@ html_content = f"""<!DOCTYPE html>
                 </div>
                 <div class="flex items-center gap-1 shrink-0">
                   <span id="nav-radar-count-badge" class="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">0 in path</span>
+                </div>
+              </div>
+
+              <!-- Real-Time Walking Pedometer & Dead-Reckoning Cadence Chip -->
+              <div id="nav-pedometer-cadence-chip" class="w-full py-1.5 px-3 rounded-2xl bg-black/85 backdrop-blur-md border border-white/20 text-white shadow-xl flex items-center justify-between text-xs">
+                <div class="flex items-center space-x-2 min-w-0">
+                  <span class="text-base shrink-0" aria-hidden="true">👟</span>
+                  <div class="flex flex-col text-left min-w-0">
+                    <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Physical Stride Integrator</span>
+                    <span id="nav-cadence-text" class="text-[11px] font-bold text-amber-300 truncate">Steps: <strong id="real-steps-display" class="text-white">0</strong> • Walked: <strong id="real-dist-display" class="text-white">0.0m</strong></span>
+                  </div>
+                </div>
+                <div class="flex items-center gap-1.5 shrink-0">
+                  <span id="nav-pace-pill" class="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">0 steps/min</span>
                 </div>
               </div>
             </div>
@@ -1603,6 +1619,31 @@ html_content = f"""<!DOCTYPE html>
       initPedometerSensor();
     }}
 
+    let pedometerStepTimestamps = [];
+    let currentWalkingCadenceSpm = 0;
+    let currentWalkingSpeedMps = 0;
+
+    function calculatePedestrianCadence() {{
+      const now = Date.now();
+      pedometerStepTimestamps = pedometerStepTimestamps.filter(t => (now - t) <= 12000);
+      if (pedometerStepTimestamps.length >= 2) {{
+        const spanSec = (now - pedometerStepTimestamps[0]) / 1000;
+        if (spanSec > 1) {{
+          currentWalkingCadenceSpm = Math.round((pedometerStepTimestamps.length / spanSec) * 60);
+          currentWalkingSpeedMps = parseFloat(((currentWalkingCadenceSpm * 0.75) / 60).toFixed(2));
+        }}
+      }} else {{
+        currentWalkingCadenceSpm = 0;
+        currentWalkingSpeedMps = 0;
+      }}
+
+      const pacePill = document.getElementById('nav-pace-pill');
+      if (pacePill) {{
+        const kmh = (currentWalkingSpeedMps * 3.6).toFixed(1);
+        pacePill.innerText = currentWalkingCadenceSpm > 0 ? `${{currentWalkingCadenceSpm}} spm (${{kmh}} km/h)` : '0 steps/min';
+      }}
+    }}
+
     function initPedometerSensor() {{
       if (window.DeviceMotionEvent) {{
         window.addEventListener('devicemotion', (evt) => {{
@@ -1616,6 +1657,8 @@ html_content = f"""<!DOCTYPE html>
           if ((mag > 11.8 || delta > 2.6) && (now - lastPedometerStepTime > 320)) {{
             lastPedometerStepTime = now;
             totalPhysicalSteps++;
+            pedometerStepTimestamps.push(now);
+            calculatePedestrianCadence();
             onPhysicalStepOrMovement(0.75, 'step'); // ~0.75m per pedestrian step stride
           }}
         }}, true);
@@ -1627,6 +1670,21 @@ html_content = f"""<!DOCTYPE html>
       updateMovementDisplayUI();
 
       if (activeRoute !== 'activeNavigation') return;
+
+      // Inertial Dead-Reckoning coordinate extrapolation along target bearing
+      if (source === 'step' && currentTargetWaypointBearing !== null && userGps.lat) {{
+        const R = 6371000;
+        const bearingRad = (currentTargetWaypointBearing * Math.PI) / 180;
+        const latRad = (userGps.lat * Math.PI) / 180;
+        const lonRad = (userGps.lon * Math.PI) / 180;
+        const dOverR = deltaMeters / R;
+
+        const newLatRad = Math.asin(Math.sin(latRad) * Math.cos(dOverR) + Math.cos(latRad) * Math.sin(dOverR) * Math.cos(bearingRad));
+        const newLonRad = lonRad + Math.atan2(Math.sin(bearingRad) * Math.sin(dOverR) * Math.cos(latRad), Math.cos(dOverR) - Math.sin(latRad) * Math.sin(newLatRad));
+
+        userGps.lat = (newLatRad * 180) / Math.PI;
+        userGps.lon = (newLonRad * 180) / Math.PI;
+      }}
 
       if (currentDistance > deltaMeters) {{
         currentDistance = Math.max(0, Math.round(currentDistance - deltaMeters));
@@ -3634,6 +3692,18 @@ html_content = f"""<!DOCTYPE html>
         }};
       }}
 
+      // Pedometer / Steps & Cadence Query
+      if (/^(how many steps|how much have i walked|step count|how many steps did i walk|my steps|walking pace|walking speed)$/i.test(cleaned)) {{
+        const spmStr = currentWalkingCadenceSpm > 0 ? `, current pace ${{currentWalkingCadenceSpm}} steps per minute.` : '.';
+        const spoken = `You have taken ${{totalPhysicalSteps}} physical steps, covering ${{totalPhysicalMeters.toFixed(1)}} meters${{spmStr}}`;
+        return {{
+          intent: "steps_query",
+          action: "steps_query",
+          spoken_response: spoken,
+          confidence: 0.99
+        }};
+      }}
+
       if (/^(settings|open settings|audio settings|preferences)$/i.test(cleaned)) {{
         return {{ intent: "click_button", target_button: "settings", action: "click_button", spoken_response: "Opening settings.", confidence: 0.99 }};
       }}
@@ -4326,6 +4396,14 @@ html_content = f"""<!DOCTYPE html>
       if (result.intent === 'stairs_query' || result.action === 'stairs_query') {{
         const text = result.spoken_response || 'Scanning path ahead for stairs or elevation changes.';
         showUniversalVoiceHUD('Stairs / Elevation Check', text, false);
+        speakText(text);
+        triggerHaptic([50]);
+        return;
+      }}
+      if (result.intent === 'steps_query' || result.action === 'steps_query') {{
+        const spmStr = currentWalkingCadenceSpm > 0 ? `, cadence ${{currentWalkingCadenceSpm}} steps per minute.` : '.';
+        const text = result.spoken_response || `You have taken ${{totalPhysicalSteps}} steps, covering ${{totalPhysicalMeters.toFixed(1)}} meters${{spmStr}}`;
+        showUniversalVoiceHUD('Physical Stride Integrator', text, false);
         speakText(text);
         triggerHaptic([50]);
         return;

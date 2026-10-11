@@ -128,6 +128,11 @@ async function runDirectTests() {
       input: 'night vision',
       expectedIntent: 'click_button',
       expectedTargetButton: 'toggle_night_vision'
+    },
+    {
+      label: '24. Steps and Pedometer Query ("How many steps did I walk?")',
+      input: 'how many steps did i walk',
+      expectedIntent: 'steps_query'
     }
   ];
 
