@@ -41,17 +41,18 @@ The Blind AI local backend server is running and ready. Click any of the links b
 6. [Obstacle Danger Rules & Audio Rate-Limiting](#-obstacle-danger-rules--audio-rate-limiting)
 7. [Emergency Speech & Haptic Preemption Flow](#-emergency-speech--haptic-preemption-flow)
 8. [Core Haptics Feedback Profiles](#-core-haptics-feedback-profiles)
-9. [Natural Language Voice Navigation (Gemini AI)](#-natural-language-voice-navigation-gemini-ai)
-10. [Complete 9-Screen Workflow & State Machine](#-complete-9-screen-workflow--state-machine)
-11. [Hardware Compatibility & Fallback Matrix](#-hardware-compatibility--fallback-matrix)
-12. [Accessibility Engineering (WCAG 2.2 AAA)](#-accessibility-engineering-wcag-22-aaa)
-13. [Backend API Reference](#-backend-api-reference)
-14. [Project Directory Layout & Swift-First Architecture](#-project-directory-layout--swift-first-architecture)
-15. [Testing & Verification Suite](#-testing--verification-suite)
-16. [Local Development & Quick Start](#-local-development--quick-start)
-17. [Running the Native iOS Swift App](#-running-the-native-ios-swift-app)
-18. [Troubleshooting & Developer FAQ](#-troubleshooting--developer-faq)
-19. [Strategic Roadmap](#-strategic-roadmap)
+9. [Advanced Spatial Audio, Tactical Radar & Sensory Safety Architecture](#-advanced-spatial-audio-tactical-radar--sensory-safety-architecture)
+10. [Natural Language Voice Navigation (Gemini AI)](#-natural-language-voice-navigation-gemini-ai)
+11. [Complete 9-Screen Workflow & State Machine](#-complete-9-screen-workflow--state-machine)
+12. [Hardware Compatibility & Fallback Matrix](#-hardware-compatibility--fallback-matrix)
+13. [Accessibility Engineering (WCAG 2.2 AAA)](#-accessibility-engineering-wcag-22-aaa)
+14. [Backend API Reference](#-backend-api-reference)
+15. [Project Directory Layout & Swift-First Architecture](#-project-directory-layout--swift-first-architecture)
+16. [Testing & Verification Suite](#-testing--verification-suite)
+17. [Local Development & Quick Start](#-local-development--quick-start)
+18. [Running the Native iOS Swift App](#-running-the-native-ios-swift-app)
+19. [Troubleshooting & Developer FAQ](#-troubleshooting--developer-faq)
+20. [Strategic Roadmap](#-strategic-roadmap)
 
 ---
 
@@ -302,6 +303,101 @@ Blind AI utilizes Apple's `CoreHaptics` and `UIFeedbackGenerator` APIs for tacti
 | **Notice (3.0m)** | `UIImpactFeedbackGenerator(style: .light)` | Subtle 40ms transient tap. | Passive spatial awareness. |
 | **Turn Maneuver** | `UISelectionFeedbackGenerator()` | Double tick: 30ms tap, 40ms pause, 30ms tap. | Signals walking turn point. |
 | **Crosswalk Quiet** | Custom waveform transient | Amber wave cadence: rising crescendo pulse. | Signals entry into active roadway. |
+
+---
+
+## 🎧 Advanced Spatial Audio, Tactical Radar & Sensory Safety Architecture
+
+Blind AI integrates 9 cutting-edge sensory and acoustic guidance subsystems engineered specifically for hands-free, autonomous pedestrian safety:
+
+### 1. WebAudio 3D Binaural Earcons & Proximity Sonar Pings Engine
+- **Spatial Binaural Panning**: Real-time `StereoPannerNode` dynamically projects audio pings into the user's headphones matching the exact lateral lane of obstacles:
+  - Left Lane: Panned $-0.85$
+  - Center Corridor: Panned $0.00$
+  - Right Lane: Panned $+0.85$
+- **Distance-Modulated Carrier Frequency**: Proximity sonification dynamically modulates pitch from $300\text{ Hz}$ (far corridor clearance at $4.0\text{m}$) up to an urgent $880\text{ Hz}$ (immediate hazard at $0.5\text{m}$):
+  $$f(d) = 880 - 145 \cdot d \quad [\text{Hz}]$$
+- **Exponential Ping Cadence Interval**: Decay curve models physical bat-echolocation cadence:
+  $$\Delta t_{\text{ping}} = 220\text{ms} + 240\text{ms} \cdot d$$
+- **Harmonic Earcon Signatures**:
+  - **Arrival Chime**: Ascending 4-tone major chord (`C5 523Hz` → `E5 659Hz` → `G5 784Hz` → `C6 1046Hz`).
+  - **Clear Corridor Chime**: Harmonic 3-tone chime (`C5 523Hz` → `E5 659Hz` → `G5 784Hz`).
+  - **Emergency Hazard Siren**: Alternating dual-frequency alarm (`880Hz` ↔ `440Hz`).
+
+### 2. 180° Tactical Proximity Radar HUD & Multi-Sector Obstacle Sweep
+- **Top-Down Semicircular Canvas Radar**: Rendered on Screen 5 with active sweep beam rotated at $\omega = 0.045\text{ rad/frame}$.
+- **Concentric Metric Range Arcs**: 1-meter, 2-meter, 3-meter, and 4-meter range rings.
+- **Dynamic Blip Projection**: Maps detected entities into polar coordinates:
+  $$x_{\text{blip}} = x_0 + r \cdot \sin(\theta), \quad y_{\text{blip}} = y_0 - r \cdot \cos(\theta)$$
+  Color-coded by proximity: Red (< 1.2m), Amber (1.2m - 2.5m), Emerald (> 2.5m).
+- **Corridor Counter Badge**: Displays real-time obstacle count in forward travel path.
+
+### 3. Audio Beacon & Compass Heading Alignment Guidepost
+- **Spherical Forward Azimuth Waypoint Calculator**: Computes true bearing from user coordinates $(\phi_1, \lambda_1)$ to target waypoint $(\phi_2, \lambda_2)$:
+  $$\theta = \operatorname{atan2}\left(\sin\Delta\lambda \cos\phi_2, \; \cos\phi_1 \sin\phi_2 - \sin\phi_1 \cos\phi_2 \cos\Delta\lambda\right)$$
+- **Heading Deviation Angle**:
+  $$\Delta\theta = (\theta_{\text{waypoint}} - \theta_{\text{device}} + 360^\circ) \bmod 360^\circ$$
+- **Acoustic Guidepost Ticks**:
+  - **On Course ($\pm 20^\circ$)**: Crisp 660 Hz pure sine beacon tick (*"Facing on course. Continue straight."*).
+  - **Off Course**: 330 Hz triangle tone (*"Veering left / right. Bear [X]° to face waypoint."*).
+
+### 4. Client-Side Offline Fuzzy Intent Parser & Extended Natural Queries
+Provides 100% offline dialog resilience if network drops, verified by **26 automated unit tests** (`tests/test_voice_direct.js`):
+
+| Test Case # | Spoken Query Input | Parsed Intent | Action / Spoken Response |
+| :---: | :--- | :--- | :--- |
+| **1-4** | *"Take me to the library"* / *"RTU campus"* | `start_navigation` | Automated GPS routing with metric distance |
+| **5-6** | *"Take me to Old Town"* / *"Take me there"* | `start_navigation` | Auto-GPS routing to nearest accessible point |
+| **7** | *"Where am I?"* | `where_am_i` | Reverse-geocoded street & orientation |
+| **8** | *"Describe what is around me"* | `describe_environment` | Camera perception scene description |
+| **9** | *"Stop navigation"* | `stop` | Halts route & resets guidance |
+| **10** | *"Yes"* / *"Okay"* | `affirmative` | Acknowledges hazard & clears stop lock |
+| **11** | *"Wait"* / *"No"* | `negative` | Holds position & pauses step pacing |
+| **12** | *"Where do I go?"* | `guidance_query` | Steering corridor & forward depth clearance |
+| **13** | *"Is there anything in my way?"* | `obstacle_query` | Lateral corridor obstacle clearance check |
+| **14-16** | *"Is someone on my right / left / approaching?"*| `directional_query` | Lateral sector scan with turn prompt |
+| **17** | *"Am I facing the right way?"* | `heading_query` | Audio beacon compass alignment check |
+| **18** | *"How far am I?"* | `distance_query` | Exact remaining waypoint distance in meters |
+| **19** | *"What street is this?"* | `street_query` | Instant GPS street address announcement |
+| **20** | *"Can I cross?"* | `click_button` | Enters Screen 9 crosswalk quiet mode |
+| **21** | *"Are there stairs?"* | `stairs_query` | Elevation & staircase depth scan ahead |
+| **22** | *"High contrast"* | `click_button` | Toggles sunlight high-contrast mode |
+| **23** | *"Night vision"* | `click_button` | Toggles low-light night-vision filter |
+| **24** | *"How many steps did I walk?"* | `steps_query` | Physical steps, distance walked & cadence |
+| **25** | *"Emergency"* / *"SOS"* / *"Help"* | `emergency_sos` | Triggers Emergency SOS Dispatch overlay |
+| **26** | *"Is it quiet?"* / *"Traffic level"* | `traffic_query` | Reports crosswalk traffic quietness index |
+
+### 5. Dynamic Sunlight Contrast Mode & Night Vision AR Filter
+- **Sunlight High Contrast Mode**: Inverts & applies extreme WCAG AAA 21:1 hyper-contrast on live video feed (`contrast(240%) brightness(130%) grayscale(100%)`) for visibility under direct summer sunlight glare.
+- **Night Vision Edge AR Filter**: Amplifies low-light camera sensitivity (`contrast(260%) brightness(170%) saturate(190%) hue-rotate(90deg)`), highlighting obstacle contours in twilight and darkness.
+- Hands-free voice toggleable via *"High contrast"* or *"Night vision"*.
+
+### 6. Accelerometer Step Detection & Inertial Dead-Reckoning Walking Pace
+- **Physical Step Spike Detection**: Low-pass filter and peak acceleration detector on 3-axis device motion ($A = \sqrt{a_x^2 + a_y^2 + a_z^2} > 11.8\text{ m/s}^2$ with 320ms refractory filter).
+- **Physical Stride Integrator**: Accurately counts real human steps ($0.75\text{m}$ per step), replacing static timers.
+- **Real-Time Cadence & Pace**: Calculates steps per minute (SPM) and metric walking speed ($v = \text{spm} \cdot 0.75 / 60\text{ m/s}$).
+- **Great-Circle Dead-Reckoning Extrapolation**: During GPS urban canyon drift (tall buildings / tunnels), steps extrapolate user latitude and longitude forward along the active waypoint azimuth:
+  $$\phi_{\text{new}} = \arcsin\left(\sin\phi \cos\delta + \cos\phi \sin\delta \cos\theta\right)$$
+  $$\lambda_{\text{new}} = \lambda + \operatorname{atan2}\left(\sin\theta \sin\delta \cos\phi, \; \cos\delta - \sin\phi \sin\phi_{\text{new}}\right)$$
+
+### 7. Emergency Contact & Incident SOS Dispatch System
+- **Voice & Tactile SOS Trigger**: Activated instantly by saying *"Emergency"*, *"Help"*, *"SOS"*, or *"I am lost"*.
+- **Accessible Red Alert Modal**:
+  - Live GPS Coordinates formatted for emergency dispatch: `56.9515° N, 24.0812° E`
+  - Reverse-geocoded street address: `Ķīpsalas iela, Rīga, Latvia`
+  - Incident timestamp & continuous emergency siren earcon.
+  - One-touch emergency call (`tel:112`).
+  - One-touch SMS with pre-formatted Google Maps pin link (`sms:?body=...`).
+- Urgent haptic burst pattern: `[200, 100, 200, 100, 500]`.
+
+### 8. Ambient Traffic Acoustic Frequency Analyzer (50–280 Hz)
+- **Acoustic Low-Frequency Rumble Monitor**: Connects WebAudio `AnalyserNode` (`fftSize = 512`) to evaluate low-frequency acoustic energy ($50\text{ Hz} - 280\text{ Hz}$), characteristic of combustion engines, heavy vehicle thrum, and tire friction on asphalt.
+- **Traffic Quietness Index**: Calculates ambient quietness percentage ($0\% - 100\%$).
+- **Safe Crossing Window Alert**: When quietness exceeds $75\%$ continuously, announces: *"Traffic noise subsided. Safe crossing window detected."* and displays a safe crossing visual indicator.
+
+### 9. Native iOS Swift Services Synchronization
+- **`HapticsService.swift`**: Enhanced with `emergencySOSHaptic()` triple error pulses and `beaconAlignmentHaptic(onCourse:)`.
+- **`ObstacleDangerSystem.swift`**: Synchronized with `crosswalkQuietnessIndex` tracking, `isCrosswalkWindowSafe` state, and binaural audio danger mapping.
 
 ---
 
