@@ -3749,7 +3749,7 @@ html_content = f"""<!DOCTYPE html>
       }}
 
       // 3. Show Universal Voice HUD
-      showUniversalVoiceHUD("Listening...", "Speak now — Say where to go or ask: \"Is someone on my right?\"", true);
+      showUniversalVoiceHUD("Listening...", "Speak now — Say where to go or ask: 'Is someone on my right?'", true);
 
       // 4. Start audio speech capture
       startVoiceCapture();
