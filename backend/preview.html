@@ -3309,6 +3309,9 @@
       } else if (buttonId === 'toggle_camera') {
         flashElement(document.getElementById('btn-toggle-camera'));
         toggleCameraFeed();
+      } else if (buttonId === 'crosswalk_mode') {
+        flashElement(document.getElementById('btn-crosswalk-mode'));
+        setTimeout(() => navigateTo('crosswalkSafety'), 400);
       } else if (buttonId === 'stop_route') {
         flashElement(document.getElementById('btn-stop-route') || document.getElementById('btn-nav-back'));
         stopNavigationRoute();
@@ -3490,6 +3493,51 @@
           confidence: 0.99
         };
       }
+      // Distance remaining query
+      if (/^(how far am i|how far|distance left|how many meters|remaining distance|how much distance|how far to go)$/i.test(cleaned)) {
+        const distStr = currentDistance ? `${currentDistance} meters remaining on current route step.` : "Route active. Keep walking along pathway.";
+        return {
+          intent: "distance_query",
+          action: "distance_query",
+          spoken_response: distStr,
+          confidence: 0.99
+        };
+      }
+
+      // Current street query
+      if (/^(what street is this|which street|what street am i on|current street|name of street|where is this street)$/i.test(cleaned)) {
+        const stStr = userGps.street ? `You are on ${userGps.street}, ${userGps.city || ''}.` : "Detecting street name via GPS.";
+        return {
+          intent: "street_query",
+          action: "street_query",
+          spoken_response: stStr,
+          confidence: 0.99
+        };
+      }
+
+      // Crosswalk query
+      if (/^(can i cross|is it safe to cross|crosswalk|pedestrian crossing|cross the street)$/i.test(cleaned)) {
+        return {
+          intent: "click_button",
+          target_button: "crosswalk_mode",
+          action: "crosswalk_mode",
+          spoken_response: "Entering crosswalk quiet mode. Listening for traffic sounds.",
+          confidence: 0.99
+        };
+      }
+
+      // Stairs / Steps query
+      if (/^(is there stairs|are there stairs|are there steps|any stairs|staircase)$/i.test(cleaned)) {
+        const stairsObj = lastLiveDetections.find(o => o.label.toLowerCase().includes('stair'));
+        const spoken = stairsObj ? `Warning: Stairs detected directly ahead, ${stairsObj.distance.toFixed(1)} meters.` : "No stairs detected in immediate camera view. Ground level is clear.";
+        return {
+          intent: "stairs_query",
+          action: "stairs_query",
+          spoken_response: spoken,
+          confidence: 0.99
+        };
+      }
+
       if (/^(settings|open settings|audio settings|preferences)$/i.test(cleaned)) {
         return { intent: "click_button", target_button: "settings", action: "click_button", spoken_response: "Opening settings.", confidence: 0.99 };
       }
@@ -4141,6 +4189,31 @@
         showUniversalVoiceHUD('Heading Guidepost', headingCheck.text, false);
         speakText(headingCheck.text);
         triggerHaptic([60, 40]);
+        return;
+      }
+
+      // 3b. Extended Natural Query Dialogs (Distance, Street, Stairs)
+      if (result.intent === 'distance_query' || result.action === 'distance_query') {
+        const distStr = currentDistance ? `${currentDistance} meters remaining on current route step.` : 'Route active. Keep walking along pathway.';
+        const text = result.spoken_response || distStr;
+        showUniversalVoiceHUD('Distance Remaining', text, false);
+        speakText(text);
+        triggerHaptic([50]);
+        return;
+      }
+      if (result.intent === 'street_query' || result.action === 'street_query') {
+        const stStr = userGps.street ? `You are on ${userGps.street}, ${userGps.city || ''}` : 'Detecting current street location via GPS.';
+        const text = result.spoken_response || stStr;
+        showUniversalVoiceHUD('Current Street', text, false);
+        speakText(text);
+        triggerHaptic([50]);
+        return;
+      }
+      if (result.intent === 'stairs_query' || result.action === 'stairs_query') {
+        const text = result.spoken_response || 'Scanning path ahead for stairs or elevation changes.';
+        showUniversalVoiceHUD('Stairs / Elevation Check', text, false);
+        speakText(text);
+        triggerHaptic([50]);
         return;
       }
 

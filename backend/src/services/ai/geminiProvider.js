@@ -464,6 +464,52 @@ Rules:
       };
     }
 
+    // 5g. Distance remaining query
+    if (/^(how far am i|how far|distance left|how many meters|remaining distance|how much distance|how far to go)$/i.test(cleaned)) {
+      return {
+        intent: "distance_query",
+        action: "distance_query",
+        spoken_response: "Route active. Keep walking along pathway.",
+        confidence: 0.99,
+        provider: `${this.name} (Navigation Telemetry Match)`
+      };
+    }
+
+    // 5h. Current street query
+    if (/^(what street is this|which street|what street am i on|current street|name of street|where is this street)$/i.test(cleaned)) {
+      return {
+        intent: "street_query",
+        action: "street_query",
+        spoken_response: "Checking current street name via GPS geocoder.",
+        confidence: 0.99,
+        provider: `${this.name} (Location Geocoder Match)`
+      };
+    }
+
+    // 5i. Crosswalk query
+    if (/^(can i cross|is it safe to cross|crosswalk|pedestrian crossing|cross the street)$/i.test(cleaned)) {
+      return {
+        intent: "click_button",
+        target_button: "crosswalk_mode",
+        button_id: "crosswalk_mode",
+        action: "crosswalk_mode",
+        spoken_response: "Entering crosswalk quiet mode. Listening for traffic sounds.",
+        confidence: 0.99,
+        provider: `${this.name} (Crosswalk Assistant Match)`
+      };
+    }
+
+    // 5j. Stairs / Steps query
+    if (/^(is there stairs|are there stairs|are there steps|any stairs|staircase)$/i.test(cleaned)) {
+      return {
+        intent: "stairs_query",
+        action: "stairs_query",
+        spoken_response: "Scanning path ahead for stairs or elevation changes.",
+        confidence: 0.99,
+        provider: `${this.name} (Obstacle Depth Match)`
+      };
+    }
+
     // 6. Settings
     if (/^(settings|open settings|audio settings|preferences)$/i.test(cleaned)) {
       return {

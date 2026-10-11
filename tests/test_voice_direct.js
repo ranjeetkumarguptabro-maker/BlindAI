@@ -96,6 +96,26 @@ async function runDirectTests() {
       label: '17. Heading Alignment Query ("Am I facing the right way?")',
       input: 'am i facing the right way',
       expectedIntent: 'heading_query'
+    },
+    {
+      label: '18. Distance Remaining Query ("How far am I?")',
+      input: 'how far am i',
+      expectedIntent: 'distance_query'
+    },
+    {
+      label: '19. Current Street Query ("What street is this?")',
+      input: 'what street is this',
+      expectedIntent: 'street_query'
+    },
+    {
+      label: '20. Crosswalk Safety Query ("Can I cross?")',
+      input: 'can i cross',
+      expectedIntent: 'click_button'
+    },
+    {
+      label: '21. Stairs Ahead Query ("Are there stairs?")',
+      input: 'are there stairs',
+      expectedIntent: 'stairs_query'
     }
   ];
 
