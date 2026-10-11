@@ -1316,7 +1316,30 @@ html_content = f"""<!DOCTYPE html>
     let isCocoLoading = false;
     let isDetectingFrame = false;
     let lastLiveDetections = [];
+    let trackedSmoothedObjects = [];
     let lastSceneDescription = "";
+
+    const metricObjectHeights = {{
+      'person': 1.70, 'bicycle': 1.05, 'car': 1.50, 'motorcycle': 1.15,
+      'bus': 3.20, 'truck': 2.80, 'traffic light': 0.90, 'stop sign': 0.75,
+      'fire hydrant': 0.75, 'bench': 0.85, 'dog': 0.55, 'cat': 0.30,
+      'backpack': 0.45, 'umbrella': 0.85, 'handbag': 0.35, 'suitcase': 0.60,
+      'bottle': 0.25, 'chair': 0.85, 'couch': 0.85, 'potted plant': 0.70,
+      'dining table': 0.75, 'tv': 0.65, 'laptop': 0.25, 'cell phone': 0.15,
+      'door': 2.05, 'stairs': 1.50, 'pole': 2.20, 'default': 1.40
+    }};
+
+    function computeBoundingBoxIoU(boxA, boxB) {{
+      const xA = Math.max(boxA.x, boxB.x);
+      const yA = Math.max(boxA.y, boxB.y);
+      const xB = Math.min(boxA.x + boxA.w, boxB.x + boxB.w);
+      const yB = Math.min(boxA.y + boxA.h, boxB.y + boxB.h);
+      const interArea = Math.max(0, xB - xA) * Math.max(0, yB - yA);
+      if (interArea <= 0) return 0;
+      const areaA = boxA.w * boxA.h;
+      const areaB = boxB.w * boxB.h;
+      return interArea / (areaA + areaB - interArea);
+    }}
 
     let currentDestinationTitle = "Selected Destination";
     let currentDestinationSub = "Pedestrian Walkway • 0.24 km • 3 min • 4 waypoints";
@@ -2590,21 +2613,38 @@ html_content = f"""<!DOCTYPE html>
           const predictions = await cocoSsdModel.detect(video);
           const vW = video.videoWidth || 640;
           const vH = video.videoHeight || 480;
-          const scaleX = canvas.width / vW;
-          const scaleY = canvas.height / vH;
+          const cW = canvas.width;
+          const cH = canvas.height;
 
-          activeObjects = predictions.map(p => {{
-            const boxX = p.bbox[0] * scaleX;
-            const boxY = p.bbox[1] * scaleY;
-            const boxW = p.bbox[2] * scaleX;
-            const boxH = p.bbox[3] * scaleY;
+          // Invariant aspect-ratio preserving object-cover coordinate mapping
+          const scale = Math.max(cW / vW, cH / vH);
+          const scaledW = vW * scale;
+          const scaledH = vH * scale;
+          const offsetX = (cW - scaledW) / 2;
+          const offsetY = (cH - scaledH) / 2;
+
+          // Calibrated pinhole camera focal length in pixels (standard mobile camera 68° vFOV)
+          const focalLengthPx = vH * 1.08;
+
+          const rawDetections = predictions.map(p => {{
+            const boxX = p.bbox[0] * scale + offsetX;
+            const boxY = p.bbox[1] * scale + offsetY;
+            const boxW = p.bbox[2] * scale;
+            const boxH = p.bbox[3] * scale;
             const centerX = boxX + boxW / 2;
-            const heightRatio = boxH / canvas.height;
-            const estimatedDist = Math.max(0.4, Math.min(8.0, parseFloat((1.1 / (heightRatio + 0.05)).toFixed(1))));
-            const lane = centerX < canvas.width * 0.35 ? 'left' : (centerX > canvas.width * 0.65 ? 'right' : 'center');
+
+            // Physical metric distance via calibrated pinhole camera optics:
+            // Distance = (focalLengthPx * realWorldHeight) / objectPixelHeightInVideo
+            const rawBoxH = Math.max(12, p.bbox[3]);
+            const nominalHeight = metricObjectHeights[p.class.toLowerCase()] || metricObjectHeights['default'];
+            const calculatedDist = (focalLengthPx * nominalHeight) / rawBoxH;
+            const estimatedDist = Math.max(0.35, Math.min(10.0, parseFloat(calculatedDist.toFixed(1))));
+
+            const lane = centerX < cW * 0.33 ? 'left' : (centerX > cW * 0.67 ? 'right' : 'center');
 
             return {{
               label: p.class.charAt(0).toUpperCase() + p.class.slice(1),
+              rawClass: p.class.toLowerCase(),
               icon: getObjectIcon(p.class),
               x: boxX,
               y: boxY,
@@ -2615,6 +2655,41 @@ html_content = f"""<!DOCTYPE html>
               lane: lane
             }};
           }});
+
+          // Temporal Exponential Moving Average (EMA) smoothing using IoU tracking
+          const alpha = 0.65;
+          const smoothedObjects = [];
+
+          rawDetections.forEach(raw => {{
+            let bestMatch = null;
+            let bestIoU = 0.28;
+
+            trackedSmoothedObjects.forEach(prev => {{
+              if (prev.label === raw.label) {{
+                const iou = computeBoundingBoxIoU(raw, prev);
+                if (iou > bestIoU) {{
+                  bestIoU = iou;
+                  bestMatch = prev;
+                }}
+              }}
+            }});
+
+            if (bestMatch) {{
+              smoothedObjects.push({{
+                ...raw,
+                x: bestMatch.x * (1 - alpha) + raw.x * alpha,
+                y: bestMatch.y * (1 - alpha) + raw.y * alpha,
+                w: bestMatch.w * (1 - alpha) + raw.w * alpha,
+                h: bestMatch.h * (1 - alpha) + raw.h * alpha,
+                distance: parseFloat((bestMatch.distance * (1 - alpha) + raw.distance * alpha).toFixed(1))
+              }});
+            }} else {{
+              smoothedObjects.push(raw);
+            }}
+          }});
+
+          trackedSmoothedObjects = smoothedObjects;
+          activeObjects = smoothedObjects;
           lastLiveDetections = activeObjects;
         }} catch(err) {{
           console.warn('[YOLO] Detection cycle error:', err);
