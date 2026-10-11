@@ -3459,6 +3459,17 @@
         };
       }
 
+      // 5f. Heading & Audio Guidepost Compass Alignment
+      if (/^(am i facing the right way|which way should i face|which way to face|check heading|heading check|is my heading right|am i on course|check compass|compass check)$/i.test(cleaned) ||
+          /(facing the right way|on course|which way to face)/i.test(cleaned)) {
+        return {
+          intent: "heading_query",
+          action: "check_heading",
+          spoken_response: "Checking compass orientation relative to route path.",
+          confidence: 0.99
+        };
+      }
+
       if (/^(where do i go|where to go|where should i go|which way|which direction|where to walk|guide me|navigate me)$/i.test(cleaned)) {
         const dir = currentSteeringDirection || 'WALK STRAIGHT';
         const depth = currentLidarDepthAhead ? `${currentLidarDepthAhead.toFixed(1)} meters` : 'path is clear';
@@ -4124,7 +4135,16 @@
         return;
       }
 
-      // 3. Automated GPS Navigation Trigger: ANY spoken destination or start navigation command!
+      // 3. Heading & Compass Audio Guidepost Alignment
+      if (result.intent === 'heading_query' || result.action === 'check_heading') {
+        const headingCheck = checkAudioCompassHeadingAlignment(true);
+        showUniversalVoiceHUD('Heading Guidepost', headingCheck.text, false);
+        speakText(headingCheck.text);
+        triggerHaptic([60, 40]);
+        return;
+      }
+
+      // 4. Automated GPS Navigation Trigger: ANY spoken destination or start navigation command!
       if (result.trigger_auto_gps || result.intent === 'start_navigation' || result.destination || targetBtn === 'start_navigation') {
         hideUniversalVoiceHUD();
         handleAutoGpsNavigation(result.destination, result.spoken_response);
@@ -4429,6 +4449,71 @@
           osc.stop(now + idx * 0.10 + 0.38);
         });
       }
+    }
+
+    function playAudioBeaconTick(onCourse = true) {
+      const ctx = getAudioContext();
+      if (!ctx) return;
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.type = onCourse ? 'sine' : 'triangle';
+      osc.frequency.setValueAtTime(onCourse ? 660 : 330, now);
+      gain.gain.setValueAtTime(0.001, now);
+      gain.gain.exponentialRampToValueAtTime(0.12, now + 0.015);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.07);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.08);
+    }
+
+    function computeTargetWaypointBearing() {
+      const wp = currentWaypoints[currentWaypointIdx];
+      if (!wp || typeof wp.lat === 'undefined' || typeof wp.lon === 'undefined') {
+        if (activeDestination && activeDestination.lat && activeDestination.lon) {
+          const dLon = (activeDestination.lon - userGps.lon) * Math.PI / 180;
+          const lat1 = userGps.lat * Math.PI / 180;
+          const lat2 = activeDestination.lat * Math.PI / 180;
+          const y = Math.sin(dLon) * Math.cos(lat2);
+          const x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLon);
+          return Math.round((Math.atan2(y, x) * 180 / Math.PI + 360) % 360);
+        }
+        return 90;
+      }
+      const dLon = (wp.lon - userGps.lon) * Math.PI / 180;
+      const lat1 = userGps.lat * Math.PI / 180;
+      const lat2 = wp.lat * Math.PI / 180;
+      const y = Math.sin(dLon) * Math.cos(lat2);
+      const x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLon);
+      return Math.round((Math.atan2(y, x) * 180 / Math.PI + 360) % 360);
+    }
+
+    function checkAudioCompassHeadingAlignment(playChime = true) {
+      const targetBearing = computeTargetWaypointBearing();
+      if (targetBearing === null) return { status: 'unknown', text: 'No active route bearing' };
+
+      const currentHeading = userGps.heading || 0;
+      let diff = (targetBearing - currentHeading + 360) % 360;
+      if (diff > 180) diff -= 360;
+
+      let guidance = "";
+      let onCourse = false;
+
+      if (Math.abs(diff) <= 20) {
+        guidance = `Facing on course (${currentHeading}°). Waypoint is at ${targetBearing}°. Continue straight.`;
+        onCourse = true;
+        if (playChime) playAudioBeaconTick(true);
+      } else if (diff > 20) {
+        guidance = `Veering left. Bear right ${Math.round(diff)}° to face waypoint (${targetBearing}°).`;
+        if (playChime) playAudioBeaconTick(false);
+      } else {
+        guidance = `Veering right. Bear left ${Math.round(Math.abs(diff))}° to face waypoint (${targetBearing}°).`;
+        if (playChime) playAudioBeaconTick(false);
+      }
+      return { status: onCourse ? 'on_course' : 'off_course', text: guidance, targetBearing, diff };
     }
 
     // Speech Synthesizer & Accessibility Live Announcer helper

@@ -91,6 +91,11 @@ async function runDirectTests() {
       label: '16. Approaching Person Query ("Is someone approaching?")',
       input: 'is someone approaching',
       expectedIntent: 'directional_query'
+    },
+    {
+      label: '17. Heading Alignment Query ("Am I facing the right way?")',
+      input: 'am i facing the right way',
+      expectedIntent: 'heading_query'
     }
   ];
 

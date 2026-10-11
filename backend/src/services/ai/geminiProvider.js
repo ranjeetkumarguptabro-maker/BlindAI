@@ -450,6 +450,20 @@ Rules:
       };
     }
 
+    // 5f. Heading & Audio Guidepost Compass Alignment
+    if (/^(am i facing the right way|which way should i face|which way to face|check heading|heading check|is my heading right|am i on course|check compass|compass check)$/i.test(cleaned) ||
+        /\b(facing the right way|on course|which way to face)\b/i.test(cleaned)) {
+      return {
+        intent: "heading_query",
+        target_button: "nav_heading_check",
+        button_id: "nav_heading_check",
+        action: "check_heading",
+        spoken_response: "Checking compass orientation relative to route path.",
+        confidence: 0.99,
+        provider: `${this.name} (Compass Guidepost Match)`
+      };
+    }
+
     // 6. Settings
     if (/^(settings|open settings|audio settings|preferences)$/i.test(cleaned)) {
       return {
