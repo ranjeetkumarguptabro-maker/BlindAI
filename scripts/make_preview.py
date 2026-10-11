@@ -2988,6 +2988,13 @@ html_content = f"""<!DOCTYPE html>
       const statEl = document.getElementById('nav-corridor-status');
       const depthEl = document.getElementById('nav-depth-meters');
       const lanesEl = document.getElementById('nav-lateral-lanes');
+      const cameraPill = document.getElementById('camera-status-pill');
+
+      if (cameraPill && isRealCameraActive) {{
+        cameraPill.innerText = activeObjects.length > 0 
+          ? `YOLO AR: ${{activeObjects.length}} object${{activeObjects.length > 1 ? 's' : ''}} tracked`
+          : `YOLO AR: Scanning active`;
+      }}
       if (arrEl) arrEl.innerText = directionArrow;
       if (statEl) {{
         statEl.innerText = directionStatus;
@@ -2998,8 +3005,8 @@ html_content = f"""<!DOCTYPE html>
       }}
       if (lanesEl) {{
         lanesEl.innerText = activeObjects.length > 0 
-          ? `Detected: ${{activeObjects.map(o => o.label).join(', ')}}`
-          : 'Optical View: Clear Ahead';
+          ? `${{activeObjects.length}} visible: ${{activeObjects.map(o => o.label).slice(0, 2).join(', ')}}${{activeObjects.length > 2 ? '...' : ''}}`
+          : 'Corridor: Clear Ahead';
       }}
       if (hudEl) hudEl.className = `w-full mt-2 py-2 px-3 rounded-2xl bg-black/85 backdrop-blur-md border ${{borderClass}} text-white shadow-xl flex items-center justify-between`;
 
@@ -3009,7 +3016,9 @@ html_content = f"""<!DOCTYPE html>
       const yoloCount = document.getElementById('nav-yolo-count');
 
       if (yoloCount) {{
-        yoloCount.innerText = `YOLO: ${{activeObjects.length}} objects`;
+        yoloCount.innerText = activeObjects.length > 0 
+          ? `YOLO AR: ${{activeObjects.length}} tracked (${{activeObjects[0].label}} ${{activeObjects[0].distance.toFixed(1)}}m)` 
+          : `YOLO AR: Active • Pathway Clear`;
       }}
 
       if (badge && pathText) {{
