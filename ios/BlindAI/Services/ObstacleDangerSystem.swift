@@ -12,6 +12,17 @@ public final class ObstacleDangerSystem: ObservableObject {
     @Published public private(set) var lastSpokenAlert: String = ""
     @Published public private(set) var isAlertActive: Bool = false
     
+    // Crosswalk Acoustic Quietness Index (50-280Hz vehicle traffic analysis)
+    @Published public private(set) var crosswalkQuietnessIndex: Int = 82
+    @Published public private(set) var isCrosswalkWindowSafe: Bool = true
+    
+    public func updateCrosswalkAcousticReading(quietnessPercentage: Int) {
+        DispatchQueue.main.async {
+            self.crosswalkQuietnessIndex = quietnessPercentage
+            self.isCrosswalkWindowSafe = quietnessPercentage >= 75
+        }
+    }
+    
     // Services
     private let speechService = SpeechService.shared
     private let hapticsService = HapticsService.shared

@@ -7,6 +7,8 @@ public protocol HapticsServiceProtocol {
     func turnLeftHaptic()
     func turnRightHaptic()
     func warningHaptic()
+    func emergencySOSHaptic()
+    func beaconAlignmentHaptic(onCourse: Bool)
 }
 
 public final class HapticsService: HapticsServiceProtocol {
@@ -63,5 +65,25 @@ public final class HapticsService: HapticsServiceProtocol {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
             generator.notificationOccurred(.error)
         }
+    }
+    
+    /// Emergency SOS pulse: High-priority repetitive triple-pulse
+    public func emergencySOSHaptic() {
+        let generator = UINotificationFeedbackGenerator()
+        generator.prepare()
+        generator.notificationOccurred(.error)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+            generator.notificationOccurred(.error)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+                generator.notificationOccurred(.error)
+            }
+        }
+    }
+    
+    /// Audio beacon compass alignment tick haptic
+    public func beaconAlignmentHaptic(onCourse: Bool) {
+        let generator = UIImpactFeedbackGenerator(style: onCourse ? .light : .heavy)
+        generator.prepare()
+        generator.impactOccurred()
     }
 }
