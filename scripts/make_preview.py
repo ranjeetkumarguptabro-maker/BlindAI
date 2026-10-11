@@ -734,6 +734,18 @@ html_content = f"""<!DOCTYPE html>
                   <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Perception</span>
                   <span id="nav-lateral-lanes" class="text-[10px] font-mono font-bold text-emerald-400 whitespace-nowrap">Optical View: Clear Ahead</span>
                 </div>
+              <!-- Real-Time Top-Down Proximity Radar HUD -->
+              <div id="nav-mini-radar-container" class="w-full py-1.5 px-3 rounded-2xl bg-black/85 backdrop-blur-md border border-white/20 text-white shadow-xl flex items-center justify-between">
+                <div class="flex items-center space-x-2.5 min-w-0 flex-1">
+                  <canvas id="nav-radar-canvas" width="104" height="54" class="rounded-lg bg-black/70 border border-white/10 shrink-0"></canvas>
+                  <div class="flex flex-col text-left min-w-0 flex-1 pr-2">
+                    <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Top-Down 180° Radar</span>
+                    <span id="nav-radar-summary" class="text-[11px] font-bold text-emerald-300 truncate">Clear corridor ahead</span>
+                  </div>
+                </div>
+                <div class="flex items-center gap-1 shrink-0">
+                  <span id="nav-radar-count-badge" class="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">0 in path</span>
+                </div>
               </div>
             </div>
 
@@ -3038,6 +3050,9 @@ html_content = f"""<!DOCTYPE html>
       // Zero cartoon painted road! Pure real-world camera view.
       // Bounding boxes for genuine detected objects have already been drawn above.
 
+      // Update 180° Top-Down Proximity Radar
+      drawProximityRadar(activeObjects);
+
       // Real-Time Binaural Sonar Proximity Ping (Non-Verbal Spatial Awareness)
       if (closestCenter && closestCenter.distance <= 3.2) {{
         const pingCadence = closestCenter.distance < 1.0 ? 320 : (closestCenter.distance < 2.0 ? 600 : 950);
@@ -3059,6 +3074,107 @@ html_content = f"""<!DOCTYPE html>
           updateLidarState(closestCenter.distance, closestCenter.label, closestCenter.lane, false);
           navigateTo('obstacleAlert');
         }}
+      }}
+    }}
+
+    let radarSweepAngle = 0;
+    function drawProximityRadar(activeObjects) {{
+      const canvas = document.getElementById('nav-radar-canvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const w = canvas.width;
+      const h = canvas.height;
+      const originX = w / 2;
+      const originY = h - 4;
+      const maxRadius = 46;
+
+      ctx.clearRect(0, 0, w, h);
+
+      // Radar Range Arcs (1m, 2m, 3.5m)
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+      ctx.lineWidth = 1;
+      [14, 28, maxRadius].forEach(r => {{
+        ctx.beginPath();
+        ctx.arc(originX, originY, r, Math.PI, 2 * Math.PI);
+        ctx.stroke();
+      }});
+
+      // Sector dividing lines (-45°, 0°, +45°)
+      [-Math.PI * 0.75, -Math.PI * 0.5, -Math.PI * 0.25].forEach(ang => {{
+        ctx.beginPath();
+        ctx.moveTo(originX, originY);
+        ctx.lineTo(originX + maxRadius * Math.cos(ang), originY + maxRadius * Math.sin(ang));
+        ctx.stroke();
+      }});
+
+      // Radar Sweep Line
+      radarSweepAngle += 0.08;
+      if (radarSweepAngle > Math.PI) radarSweepAngle = 0;
+      const sweepRad = Math.PI + radarSweepAngle;
+      ctx.strokeStyle = 'rgba(0, 245, 155, 0.5)';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(originX, originY);
+      ctx.lineTo(originX + maxRadius * Math.cos(sweepRad), originY + maxRadius * Math.sin(sweepRad));
+      ctx.stroke();
+
+      // Plot detected objects as glowing blips
+      let hazardCount = 0;
+      let closestInRadar = null;
+
+      activeObjects.forEach(obj => {{
+        // Map distance [0.4m .. 4.0m] to radial radius [8 .. maxRadius]
+        const rNorm = Math.min(1.0, Math.max(0.12, (obj.distance - 0.3) / 3.7));
+        const rPx = rNorm * maxRadius;
+
+        // Map lane / X coordinate to polar angle in semi-circle
+        let angle = Math.PI * 1.5;
+        if (obj.lane === 'left') angle = Math.PI * 1.22;
+        if (obj.lane === 'right') angle = Math.PI * 1.78;
+
+        const blipX = originX + rPx * Math.cos(angle);
+        const blipY = originY + rPx * Math.sin(angle);
+
+        const blipColor = obj.distance < 1.5 ? '#FF1E44' : (obj.distance < 2.8 ? '#FFB703' : '#00F59B');
+        if (obj.distance < 2.5) hazardCount++;
+        if (!closestInRadar || obj.distance < closestInRadar.distance) closestInRadar = obj;
+
+        // Blip outer glow
+        ctx.beginPath();
+        ctx.arc(blipX, blipY, 4.5, 0, Math.PI * 2);
+        ctx.fillStyle = blipColor;
+        ctx.fill();
+
+        // Blip white core
+        ctx.beginPath();
+        ctx.arc(blipX, blipY, 2, 0, Math.PI * 2);
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fill();
+      }});
+
+      // User Origin Indicator
+      ctx.fillStyle = '#FFFFFF';
+      ctx.beginPath();
+      ctx.arc(originX, originY, 3, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Update Radar Summary UI
+      const sumEl = document.getElementById('nav-radar-summary');
+      const countEl = document.getElementById('nav-radar-count-badge');
+      if (sumEl) {{
+        if (closestInRadar) {{
+          sumEl.innerText = `${{closestInRadar.label}} ${{closestInRadar.distance.toFixed(1)}}m (${{closestInRadar.lane}})`;
+          sumEl.className = 'text-[11px] font-bold truncate ' + (closestInRadar.distance < 1.5 ? 'text-red-400' : (closestInRadar.distance < 2.8 ? 'text-amber-300' : 'text-emerald-300'));
+        }} else {{
+          sumEl.innerText = 'Clear 180° field ahead';
+          sumEl.className = 'text-[11px] font-bold text-emerald-300 truncate';
+        }}
+      }}
+      if (countEl) {{
+        countEl.innerText = `${{activeObjects.length}} in scan`;
+        countEl.className = activeObjects.length > 0
+          ? 'px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30'
+          : 'px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30';
       }}
     }}
 
