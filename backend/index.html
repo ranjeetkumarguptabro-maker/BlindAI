@@ -2415,15 +2415,86 @@
         if (currentLidarLane === 'right') boxX = canvas.width * 0.43;
         const boxY = canvas.height * 0.38;
 
-        ctx.strokeStyle = currentLidarDistance < 0.75 ? '#DC2626' : (currentLidarDistance < 1.45 ? '#EA580C' : '#D97706');
-        ctx.lineWidth = 3;
-        ctx.strokeRect(boxX, boxY, boxWidth, boxHeight);
+        const neonColor = currentLidarDistance < 0.75 ? '#FF1E44' : (currentLidarDistance < 1.45 ? '#FFB703' : '#00F59B');
+        const tintFill = currentLidarDistance < 0.75 ? 'rgba(255, 30, 68, 0.18)' : (currentLidarDistance < 1.45 ? 'rgba(255, 183, 3, 0.15)' : 'rgba(0, 245, 155, 0.12)');
 
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.85)';
-        ctx.fillRect(boxX, boxY - 22, boxWidth, 22);
+        // Holographic Silhouette Fill
+        ctx.fillStyle = tintFill;
+        if (ctx.roundRect) {
+          ctx.beginPath();
+          ctx.roundRect(boxX, boxY, boxWidth, boxHeight, 10);
+          ctx.fill();
+        } else {
+          ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
+        }
+
+        // WCAG AAA Dual Contrast Box Outline
+        ctx.strokeStyle = 'rgba(0, 0, 0, 0.95)';
+        ctx.lineWidth = 6;
+        if (ctx.roundRect) {
+          ctx.beginPath();
+          ctx.roundRect(boxX, boxY, boxWidth, boxHeight, 10);
+          ctx.stroke();
+        } else {
+          ctx.strokeRect(boxX, boxY, boxWidth, boxHeight);
+        }
+
+        ctx.strokeStyle = neonColor;
+        ctx.lineWidth = 3.5;
+        if (ctx.roundRect) {
+          ctx.beginPath();
+          ctx.roundRect(boxX, boxY, boxWidth, boxHeight, 10);
+          ctx.stroke();
+        } else {
+          ctx.strokeRect(boxX, boxY, boxWidth, boxHeight);
+        }
+
+        // Corner Target Reticles
+        const cornerLen = 14;
+        const reticles = [
+          [[boxX, boxY + cornerLen], [boxX, boxY], [boxX + cornerLen, boxY]],
+          [[boxX + boxWidth - cornerLen, boxY], [boxX + boxWidth, boxY], [boxX + boxWidth, boxY + cornerLen]],
+          [[boxX, boxY + boxHeight - cornerLen], [boxX, boxY + boxHeight], [boxX + cornerLen, boxY + boxHeight]],
+          [[boxX + boxWidth - cornerLen, boxY + boxHeight], [boxX + boxWidth, boxY + boxHeight], [boxX + boxWidth, boxY + boxHeight - cornerLen]]
+        ];
+        reticles.forEach(pts => {
+          ctx.strokeStyle = neonColor;
+          ctx.lineWidth = 4;
+          ctx.beginPath();
+          ctx.moveTo(pts[0][0], pts[0][1]);
+          ctx.lineTo(pts[1][0], pts[1][1]);
+          ctx.lineTo(pts[2][0], pts[2][1]);
+          ctx.stroke();
+        });
+
+        // High-Contrast Sunlight-Legible HUD Badge Pill
+        const pillText = `${currentLidarObject} • ${currentLidarDistance.toFixed(1)}m (98% conf)`;
+        ctx.font = 'bold 12px system-ui, -apple-system, sans-serif';
+        const pillW = Math.max(140, ctx.measureText(pillText).width + 24);
+        const pillH = 26;
+        const pillY = Math.max(6, boxY - pillH - 4);
+
+        ctx.fillStyle = 'rgba(10, 15, 24, 0.94)';
+        if (ctx.roundRect) {
+          ctx.beginPath();
+          ctx.roundRect(boxX, pillY, pillW, pillH, 8);
+          ctx.fill();
+        } else {
+          ctx.fillRect(boxX, pillY, pillW, pillH);
+        }
+
+        ctx.strokeStyle = neonColor;
+        ctx.lineWidth = 2;
+        if (ctx.roundRect) {
+          ctx.beginPath();
+          ctx.roundRect(boxX, pillY, pillW, pillH, 8);
+          ctx.stroke();
+        } else {
+          ctx.strokeRect(boxX, pillY, pillW, pillH);
+        }
+
         ctx.fillStyle = '#FFFFFF';
-        ctx.font = 'bold 11px sans-serif';
-        ctx.fillText(`${currentLidarObject} • ${currentLidarDistance.toFixed(1)}m (98% conf)`, boxX + 6, boxY - 6);
+        ctx.fillText(pillText, boxX + 10, pillY + 17);
       }
     }
 
@@ -2701,68 +2772,148 @@
         activeObjects = [];
       }
 
-      // Render YOLO bounding boxes & labels
+      // Render Ultra-High Visibility AR YOLO Bounding Boxes & High-Contrast Badges
       activeObjects.forEach(obj => {
-        let strokeColor = '#10B981'; // safe green
-        let tagBg = 'rgba(16, 185, 129, 0.9)';
-        if (obj.distance < 0.75) {
-          strokeColor = '#DC2626'; // critical red
-          tagBg = 'rgba(220, 38, 38, 0.95)';
-        } else if (obj.distance < 1.5) {
-          strokeColor = '#EF4444'; // danger red
-          tagBg = 'rgba(239, 68, 68, 0.9)';
-        } else if (obj.distance < 2.5) {
-          strokeColor = '#F59E0B'; // caution amber
-          tagBg = 'rgba(245, 158, 11, 0.9)';
+        // Color Matrix calibrated for direct outdoor sunlight & low vision visibility
+        let neonColor = '#00F59B'; // Ultra-vivid neon emerald
+        let tintFill = 'rgba(0, 245, 155, 0.12)';
+        let badgeSectorBg = '#059669';
+
+        if (obj.distance < 1.5) {
+          neonColor = '#FF1E44'; // Ultra-vivid laser crimson
+          tintFill = 'rgba(255, 30, 68, 0.18)';
+          badgeSectorBg = '#DC2626';
+        } else if (obj.distance < 2.8) {
+          neonColor = '#FFB703'; // Ultra-vivid laser amber
+          tintFill = 'rgba(255, 183, 3, 0.15)';
+          badgeSectorBg = '#D97706';
         }
 
-        // Bounding Box
-        ctx.strokeStyle = strokeColor;
-        ctx.lineWidth = obj.distance < 1.5 ? 3 : 2;
+        const cornerLen = Math.min(22, Math.max(12, obj.w * 0.22));
+
+        // 1. Perspective Ground Contact Projection Ellipse (Floor placement)
+        const groundCenterX = obj.x + obj.w / 2;
+        const groundCenterY = obj.y + obj.h;
+        const groundRadiusX = Math.max(16, obj.w * 0.42);
+        const groundRadiusY = Math.max(6, obj.w * 0.12);
+
+        ctx.save();
+        ctx.beginPath();
+        ctx.ellipse(groundCenterX, groundCenterY, groundRadiusX, groundRadiusY, 0, 0, Math.PI * 2);
+        ctx.fillStyle = tintFill;
+        ctx.fill();
+        ctx.lineWidth = 2.5;
+        ctx.strokeStyle = neonColor;
+        ctx.stroke();
+        ctx.restore();
+
+        // 2. Holographic Silhouette Fill
+        ctx.fillStyle = tintFill;
         if (ctx.roundRect) {
           ctx.beginPath();
-          ctx.roundRect(obj.x, obj.y, obj.w, obj.h, 8);
+          ctx.roundRect(obj.x, obj.y, obj.w, obj.h, 10);
+          ctx.fill();
+        } else {
+          ctx.fillRect(obj.x, obj.y, obj.w, obj.h);
+        }
+
+        // 3. WCAG AAA Dual-Layer Anti-Glare Bounding Box
+        // Layer 3A: Outer Deep Black Contrast Halo (Prevents box washing out on bright backgrounds)
+        ctx.save();
+        ctx.strokeStyle = 'rgba(0, 0, 0, 0.95)';
+        ctx.lineWidth = 6;
+        ctx.lineJoin = 'round';
+        if (ctx.roundRect) {
+          ctx.beginPath();
+          ctx.roundRect(obj.x, obj.y, obj.w, obj.h, 10);
           ctx.stroke();
         } else {
           ctx.strokeRect(obj.x, obj.y, obj.w, obj.h);
         }
 
-        // Tech Corner Accents
-        const cornerLen = 10;
+        // Layer 3B: Inner High-Intensity Neon Core
+        ctx.strokeStyle = neonColor;
         ctx.lineWidth = 3.5;
-        // Top-Left
-        ctx.beginPath();
-        ctx.moveTo(obj.x, obj.y + cornerLen);
-        ctx.lineTo(obj.x, obj.y);
-        ctx.lineTo(obj.x + cornerLen, obj.y);
-        ctx.stroke();
-        // Top-Right
-        ctx.beginPath();
-        ctx.moveTo(obj.x + obj.w - cornerLen, obj.y);
-        ctx.lineTo(obj.x + obj.w, obj.y);
-        ctx.lineTo(obj.x + obj.w, obj.y + cornerLen);
-        ctx.stroke();
-
-        // Label Pill
-        const labelText = `${obj.icon} ${obj.label} ${Math.round(obj.conf * 100)}% • ${obj.distance.toFixed(1)}m`;
-        ctx.font = 'bold 11px sans-serif';
-        const textWidth = ctx.measureText(labelText).width;
-        const pillW = textWidth + 12;
-        const pillH = 20;
-        const pillX = obj.x;
-        const pillY = Math.max(8, obj.y - 24);
-
-        ctx.fillStyle = tagBg;
         if (ctx.roundRect) {
           ctx.beginPath();
-          ctx.roundRect(pillX, pillY, pillW, pillH, 6);
+          ctx.roundRect(obj.x, obj.y, obj.w, obj.h, 10);
+          ctx.stroke();
+        } else {
+          ctx.strokeRect(obj.x, obj.y, obj.w, obj.h);
+        }
+        ctx.restore();
+
+        // 4. Tactical Aerospace Corner Reticles (Top-Left, Top-Right, Bottom-Left, Bottom-Right)
+        const reticles = [
+          [[obj.x, obj.y + cornerLen], [obj.x, obj.y], [obj.x + cornerLen, obj.y]],
+          [[obj.x + obj.w - cornerLen, obj.y], [obj.x + obj.w, obj.y], [obj.x + obj.w, obj.y + cornerLen]],
+          [[obj.x, obj.y + obj.h - cornerLen], [obj.x, obj.y + obj.h], [obj.x + cornerLen, obj.y + obj.h]],
+          [[obj.x + obj.w - cornerLen, obj.y + obj.h], [obj.x + obj.w, obj.y + obj.h], [obj.x + obj.w, obj.y + obj.h - cornerLen]]
+        ];
+
+        reticles.forEach(pts => {
+          // Outer black outline
+          ctx.strokeStyle = 'rgba(0, 0, 0, 0.95)';
+          ctx.lineWidth = 7;
+          ctx.lineCap = 'square';
+          ctx.beginPath();
+          ctx.moveTo(pts[0][0], pts[0][1]);
+          ctx.lineTo(pts[1][0], pts[1][1]);
+          ctx.lineTo(pts[2][0], pts[2][1]);
+          ctx.stroke();
+
+          // Inner neon core
+          ctx.strokeStyle = neonColor;
+          ctx.lineWidth = 4;
+          ctx.beginPath();
+          ctx.moveTo(pts[0][0], pts[0][1]);
+          ctx.lineTo(pts[1][0], pts[1][1]);
+          ctx.lineTo(pts[2][0], pts[2][1]);
+          ctx.stroke();
+        });
+
+        // 5. High-Contrast Sunlight-Legible HUD Badge Pill
+        const distStr = `${obj.distance.toFixed(1)}m`;
+        const pillText = `${obj.icon} ${obj.label} • ${distStr}`;
+
+        ctx.font = 'bold 13px system-ui, -apple-system, sans-serif';
+        const labelWidth = ctx.measureText(pillText).width;
+        const pillW = Math.max(130, labelWidth + 28);
+        const pillH = 26;
+        const pillX = Math.max(6, Math.min(canvas.width - pillW - 6, obj.x));
+        const pillY = Math.max(8, obj.y - pillH - 6);
+
+        // Badge Background (Obsidian Glass + Dual Contrast Border)
+        ctx.fillStyle = 'rgba(10, 15, 24, 0.94)';
+        if (ctx.roundRect) {
+          ctx.beginPath();
+          ctx.roundRect(pillX, pillY, pillW, pillH, 8);
           ctx.fill();
         } else {
           ctx.fillRect(pillX, pillY, pillW, pillH);
         }
 
+        // Badge Border
+        ctx.strokeStyle = neonColor;
+        ctx.lineWidth = 2;
+        if (ctx.roundRect) {
+          ctx.beginPath();
+          ctx.roundRect(pillX, pillY, pillW, pillH, 8);
+          ctx.stroke();
+        } else {
+          ctx.strokeRect(pillX, pillY, pillW, pillH);
+        }
+
+        // Sector Indicator Dot
+        ctx.beginPath();
+        ctx.arc(pillX + 11, pillY + pillH / 2, 4, 0, Math.PI * 2);
+        ctx.fillStyle = neonColor;
+        ctx.fill();
+
+        // Main Text
         ctx.fillStyle = '#FFFFFF';
-        ctx.fillText(labelText, pillX + 6, pillY + 14);
+        ctx.font = 'bold 12px system-ui, -apple-system, sans-serif';
+        ctx.fillText(pillText, pillX + 22, pillY + 17);
       });
 
       // Multi-Lane LiDAR Corridor Clearance Analysis
