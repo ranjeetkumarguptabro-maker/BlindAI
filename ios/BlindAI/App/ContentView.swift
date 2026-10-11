@@ -1,6 +1,7 @@
 import SwiftUI
 
 public struct ContentView: View {
+    @AppStorage("hasAuthorizedSensors") private var hasAuthorizedSensors: Bool = false
     @State private var currentRoute: AppRoute = .home
     
     // ViewModels
@@ -78,6 +79,28 @@ public struct ContentView: View {
                         insertion: .move(edge: .trailing).combined(with: .opacity),
                         removal: .move(edge: .leading).combined(with: .opacity)
                     ))
+            }
+            
+            if !hasAuthorizedSensors {
+                PermissionsOnboardingOverlay(
+                    onAuthorizeAll: {
+                        LocationManagerService.shared.requestLocationPermissions()
+                        Task {
+                            _ = await AVCaptureDevice.requestAccess(for: .video)
+                            _ = await AVCaptureDevice.requestAccess(for: .audio)
+                        }
+                        withAnimation {
+                            hasAuthorizedSensors = true
+                        }
+                    },
+                    onFallback: {
+                        withAnimation {
+                            hasAuthorizedSensors = true
+                        }
+                    }
+                )
+                .transition(.opacity)
+                .zIndex(100)
             }
         }
         .animation(.spring(response: 0.35, dampingFraction: 0.85), value: currentRoute)

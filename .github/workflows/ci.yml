@@ -1,0 +1,65 @@
+name: Blind AI Production Safety & Release CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  verify-and-test:
+    name: Verify Engineering Pillars & Run Test Suites
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Node Dependencies
+        run: npm install
+
+      - name: Compile HTML & Simulator Artifacts
+        run: python3 scripts/make_preview.py
+
+      - name: Validate JavaScript AST Syntax
+        run: |
+          node -e '
+            const fs = require("fs");
+            const vm = require("vm");
+            const html = fs.readFileSync("index.html", "utf8");
+            const scripts = [...html.matchAll(/<script[\s\S]*?>([\s\S]*?)<\/script>/gi)];
+            scripts.forEach((m, i) => {
+              if (m[1].trim()) new vm.Script(m[1], { filename: `s${i}.js` });
+            });
+            console.log("All " + scripts.length + " embedded scripts parsed successfully with V8!");
+          '
+
+      - name: Run Direct Voice NLP Test Suite (26/26 Intents)
+        run: node tests/test_voice_direct.js
+
+      - name: Run Distance & Obstacle Accuracy Benchmark (P0)
+        run: node tests/benchmark_accuracy.js
+
+      - name: Run Real-World Navigation Validation Suite (P1)
+        run: node tests/test_real_world_validation.js
+
+      - name: Run Performance, Battery & Resource Profiler (P2)
+        run: node tests/test_performance_profiler.js
+
+      - name: Upload Test & Benchmark Artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: safety-benchmark-artifacts
+          path: artifacts/

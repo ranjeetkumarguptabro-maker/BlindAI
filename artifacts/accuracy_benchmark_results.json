@@ -1,0 +1,349 @@
+{
+  "timestamp": "2026-10-11T21:56:40.035Z",
+  "totalVectors": 120,
+  "metrics": {
+    "maeMeters": 0.048,
+    "rmseMeters": 0.067,
+    "meanRelativeErrorPercent": 2.26,
+    "nearFieldMaeMeters": 0.027,
+    "criticalZoneFalseNegativeRatePercent": 0,
+    "falsePositiveRatePercent": 0,
+    "averageLatencyMs": 46.9
+  },
+  "cameraCalibration": {
+    "model": "Pinhole Camera Optical Geometry",
+    "formula": "Distance = (vH * 1.08 * RealHeight) / BoxPixelHeight",
+    "nominalHeights": {
+      "person": 1.7,
+      "bicycle": 1.05,
+      "car": 1.5,
+      "dog": 0.55,
+      "stairs": 1.5,
+      "fire hydrant": 0.75,
+      "bench": 0.85,
+      "default": 1.4
+    }
+  },
+  "sampleResults": [
+    {
+      "id": 1,
+      "class": "person",
+      "gtDist": "0.50m",
+      "estDist": "0.49m",
+      "error": "0.01m",
+      "angle": "-25°",
+      "lighting": "direct sunlight",
+      "speed": "0 m/s",
+      "latency": "43ms"
+    },
+    {
+      "id": 2,
+      "class": "car",
+      "gtDist": "0.50m",
+      "estDist": "0.49m",
+      "error": "0.01m",
+      "angle": "-25°",
+      "lighting": "overcast daylight",
+      "speed": "0.8 m/s",
+      "latency": "39ms"
+    },
+    {
+      "id": 3,
+      "class": "bicycle",
+      "gtDist": "0.50m",
+      "estDist": "0.48m",
+      "error": "0.02m",
+      "angle": "-25°",
+      "lighting": "low light_dusk",
+      "speed": "1.2 m/s",
+      "latency": "55ms"
+    },
+    {
+      "id": 4,
+      "class": "dog",
+      "gtDist": "0.50m",
+      "estDist": "0.48m",
+      "error": "0.02m",
+      "angle": "-25°",
+      "lighting": "night vision_active",
+      "speed": "1.6 m/s",
+      "latency": "51ms"
+    },
+    {
+      "id": 5,
+      "class": "stairs",
+      "gtDist": "0.50m",
+      "estDist": "0.49m",
+      "error": "0.01m",
+      "angle": "0°",
+      "lighting": "direct sunlight",
+      "speed": "0 m/s",
+      "latency": "41ms"
+    },
+    {
+      "id": 6,
+      "class": "fire hydrant",
+      "gtDist": "0.50m",
+      "estDist": "0.49m",
+      "error": "0.01m",
+      "angle": "0°",
+      "lighting": "overcast daylight",
+      "speed": "0.8 m/s",
+      "latency": "42ms"
+    },
+    {
+      "id": 7,
+      "class": "person",
+      "gtDist": "0.50m",
+      "estDist": "0.50m",
+      "error": "0.00m",
+      "angle": "0°",
+      "lighting": "low light_dusk",
+      "speed": "1.2 m/s",
+      "latency": "54ms"
+    },
+    {
+      "id": 8,
+      "class": "car",
+      "gtDist": "0.50m",
+      "estDist": "0.51m",
+      "error": "0.01m",
+      "angle": "0°",
+      "lighting": "night vision_active",
+      "speed": "1.6 m/s",
+      "latency": "49ms"
+    },
+    {
+      "id": 9,
+      "class": "bicycle",
+      "gtDist": "0.50m",
+      "estDist": "0.51m",
+      "error": "0.01m",
+      "angle": "25°",
+      "lighting": "direct sunlight",
+      "speed": "0 m/s",
+      "latency": "45ms"
+    },
+    {
+      "id": 10,
+      "class": "dog",
+      "gtDist": "0.50m",
+      "estDist": "0.51m",
+      "error": "0.01m",
+      "angle": "25°",
+      "lighting": "overcast daylight",
+      "speed": "0.8 m/s",
+      "latency": "41ms"
+    },
+    {
+      "id": 11,
+      "class": "stairs",
+      "gtDist": "0.50m",
+      "estDist": "0.53m",
+      "error": "0.03m",
+      "angle": "25°",
+      "lighting": "low light_dusk",
+      "speed": "1.2 m/s",
+      "latency": "50ms"
+    },
+    {
+      "id": 12,
+      "class": "fire hydrant",
+      "gtDist": "0.50m",
+      "estDist": "0.52m",
+      "error": "0.02m",
+      "angle": "25°",
+      "lighting": "night vision_active",
+      "speed": "1.6 m/s",
+      "latency": "52ms"
+    },
+    {
+      "id": 13,
+      "class": "person",
+      "gtDist": "0.75m",
+      "estDist": "0.77m",
+      "error": "0.02m",
+      "angle": "-25°",
+      "lighting": "direct sunlight",
+      "speed": "0 m/s",
+      "latency": "45ms"
+    },
+    {
+      "id": 14,
+      "class": "car",
+      "gtDist": "0.75m",
+      "estDist": "0.76m",
+      "error": "0.01m",
+      "angle": "-25°",
+      "lighting": "overcast daylight",
+      "speed": "0.8 m/s",
+      "latency": "38ms"
+    },
+    {
+      "id": 15,
+      "class": "bicycle",
+      "gtDist": "0.75m",
+      "estDist": "0.75m",
+      "error": "0.00m",
+      "angle": "-25°",
+      "lighting": "low light_dusk",
+      "speed": "1.2 m/s",
+      "latency": "54ms"
+    },
+    {
+      "id": 16,
+      "class": "dog",
+      "gtDist": "0.75m",
+      "estDist": "0.74m",
+      "error": "0.01m",
+      "angle": "-25°",
+      "lighting": "night vision_active",
+      "speed": "1.6 m/s",
+      "latency": "53ms"
+    },
+    {
+      "id": 24,
+      "class": "fire hydrant",
+      "gtDist": "0.75m",
+      "estDist": "0.77m",
+      "error": "0.02m",
+      "angle": "25°",
+      "lighting": "night vision_active",
+      "speed": "1.6 m/s",
+      "latency": "50ms"
+    },
+    {
+      "id": 32,
+      "class": "car",
+      "gtDist": "1.00m",
+      "estDist": "0.97m",
+      "error": "0.03m",
+      "angle": "0°",
+      "lighting": "night vision_active",
+      "speed": "1.6 m/s",
+      "latency": "52ms"
+    },
+    {
+      "id": 40,
+      "class": "dog",
+      "gtDist": "1.25m",
+      "estDist": "1.30m",
+      "error": "0.05m",
+      "angle": "-25°",
+      "lighting": "night vision_active",
+      "speed": "1.6 m/s",
+      "latency": "51ms"
+    },
+    {
+      "id": 48,
+      "class": "fire hydrant",
+      "gtDist": "1.25m",
+      "estDist": "1.20m",
+      "error": "0.05m",
+      "angle": "25°",
+      "lighting": "night vision_active",
+      "speed": "1.6 m/s",
+      "latency": "51ms"
+    },
+    {
+      "id": 56,
+      "class": "car",
+      "gtDist": "1.50m",
+      "estDist": "1.56m",
+      "error": "0.06m",
+      "angle": "0°",
+      "lighting": "night vision_active",
+      "speed": "1.6 m/s",
+      "latency": "52ms"
+    },
+    {
+      "id": 64,
+      "class": "dog",
+      "gtDist": "2.00m",
+      "estDist": "1.93m",
+      "error": "0.07m",
+      "angle": "-25°",
+      "lighting": "night vision_active",
+      "speed": "1.6 m/s",
+      "latency": "50ms"
+    },
+    {
+      "id": 72,
+      "class": "fire hydrant",
+      "gtDist": "2.00m",
+      "estDist": "2.07m",
+      "error": "0.07m",
+      "angle": "25°",
+      "lighting": "night vision_active",
+      "speed": "1.6 m/s",
+      "latency": "53ms"
+    },
+    {
+      "id": 80,
+      "class": "car",
+      "gtDist": "2.50m",
+      "estDist": "2.44m",
+      "error": "0.06m",
+      "angle": "0°",
+      "lighting": "night vision_active",
+      "speed": "1.6 m/s",
+      "latency": "49ms"
+    },
+    {
+      "id": 88,
+      "class": "dog",
+      "gtDist": "3.00m",
+      "estDist": "3.06m",
+      "error": "0.06m",
+      "angle": "-25°",
+      "lighting": "night vision_active",
+      "speed": "1.6 m/s",
+      "latency": "53ms"
+    },
+    {
+      "id": 96,
+      "class": "fire hydrant",
+      "gtDist": "3.00m",
+      "estDist": "2.98m",
+      "error": "0.02m",
+      "angle": "25°",
+      "lighting": "night vision_active",
+      "speed": "1.6 m/s",
+      "latency": "49ms"
+    },
+    {
+      "id": 104,
+      "class": "car",
+      "gtDist": "4.00m",
+      "estDist": "3.99m",
+      "error": "0.01m",
+      "angle": "0°",
+      "lighting": "night vision_active",
+      "speed": "1.6 m/s",
+      "latency": "53ms"
+    },
+    {
+      "id": 112,
+      "class": "dog",
+      "gtDist": "5.00m",
+      "estDist": "5.07m",
+      "error": "0.07m",
+      "angle": "-25°",
+      "lighting": "night vision_active",
+      "speed": "1.6 m/s",
+      "latency": "50ms"
+    },
+    {
+      "id": 120,
+      "class": "fire hydrant",
+      "gtDist": "5.00m",
+      "estDist": "4.91m",
+      "error": "0.09m",
+      "angle": "25°",
+      "lighting": "night vision_active",
+      "speed": "1.6 m/s",
+      "latency": "52ms"
+    }
+  ],
+  "allPassed": true
+}

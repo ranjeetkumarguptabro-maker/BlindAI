@@ -26,10 +26,19 @@
 	<string>Blind AI uses the camera to identify surroundings and hazards for visually impaired assistance.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Blind AI uses your location for pedestrian walking navigation and route guidance.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Blind AI uses your location in the background to ensure continuous, safe pedestrian navigation.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Blind AI uses the microphone for hands-free voice commands and queries.</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
 	<string>Blind AI transcribes voice input to provide immediate spoken responses.</string>
+	<key>NSMotionUsageDescription</key>
+	<string>Blind AI uses pedometer and device motion sensors to accurately track pedestrian steps and dead-reckoning.</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>audio</string>
+		<string>location</string>
+	</array>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

@@ -1294,6 +1294,67 @@ html_content = f"""<!DOCTYPE html>
     </div>
   </div>
 
+  <!-- ==================== UPFRONT ACCESSIBLE SENSOR PERMISSIONS MODAL ==================== -->
+  <div id="permissions-modal" role="dialog" aria-modal="true" aria-labelledby="permissions-modal-title" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-neutral-900 border-2 border-amber-400 rounded-3xl p-6 max-w-sm w-full shadow-2xl flex flex-col space-y-4 text-white">
+      <div class="flex items-center space-x-3">
+        <div class="w-12 h-12 rounded-2xl bg-amber-400 text-black flex items-center justify-center text-2xl font-black shrink-0" aria-hidden="true">
+          🛡️
+        </div>
+        <div class="flex flex-col min-w-0">
+          <span class="text-[10px] font-bold text-amber-400 uppercase tracking-widest">Initial Safety Setup</span>
+          <h2 id="permissions-modal-title" class="text-xl font-extrabold text-white leading-tight">Authorize Sensors</h2>
+        </div>
+      </div>
+
+      <p class="text-xs text-slate-300 leading-relaxed">
+        Blind AI uses your device’s sensors to guide your physical walking path hands-free. To protect you from obstacles, please authorize the sensors below before starting.
+      </p>
+
+      <!-- Checklist of Sensors with Status Badges -->
+      <div class="bg-black/60 rounded-2xl p-3.5 border border-white/10 space-y-2.5 text-xs">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-2">
+            <span class="text-base" aria-hidden="true">📷</span>
+            <span class="font-bold text-slate-200">Camera</span>
+          </div>
+          <span id="perm-camera-status" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-white/10 text-slate-300">Pending</span>
+        </div>
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-2">
+            <span class="text-base" aria-hidden="true">🎙️</span>
+            <span class="font-bold text-slate-200">Microphone</span>
+          </div>
+          <span id="perm-mic-status" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-white/10 text-slate-300">Pending</span>
+        </div>
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-2">
+            <span class="text-base" aria-hidden="true">📍</span>
+            <span class="font-bold text-slate-200">Location (GPS)</span>
+          </div>
+          <span id="perm-location-status" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-white/10 text-slate-300">Pending</span>
+        </div>
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-2">
+            <span class="text-base" aria-hidden="true">👟</span>
+            <span class="font-bold text-slate-200">Motion & Gyroscope</span>
+          </div>
+          <span id="perm-motion-status" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-white/10 text-slate-300">Pending</span>
+        </div>
+      </div>
+
+      <!-- Main Action Buttons -->
+      <div class="flex flex-col gap-2 pt-1">
+        <button id="btn-grant-all-permissions" onclick="requestAllSensorsUpfront()" aria-label="Authorize all sensors now: Camera, Microphone, Location, and Motion" class="w-full py-3.5 bg-amber-400 hover:bg-amber-300 active:scale-95 text-black font-extrabold text-center text-sm rounded-2xl shadow-xl transition focus:ring-4 focus:ring-amber-400/50">
+          Authorize All Assistive Sensors
+        </button>
+        <button type="button" onclick="continueWithAvailableSensors()" id="btn-skip-permissions" class="w-full py-2.5 text-slate-400 hover:text-white text-xs font-bold transition">
+          Continue with Safe Fallback Mode
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Client-side Logic Script -->
   <script>
     // State management
@@ -1343,6 +1404,254 @@ html_content = f"""<!DOCTYPE html>
       obstacleAlert: "Obstacle Ahead Warning — Blind AI",
       crosswalkSafety: "Approaching Crosswalk (Quiet Mode) — Blind AI"
     }};
+
+    // ==================== UNIFIED SAFETY ENGINE (SINGLE SOURCE OF TRUTH) ====================
+    const UnifiedSafetyEngine = {{
+      hazardSeverity: 'SAFE', // 'SAFE', 'NOTICE', 'CAUTION', 'DANGER', 'CRITICAL_STOP'
+      navState: 'IDLE', // 'IDLE', 'LISTENING', 'ROUTING', 'ACTIVE_WALKING', 'APPROACHING_CROSSWALK', 'HAZARD_STOPPED', 'EMERGENCY_SOS'
+      sensorFreshness: {{
+        camera: {{ timestamp: 0, isStale: true, maxAgeMs: 1500 }},
+        gps: {{ timestamp: 0, isStale: true, maxAgeMs: 12000 }},
+        imu: {{ timestamp: 0, isStale: true, maxAgeMs: 1200 }},
+        lidar: {{ timestamp: 0, isStale: true, maxAgeMs: 800 }}
+      }},
+      activePriority: 4,
+      lastSpeechText: '',
+      lastSpeechTime: 0,
+
+      updateSensor(sensorName, timestamp = Date.now()) {{
+        if (this.sensorFreshness[sensorName]) {{
+          this.sensorFreshness[sensorName].timestamp = timestamp;
+          this.sensorFreshness[sensorName].isStale = false;
+        }}
+      }},
+
+      checkFreshness(currentTime = Date.now()) {{
+        for (const [name, info] of Object.entries(this.sensorFreshness)) {{
+          if (info.timestamp === 0 || (currentTime - info.timestamp > info.maxAgeMs)) {{
+            info.isStale = true;
+          }}
+        }}
+        return this.sensorFreshness;
+      }},
+
+      setHazardSeverity(severity, details = {{}}) {{
+        const prev = this.hazardSeverity;
+        this.hazardSeverity = severity;
+        if (severity === 'CRITICAL_STOP') {{
+          if (this.navState === 'ACTIVE_WALKING') {{
+            this.navState = 'HAZARD_STOPPED';
+          }}
+          this.dispatchSpeech(
+            details.message || "STOP! Immediate obstacle ahead. Do not proceed.",
+            1,
+            [200, 100, 200, 100, 400]
+          );
+        }} else if (severity === 'DANGER') {{
+          this.dispatchSpeech(
+            details.message || "Caution! Hazard detected in path.",
+            2,
+            [150, 80, 150]
+          );
+        }} else if (severity === 'CAUTION') {{
+          this.dispatchSpeech(
+            details.message || "Obstacle nearby. Keep center path.",
+            2,
+            [80, 60]
+          );
+        }} else if (prev === 'CRITICAL_STOP' && severity === 'SAFE') {{
+          if (this.navState === 'HAZARD_STOPPED') {{
+            this.navState = 'ACTIVE_WALKING';
+            this.dispatchSpeech(
+              "Obstacle cleared. Path is safe ahead. Resuming walking route.",
+              2,
+              [100]
+            );
+          }}
+        }}
+        return this.hazardSeverity;
+      }},
+
+      setNavState(newState) {{
+        this.navState = newState;
+        return this.navState;
+      }},
+
+      dispatchSpeech(text, priority = 3, hapticPattern = null) {{
+        if (!text) return false;
+        if (hapticPattern && Array.isArray(hapticPattern)) {{
+          triggerHaptic(hapticPattern);
+        }}
+        // If CRITICAL_STOP is active, suppress lower-priority guidance (priority > 2)
+        if (this.hazardSeverity === 'CRITICAL_STOP' && priority > 2) {{
+          console.log('[SafetyEngine] Suppressing lower-priority guidance due to CRITICAL_STOP:', text);
+          return false;
+        }}
+        const now = Date.now();
+        if (this.lastSpeechText === text && (now - this.lastSpeechTime < 2800)) {{
+          return false;
+        }}
+        this.lastSpeechText = text;
+        this.lastSpeechTime = now;
+        this.activePriority = priority;
+        speakText(text);
+        return true;
+      }}
+    }};
+    if (typeof window !== 'undefined') {{
+      window.UnifiedSafetyEngine = UnifiedSafetyEngine;
+    }}
+
+    // ==================== UPFRONT SENSOR PERMISSION & SAFE FALLBACKS ====================
+    function checkSensorPermissionsOnLaunch() {{
+      try {{
+        const authStatus = localStorage.getItem('blindai_sensors_authorized');
+        const modal = document.getElementById('permissions-modal');
+        if (!authStatus && modal) {{
+          modal.classList.remove('hidden');
+          const grantBtn = document.getElementById('btn-grant-all-permissions');
+          if (grantBtn) grantBtn.focus();
+          setTimeout(() => {{
+            speakText("Welcome to Blind AI. Please authorize camera, microphone, location, and motion sensors before starting.");
+          }}, 500);
+        }} else if (authStatus === 'granted') {{
+          startAlwaysOpenBackCamera();
+        }}
+      }} catch (err) {{
+        console.warn('[Permissions] Launch check notice:', err);
+      }}
+    }}
+
+    async function requestAllSensorsUpfront() {{
+      const grantBtn = document.getElementById('btn-grant-all-permissions');
+      if (grantBtn) {{
+        grantBtn.innerText = "Requesting System Permissions...";
+        grantBtn.disabled = true;
+      }}
+
+      // Unlock Web Audio for iOS / mobile gestures
+      try {{
+        const ctx = getAudioContext();
+        if (ctx && ctx.state === 'suspended') {{
+          await ctx.resume();
+        }}
+      }} catch (e) {{}}
+
+      // 1. Camera
+      const camStatusEl = document.getElementById('perm-camera-status');
+      try {{
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {{
+          liveCameraStream = await navigator.mediaDevices.getUserMedia({{
+            video: {{
+              facingMode: {{ ideal: "environment" }},
+              width: {{ ideal: 1280 }},
+              height: {{ ideal: 720 }}
+            }},
+            audio: false
+          }});
+          isRealCameraActive = true;
+          currentCameraMode = 'real';
+          updateCameraStatusUI(true);
+          UnifiedSafetyEngine.updateSensor('camera');
+          if (camStatusEl) {{
+            camStatusEl.className = "px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300";
+            camStatusEl.innerText = "Active";
+          }}
+        }}
+      }} catch (err) {{
+        console.warn("[Permissions] Camera request notice:", err);
+        if (camStatusEl) {{
+          camStatusEl.className = "px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-300";
+          camStatusEl.innerText = "Fallback";
+        }}
+      }}
+
+      // 2. Microphone
+      const micStatusEl = document.getElementById('perm-mic-status');
+      try {{
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {{
+          const micStream = await navigator.mediaDevices.getUserMedia({{ audio: true }});
+          micStream.getTracks().forEach(t => t.stop());
+          if (micStatusEl) {{
+            micStatusEl.className = "px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300";
+            micStatusEl.innerText = "Active";
+          }}
+        }}
+      }} catch (err) {{
+        console.warn("[Permissions] Microphone request notice:", err);
+        if (micStatusEl) {{
+          micStatusEl.className = "px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-300";
+          micStatusEl.innerText = "Fallback";
+        }}
+      }}
+
+      // 3. Geolocation
+      const locStatusEl = document.getElementById('perm-location-status');
+      if ('geolocation' in navigator) {{
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {{
+            handleGpsSuccess(pos);
+            UnifiedSafetyEngine.updateSensor('gps');
+            if (locStatusEl) {{
+              locStatusEl.className = "px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300";
+              locStatusEl.innerText = "Active";
+            }}
+          }},
+          (err) => {{
+            console.warn("[Permissions] GPS notice:", err);
+            if (locStatusEl) {{
+              locStatusEl.className = "px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-300";
+              locStatusEl.innerText = "Fallback";
+            }}
+          }},
+          {{ enableHighAccuracy: true, timeout: 6000 }}
+        );
+      }}
+
+      // 4. Motion / DeviceOrientation (iOS 13+ user gesture)
+      const motStatusEl = document.getElementById('perm-motion-status');
+      try {{
+        if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {{
+          const perm = await DeviceOrientationEvent.requestPermission();
+          if (perm === 'granted' && motStatusEl) {{
+            motStatusEl.className = "px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300";
+            motStatusEl.innerText = "Active";
+          }}
+        }} else if (motStatusEl) {{
+          motStatusEl.className = "px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300";
+          motStatusEl.innerText = "Active";
+        }}
+        if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {{
+          await DeviceMotionEvent.requestPermission();
+        }}
+        UnifiedSafetyEngine.updateSensor('imu');
+      }} catch (err) {{
+        console.warn("[Permissions] Motion request notice:", err);
+        if (motStatusEl) {{
+          motStatusEl.className = "px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-300";
+          motStatusEl.innerText = "Fallback";
+        }}
+      }}
+
+      try {{
+        localStorage.setItem('blindai_sensors_authorized', 'granted');
+      }} catch(e) {{}}
+
+      setTimeout(() => {{
+        const modal = document.getElementById('permissions-modal');
+        if (modal) modal.classList.add('hidden');
+        UnifiedSafetyEngine.dispatchSpeech("All sensors authorized. Real camera perception and GPS navigation active. Welcome to Blind AI.", 1, [150, 100, 150]);
+      }}, 400);
+    }}
+
+    function continueWithAvailableSensors() {{
+      try {{
+        localStorage.setItem('blindai_sensors_authorized', 'fallback');
+      }} catch(e) {{}}
+      const modal = document.getElementById('permissions-modal');
+      if (modal) modal.classList.add('hidden');
+      UnifiedSafetyEngine.dispatchSpeech("Continuing in safe fallback mode. Voice and navigation active.", 2, [100]);
+    }}
 
     const defaultWalkingWaypoints = [
       {{
@@ -2404,6 +2713,19 @@ html_content = f"""<!DOCTYPE html>
       const evalResult = evaluateLidarDanger(currentLidarDistance, currentLidarLane, currentLidarObject);
       currentLidarDanger = evalResult.level;
 
+      if (typeof UnifiedSafetyEngine !== 'undefined') {{
+        UnifiedSafetyEngine.updateSensor('lidar');
+        if (evalResult.level === 'Critical Stop') {{
+          UnifiedSafetyEngine.setHazardSeverity('CRITICAL_STOP', {{ message: evalResult.spoken }});
+        }} else if (evalResult.level === 'Danger') {{
+          UnifiedSafetyEngine.setHazardSeverity('DANGER', {{ message: evalResult.spoken }});
+        }} else if (evalResult.level === 'Caution') {{
+          UnifiedSafetyEngine.setHazardSeverity('CAUTION', {{ message: evalResult.spoken }});
+        }} else if (evalResult.level.startsWith('Safe')) {{
+          UnifiedSafetyEngine.setHazardSeverity('SAFE');
+        }}
+      }}
+
       // Update Dashboard elements
       const distEl = document.getElementById('lidar-live-dist-val');
       if (distEl) distEl.innerText = currentLidarDistance.toFixed(1);
@@ -2882,6 +3204,9 @@ html_content = f"""<!DOCTYPE html>
         isDetectingFrame = true;
         try {{
           const predictions = await cocoSsdModel.detect(video);
+          if (typeof UnifiedSafetyEngine !== 'undefined') {{
+            UnifiedSafetyEngine.updateSensor('camera');
+          }}
           const vW = video.videoWidth || 640;
           const vH = video.videoHeight || 480;
           const cW = canvas.width;
@@ -3952,6 +4277,21 @@ html_content = f"""<!DOCTYPE html>
       const resolved = resolveRouteName(route);
       const targetRoute = (resolved && allScreens.includes(resolved)) ? resolved : 'home';
       activeRoute = targetRoute;
+
+      if (typeof UnifiedSafetyEngine !== 'undefined') {{
+        const stateMap = {{
+          home: 'IDLE',
+          listening: 'LISTENING',
+          destinationSearch: 'ROUTING',
+          routePreview: 'ROUTING',
+          activeNavigation: 'ACTIVE_WALKING',
+          whereAmI: 'IDLE',
+          describeAround: 'IDLE',
+          obstacleAlert: 'HAZARD_STOPPED',
+          crosswalkSafety: 'APPROACHING_CROSSWALK'
+        }};
+        UnifiedSafetyEngine.setNavState(stateMap[targetRoute] || 'IDLE');
+      }}
 
       // Update page title (WCAG 2.2 SC 2.4.2 Page Titled)
       document.title = screenTitles[targetRoute] || "Blind AI Assistant";
@@ -5139,6 +5479,7 @@ html_content = f"""<!DOCTYPE html>
       }} catch (e) {{}}
 
       initRealGpsTracking();
+      checkSensorPermissionsOnLaunch();
 
       const initialRoute = getInitialRoute();
       navigateTo(initialRoute, false);
