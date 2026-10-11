@@ -133,6 +133,11 @@ async function runDirectTests() {
       label: '24. Steps and Pedometer Query ("How many steps did I walk?")',
       input: 'how many steps did i walk',
       expectedIntent: 'steps_query'
+    },
+    {
+      label: '25. Emergency SOS Beacon Trigger ("Emergency")',
+      input: 'emergency',
+      expectedIntent: 'emergency_sos'
     }
   ];
 

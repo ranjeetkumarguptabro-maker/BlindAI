@@ -1253,6 +1253,48 @@ html_content = f"""<!DOCTYPE html>
     </div>
   </div>
 
+  <!-- ==================== EMERGENCY SOS DISPATCH MODAL (ACCESSIBLE RED ALERT) ==================== -->
+  <div id="sos-modal" role="dialog" aria-modal="true" aria-labelledby="sos-modal-title" class="fixed inset-0 bg-red-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-neutral-900 border-2 border-red-500 rounded-3xl p-6 max-w-sm w-full shadow-2xl flex flex-col space-y-4 text-white">
+      <div class="flex justify-between items-center">
+        <div class="flex items-center space-x-2">
+          <span class="w-3.5 h-3.5 rounded-full bg-red-500 animate-ping shrink-0" aria-hidden="true"></span>
+          <h2 id="sos-modal-title" class="text-xl font-black text-red-400 tracking-wide">EMERGENCY SOS</h2>
+        </div>
+        <button id="close-sos-btn" onclick="closeEmergencySOS()" aria-label="Cancel emergency SOS" class="w-9 h-9 rounded-full bg-neutral-800 text-white flex items-center justify-center font-bold text-xs hover:bg-neutral-700">✕</button>
+      </div>
+
+      <div class="bg-black/60 rounded-2xl p-4 border border-red-500/30 space-y-2 text-xs">
+        <div>
+          <span class="text-neutral-400 font-bold block uppercase text-[10px]">Current Location Coordinates</span>
+          <span id="sos-coordinates" class="font-mono text-sm font-black text-white">56.9515° N, 24.0812° E</span>
+        </div>
+        <div>
+          <span class="text-neutral-400 font-bold block uppercase text-[10px]">Detected Street & Area</span>
+          <span id="sos-street-address" class="text-sm font-bold text-amber-300">Ķīpsalas iela, Rīga, Latvia</span>
+        </div>
+        <div>
+          <span class="text-neutral-400 font-bold block uppercase text-[10px]">Incident Timestamp</span>
+          <span id="sos-timestamp" class="font-mono text-[11px] text-neutral-300">Active</span>
+        </div>
+      </div>
+
+      <div class="flex flex-col gap-2.5 pt-1">
+        <a id="sos-call-link" href="tel:112" class="w-full py-3.5 bg-red-600 hover:bg-red-500 active:scale-95 text-white font-black text-center text-sm rounded-2xl shadow-lg flex items-center justify-center space-x-2 transition">
+          <span>📞</span>
+          <span>Call Emergency (112)</span>
+        </a>
+        <a id="sos-sms-link" href="sms:?body=EMERGENCY: Blind AI user needs help." class="w-full py-3 bg-neutral-800 hover:bg-neutral-700 active:scale-95 text-white font-bold text-center text-sm rounded-2xl border border-white/20 transition flex items-center justify-center space-x-2">
+          <span>💬</span>
+          <span>Send SMS with GPS Pin</span>
+        </a>
+        <button type="button" onclick="closeEmergencySOS()" class="w-full py-2.5 text-neutral-400 hover:text-white text-xs font-bold transition">
+          I am Safe • Dismiss Alert
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Client-side Logic Script -->
   <script>
     // State management
@@ -3704,6 +3746,16 @@ html_content = f"""<!DOCTYPE html>
         }};
       }}
 
+      // Emergency SOS Alert
+      if (/^(help|emergency|i am lost|sos|call for help|call emergency|danger)$/i.test(cleaned)) {{
+        return {{
+          intent: "emergency_sos",
+          action: "emergency_sos",
+          spoken_response: "Emergency SOS activated. Preparing coordinates and calling for help.",
+          confidence: 0.99
+        }};
+      }}
+
       if (/^(settings|open settings|audio settings|preferences)$/i.test(cleaned)) {{
         return {{ intent: "click_button", target_button: "settings", action: "click_button", spoken_response: "Opening settings.", confidence: 0.99 }};
       }}
@@ -4408,6 +4460,10 @@ html_content = f"""<!DOCTYPE html>
         triggerHaptic([50]);
         return;
       }}
+      if (result.intent === 'emergency_sos' || result.action === 'emergency_sos') {{
+        triggerEmergencySOS();
+        return;
+      }}
 
       // 4. Automated GPS Navigation Trigger: ANY spoken destination or start navigation command!
       if (result.trigger_auto_gps || result.intent === 'start_navigation' || result.destination || targetBtn === 'start_navigation') {{
@@ -4857,6 +4913,46 @@ html_content = f"""<!DOCTYPE html>
           }}
         }}
       }}
+    }}
+
+    // ==================== EMERGENCY CONTACT & INCIDENT SOS DISPATCH ====================
+    function triggerEmergencySOS() {{
+      const modal = document.getElementById('sos-modal');
+      if (modal) modal.classList.remove('hidden');
+
+      const lat = userGps.lat ? userGps.lat.toFixed(5) : '56.9515';
+      const lon = userGps.lon ? userGps.lon.toFixed(5) : '24.0812';
+      const street = userGps.street ? `${{userGps.street}}, ${{userGps.city || ''}}` : 'Ķīpsalas iela, Rīga';
+
+      const coordEl = document.getElementById('sos-coordinates');
+      if (coordEl) coordEl.innerText = `${{lat}}° N, ${{lon}}° E`;
+
+      const stEl = document.getElementById('sos-street-address');
+      if (stEl) stEl.innerText = street;
+
+      const timeEl = document.getElementById('sos-timestamp');
+      if (timeEl) timeEl.innerText = new Date().toLocaleTimeString();
+
+      const smsLink = document.getElementById('sos-sms-link');
+      if (smsLink) {{
+        const mapUrl = `https://maps.google.com/?q=${{lat}},${{lon}}`;
+        const bodyText = encodeURIComponent(`EMERGENCY: Assistive Blind AI user needs help. Location: ${{street}} (${{lat}}, ${{lon}}). Map: ${{mapUrl}}`);
+        smsLink.href = `sms:?body=${{bodyText}}`;
+      }}
+
+      triggerHaptic([200, 100, 200, 100, 500]);
+      playEarcon('hazard');
+      const spokenMsg = `Emergency SOS activated. You are at ${{street}}. Coordinates: ${{lat}} degrees north, ${{lon}} degrees east. Tap call or SMS on screen.`;
+      speakText(spokenMsg);
+      announceToScreenReader(spokenMsg);
+      showUniversalVoiceHUD('EMERGENCY SOS', spokenMsg, false);
+    }}
+
+    function closeEmergencySOS() {{
+      const modal = document.getElementById('sos-modal');
+      if (modal) modal.classList.add('hidden');
+      speakText("Emergency SOS dismissed. Route guidance resumed.");
+      hideUniversalVoiceHUD();
     }}
 
     // Switch between Interactive and Side-by-Side Gallery

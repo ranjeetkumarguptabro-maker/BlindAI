@@ -547,6 +547,17 @@ Rules:
       };
     }
 
+    // 5n. Emergency SOS Alert
+    if (/^(help|emergency|i am lost|sos|call for help|call emergency|danger)$/i.test(cleaned)) {
+      return {
+        intent: "emergency_sos",
+        action: "emergency_sos",
+        spoken_response: "Emergency SOS activated. Preparing coordinates and calling for help.",
+        confidence: 0.99,
+        provider: `${this.name} (Emergency Safety Dispatch Match)`
+      };
+    }
+
     // 6. Settings
     if (/^(settings|open settings|audio settings|preferences)$/i.test(cleaned)) {
       return {
