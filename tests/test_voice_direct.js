@@ -138,6 +138,11 @@ async function runDirectTests() {
       label: '25. Emergency SOS Beacon Trigger ("Emergency")',
       input: 'emergency',
       expectedIntent: 'emergency_sos'
+    },
+    {
+      label: '26. Crosswalk Traffic Acoustic Query ("Is it quiet?")',
+      input: 'is it quiet',
+      expectedIntent: 'traffic_query'
     }
   ];
 
