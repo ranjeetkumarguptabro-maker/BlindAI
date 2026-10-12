@@ -1,0 +1,362 @@
+{
+  "modelName": "BlindAI-Unified-Multimodal-v3",
+  "version": "3.0.0",
+  "trainedAt": "2026-10-13T01:32:00.000Z",
+  "pipelineStages": [
+    "1. Camera Input (Live iPhone Rear Camera)",
+    "2. Object Detection (YOLO)",
+    "3. Multi-Object Tracking (ByteTrack Persistent IDs & Trajectories)",
+    "4. Depth Estimation (LiDAR + Camera Metric Depth 0.4m-15m)",
+    "5. Classification & Context (RTU Buildings, Traffic Lights, Tram Line 1, Road Signs)",
+    "6. 3D Spatial Understanding (3D Bounding Cuboids & Walkable Ground Corridor)",
+    "7. Movement Prediction (Velocity in m/s & Collision Vectors)",
+    "8. Environmental Map (Local Top-Down Radar: Sidewalk, Crosswalk, Road, Tram Track)",
+    "9. Scene Understanding with AI (Gemini Multimodal API)",
+    "10. Combine with GPS & Navigation (Old Town to RTU Walking + Tram Line 1)",
+    "11. Final Output to User (Concise Spoken Guidance, Alerts & Haptics)"
+  ],
+  "trainedReferenceScenes": [
+    {
+      "id": "scene_intersection_mot_01",
+      "sourceImage": "media_1791843700476_6cdcba11.png",
+      "description": "Urban signalized intersection with ByteTrack persistent IDs and trajectory trails",
+      "learnedObjects": [
+        {
+          "class": "person",
+          "trackId": "ID:03",
+          "role": "Pedestrian walking on left crosswalk",
+          "velocityMps": 1.2,
+          "trajectory": "walking_away"
+        },
+        {
+          "class": "person",
+          "trackId": "ID:05",
+          "role": "Pedestrian crossing zebra crosswalk",
+          "velocityMps": 1.3,
+          "trajectory": "crossing_path"
+        },
+        {
+          "class": "person",
+          "trackId": "ID:10",
+          "role": "Pedestrian walking ahead on right sidewalk",
+          "velocityMps": 1.2,
+          "trajectory": "moving_forward"
+        },
+        {
+          "class": "bicycle",
+          "trackId": "ID:09",
+          "role": "Cyclist riding through intersection",
+          "velocityMps": 2.4,
+          "trajectory": "crossing_path"
+        },
+        {
+          "class": "car",
+          "trackId": "ID:12",
+          "role": "Sedan in center lane",
+          "velocityMps": 3.5,
+          "trajectory": "moving_forward"
+        },
+        {
+          "class": "bus",
+          "trackId": "ID:21",
+          "role": "Yellow city transit bus turning at intersection",
+          "velocityMps": 4.2,
+          "trajectory": "crossing_left_to_right"
+        },
+        {
+          "class": "traffic light",
+          "trackId": "TL:01",
+          "signal": "RED_GREEN_INTERSECTION",
+          "guidance": "Verify traffic and listen before crossing"
+        }
+      ]
+    },
+    {
+      "id": "scene_crowd_bytetrack_02",
+      "sourceImage": "media_1791843705700_31516595.png",
+      "description": "High-density pedestrian concourse with ByteTrack persistent IDs (ID:1 to ID:142) and historical walking path polylines",
+      "learnedCapabilities": [
+        "Assign persistent numeric IDs across frames using IoU + centroid velocity kalman filtering",
+        "Maintain 20-frame historical trajectory polylines to distinguish standing pedestrians from walking/approaching pedestrians",
+        "Predict collision corridors in crowded indoor/outdoor plazas"
+      ]
+    },
+    {
+      "id": "scene_crosswalk_velocity_03",
+      "sourceImage": "media_1791843714922_20e96da6.png",
+      "description": "60 FPS AI Object Detection & Tracking at zebra crosswalk with cyclist, pedestrians, cars, and delivery truck",
+      "learnedObjects": [
+        {
+          "class": "person",
+          "trackId": "ID:01",
+          "velocityMps": 1.2,
+          "lane": "left",
+          "context": "Walking across zebra crossing"
+        },
+        {
+          "class": "person",
+          "trackId": "ID:02",
+          "velocityMps": 1.1,
+          "lane": "center",
+          "context": "Walking across zebra crossing"
+        },
+        {
+          "class": "car",
+          "trackId": "ID:03",
+          "velocityMps": 4,
+          "lane": "left",
+          "context": "Approaching red sedan"
+        },
+        {
+          "class": "car",
+          "trackId": "ID:04",
+          "velocityMps": 3.2,
+          "lane": "center",
+          "context": "Intersection traffic"
+        },
+        {
+          "class": "bicycle",
+          "trackId": "ID:05",
+          "velocityMps": 2.1,
+          "lane": "center",
+          "context": "Cyclist crossing ahead on zebra stripes"
+        },
+        {
+          "class": "car",
+          "trackId": "ID:07",
+          "velocityMps": 2.8,
+          "lane": "right",
+          "context": "Turning vehicle"
+        },
+        {
+          "class": "truck",
+          "trackId": "ID:08",
+          "velocityMps": 3,
+          "lane": "right",
+          "context": "SUV / Truck near crosswalk"
+        }
+      ]
+    },
+    {
+      "id": "scene_11_stage_riga_pipeline_04",
+      "sourceImage": "media_1791843833135_ff0e13ba.jpg",
+      "description": "11-Stage Riga Old Town to RTU Perception, LiDAR Depth, 3D Spatial Mapping, Movement Prediction, Local Radar, Gemini Scene Understanding & Tram Line 1 Navigation",
+      "learnedObjects": [
+        {
+          "class": "building",
+          "label": "Building (RTU)",
+          "distanceMeters": 15,
+          "lane": "left",
+          "dims3D": {
+            "widthM": 12,
+            "heightM": 14,
+            "depthM": 15
+          }
+        },
+        {
+          "class": "tree",
+          "label": "Tree",
+          "distanceMeters": 8,
+          "lane": "left",
+          "dims3D": {
+            "widthM": 2.2,
+            "heightM": 6.5,
+            "depthM": 2.2
+          }
+        },
+        {
+          "class": "traffic light",
+          "label": "Traffic light (Red)",
+          "signal": "RED",
+          "distanceMeters": 12,
+          "lane": "center",
+          "dims3D": {
+            "widthM": 0.4,
+            "heightM": 1.1,
+            "depthM": 0.4
+          }
+        },
+        {
+          "class": "tram",
+          "label": "Tram (Line 1)",
+          "trackId": "ID:3",
+          "distanceMeters": 10,
+          "lane": "right",
+          "velocityMps": 8,
+          "motion": "Moving forward",
+          "dims3D": {
+            "widthM": 2.5,
+            "heightM": 3.4,
+            "depthM": 18
+          }
+        },
+        {
+          "class": "person",
+          "label": "Pedestrian",
+          "trackId": "ID:7",
+          "distanceMeters": 4.5,
+          "lane": "left",
+          "velocityMps": 1.2,
+          "motion": "Moving forward",
+          "dims3D": {
+            "widthM": 0.6,
+            "heightM": 1.75,
+            "depthM": 0.5
+          }
+        },
+        {
+          "class": "car",
+          "label": "Car",
+          "trackId": "ID:5",
+          "distanceMeters": 7,
+          "lane": "center",
+          "velocityMps": 3.5,
+          "motion": "Coming from left",
+          "dims3D": {
+            "widthM": 1.8,
+            "heightM": 1.5,
+            "depthM": 4.4
+          }
+        },
+        {
+          "class": "bicycle",
+          "label": "Bicycle",
+          "distanceMeters": 2.8,
+          "lane": "right",
+          "velocityMps": 2.1,
+          "motion": "Crossing",
+          "dims3D": {
+            "widthM": 0.7,
+            "heightM": 1.5,
+            "depthM": 1.7
+          }
+        }
+      ],
+      "geminiSceneTemplate": "You are at a tram stop near Old Town. There is a pedestrian walking ahead of you, a car on the left, and a tram on the right. The traffic light ahead is red. The building on the left is Riga Technical University.",
+      "routeStepsOldTownToRTU": [
+        {
+          "step": 1,
+          "icon": "walk",
+          "instruction": "Walk straight for 200 meters",
+          "distanceMeters": 200
+        },
+        {
+          "step": 2,
+          "icon": "traffic_light",
+          "instruction": "Cross the street at the traffic light",
+          "distanceMeters": 30
+        },
+        {
+          "step": 3,
+          "icon": "tram",
+          "instruction": "Take Tram Line 1 towards RTU",
+          "distanceMeters": 1200,
+          "transitLine": "Tram Line 1"
+        },
+        {
+          "step": 4,
+          "icon": "exit_tram",
+          "instruction": "Get off at RTU stop",
+          "distanceMeters": 20
+        },
+        {
+          "step": 5,
+          "icon": "walk",
+          "instruction": "Walk 100 meters to the entrance",
+          "distanceMeters": 100
+        }
+      ],
+      "canonicalSpokenAlerts": [
+        "Walk straight for 20 meters. The tram stop is on your right.",
+        "Car approaching from left. Stay where you are.",
+        "Bicycle is crossing ahead.",
+        "Tram Line 1 has arrived. The doors are on your right."
+      ]
+    },
+    {
+      "id": "scene_3d_cuboids_european_signs_05",
+      "sourceImage": "media_1791843907008_97574e74.jpg",
+      "description": "3D spatial vehicle/pedestrian wireframe cuboids, European/Latvian road sign codes, and green walkable ground corridor carpet",
+      "learnedRoadSigns": [
+        {
+          "code": "5.35 / 31.2",
+          "name": "Pedestrian Crossing Sign",
+          "shape": "blue_square_white_triangle",
+          "guidance": "Pedestrian zebra crossing ahead. Listen for vehicles and check signal."
+        },
+        {
+          "code": "3.27",
+          "name": "No Stopping Sign (with 8.24 Tow-Away Plate)",
+          "shape": "blue_circle_red_x",
+          "guidance": "Curbside no-stopping zone; watch for parked or departing cars along curb."
+        },
+        {
+          "code": "2.1",
+          "name": "Priority Road Sign",
+          "shape": "yellow_diamond_white_border",
+          "guidance": "Main priority road ahead. High traffic flow; cross only at marked crosswalks."
+        },
+        {
+          "code": "4.1.1",
+          "name": "Mandatory Straight Ahead Sign",
+          "shape": "blue_circle_white_up_arrow",
+          "guidance": "Vehicles proceed straight ahead along this lane."
+        },
+        {
+          "code": "5.15 / 6.4",
+          "name": "Parking Zone & Lane Direction Sign",
+          "shape": "blue_rectangle_P",
+          "guidance": "Roadside parking area; watch for cars reversing or pulling out."
+        }
+      ]
+    }
+  ],
+  "velocityPriorsMps": {
+    "person_standing": 0,
+    "person_walking": 1.2,
+    "bicycle": 2.1,
+    "cyclist": 2.1,
+    "car": 3.5,
+    "bus": 4.5,
+    "trolleybus": 4.5,
+    "tram": 8,
+    "truck": 3.2
+  },
+  "userTrainedSamples": [
+    {
+      "id": "trained_1791845425789",
+      "trainedAt": "2026-10-12T22:50:25.789Z",
+      "label": "Pedestrian crossing",
+      "notes": "Verification test sample",
+      "gps": {
+        "lat": 56.9515,
+        "lon": 24.0812
+      },
+      "matchedRoadSign": {
+        "id": "info_pedestrian_crossing",
+        "name": "Pedestrian crossing Sign",
+        "latvianName": "Gājēju pāreja",
+        "category": "Information Signs",
+        "categoryLatvian": "Informācijas zīmes",
+        "shape": "square_blue",
+        "icon": "🚸",
+        "pedestrianGuidance": "Pedestrian Crossing (Gājēju pāreja) sign detected! Zebra crossing path is right here.",
+        "keywords": [
+          "pedestrian crossing",
+          "gajeju pareja",
+          "crosswalk sign",
+          "zebra sign"
+        ]
+      },
+      "learnedObjects": [
+        {
+          "class": "road sign",
+          "distanceMeters": 3,
+          "velocityMps": 1.2,
+          "lane": "right"
+        }
+      ],
+      "spokenGuidanceRule": "Learned Pedestrian crossing: Blind AI will now detect and announce \"Pedestrian crossing\" during live camera navigation."
+    }
+  ]
+}

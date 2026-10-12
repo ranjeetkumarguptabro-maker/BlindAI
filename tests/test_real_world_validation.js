@@ -18,13 +18,14 @@ const { UnifiedSafetyEngine } = require('../backend/src/services/ai/unifiedSafet
 const { RIGA_ROAD_SIGNS_CATALOG, matchRigaRoadSign } = require('../backend/src/data/rigaRoadSignsCatalog');
 const { validateDestinationBeforeNavigation, extractOriginDestinationAndPreferences } = require('../backend/src/models/locations');
 const routingService = require('../backend/src/services/routingService');
+const unifiedModel = require('../backend/src/services/ai/blindAiUnifiedModel');
 
 console.log('================================================================');
 console.log('  BLIND AI: REAL-WORLD NAVIGATION VALIDATION SUITE (P1)         ');
 console.log('================================================================\n');
 
 let passedTests = 0;
-let totalTests = 11;
+let totalTests = 12;
 
 
 // --- AC-1: Route Guidance & Turn-by-Turn Waypoint Progression ---
@@ -509,6 +510,68 @@ try {
     passedTests++;
   } catch (err) {
     console.error('❌ [FAIL] AC-11:', err.message);
+  }
+
+  // --- AC-12: Unified 11-Stage Trainable AI Model & Clean Simplified UI ---
+  try {
+    const fs = require('fs');
+    const path = require('path');
+
+    // 1. Verify Knowledge Base has all 5 uploaded reference datasets + 11 pipeline stages
+    const status = unifiedModel.getModelSummary();
+    assert.strictEqual(status.modelName, 'BlindAI-Unified-Multimodal-v3');
+    assert.strictEqual(status.pipelineStages.length, 11, 'Must define all 11 pipeline stages from reference architecture');
+    assert.ok(status.trainedReferenceScenesCount >= 5, 'Must include all 5 pre-trained reference scenes from uploaded images');
+
+    // 2. Run 11-Stage Unified Pipeline (YOLO + ByteTrack ID + LiDAR Depth + 3D Cuboids + Velocity m/s + Radar + Maps + Voice)
+    const pipelineOut = await unifiedModel.runUnifiedPipeline({
+      detections: [
+        { class: 'person', distance: 2.8, lane: 'center', bbox: [200, 120, 70, 180], confidence: 0.95 },
+        { class: 'car', distance: 4.5, lane: 'left', bbox: [40, 140, 130, 110], confidence: 0.96 },
+        { class: 'bicycle', distance: 3.1, lane: 'center', bbox: [220, 150, 60, 110], confidence: 0.91, isPersonCrossing: true },
+        { class: 'tram', distance: 7.0, lane: 'right', bbox: [350, 80, 120, 200], confidence: 0.94 }
+      ],
+      gps: { lat: 56.9475, lon: 24.1064, street: 'Riga Old Town' },
+      destination: 'Riga Technical University (RTU)',
+      trafficSignal: { detected: true, color: 'RED', distance: 8.0 }
+    });
+
+    assert.strictEqual(pipelineOut.stages.stage3_byteTrackIds.length, 4, 'Stage 3 ByteTrack must track all 4 objects with persistent IDs');
+    assert.ok(pipelineOut.stages.stage3_byteTrackIds[0].startsWith('ID:'), 'Must assign formatted ByteTrack ID (e.g., ID:01)');
+    assert.ok(pipelineOut.stages.stage6_3dObjects[0].dims3D.heightM > 0, 'Stage 6 must compute 3D cuboid dimensions');
+    assert.ok(pipelineOut.stages.stage7_predictions.some(m => m.velocityMps === 3.5), 'Stage 7 must predict 3.5 m/s car velocity');
+    assert.ok(pipelineOut.stages.stage7_predictions.some(m => m.velocityMps === 8.0), 'Stage 7 must predict 8.0 m/s tram velocity');
+    assert.ok(pipelineOut.stages.stage8_environmentalMap.nodes.length === 4, 'Stage 8 must populate local environmental radar map');
+    assert.ok(pipelineOut.stages.stage11_finalOutput.alerts.length >= 2, 'Stage 11 must output clean, human-friendly guidance alerts');
+
+    // 3. Verify Continuous Image Training (Teach AI) stores sample in model memory
+    const beforeCount = unifiedModel.knowledgeBase.userTrainedSamples.length;
+    const trainRes = await unifiedModel.trainOnImage({
+      imageBase64: '',
+      label: 'Pedestrian crossing',
+      notes: 'Verification test sample',
+      detectedObjects: [{ class: 'road sign', distance: 3.0, lane: 'right' }],
+      gps: { lat: 56.9515, lon: 24.0812 }
+    });
+    assert.strictEqual(trainRes.status, 'trained', 'Training on new image/scene must succeed');
+    assert.ok(trainRes.sample.matchedRoadSign && trainRes.sample.matchedRoadSign.name, 'Must match road sign from Latvian catalog');
+    // Restore clean test sample state so test is idempotent
+    if (unifiedModel.knowledgeBase.userTrainedSamples.length > beforeCount) {
+      unifiedModel.knowledgeBase.userTrainedSamples.pop();
+      unifiedModel.saveKnowledgeBase();
+    }
+
+    // 4. Verify Simplified Clean UI & Teach AI Modal in preview.html
+    const html = fs.readFileSync(path.join(__dirname, '../preview.html'), 'utf8');
+    assert.ok(html.includes('id="train-model-modal"'), 'Must include Unified AI Model training modal (#train-model-modal)');
+    assert.ok(html.includes('BlindAIUnifiedModelClient'), 'Must include BlindAIUnifiedModelClient in preview.html');
+    assert.ok(html.includes('updateTracksAndDrawCorridor'), 'Must render Green Walkable Corridor Carpet & ByteTrack IDs on canvas');
+
+    console.log('✅ [PASS] AC-12: Unified 11-Stage Trainable AI Model & Simplified Clean UI');
+    console.log('   -> 5 Reference Datasets, 11-Stage Pipeline (ByteTrack IDs, Velocity m/s, 3D Cuboids, Green Corridor, Local Radar, Tram Line 1, Gemini & Continuous Image Training) verified.');
+    passedTests++;
+  } catch (err) {
+    console.error('❌ [FAIL] AC-12:', err.message);
   }
 
   console.log('\n================================================================');

@@ -7,6 +7,7 @@ const supabaseClient = require("./services/db/supabaseClient");
 const environmentController = require("./controllers/environmentController");
 const voiceController = require("./controllers/voiceController");
 const routesController = require("./controllers/routesController");
+const blindAiUnifiedModel = require("./services/ai/blindAiUnifiedModel");
 
 // Valid frontend application routes (SPA serving)
 const VALID_FRONTEND_ROUTES = new Set([
@@ -253,6 +254,34 @@ const requestHandler = async (req, res) => {
         message: "Obstacle event recorded",
         eventId: "obs-" + Date.now(),
         data: eventData
+      });
+    }
+
+    // 6. Unified AI Model Status & Trained Knowledge Summary
+    if (pathname === "/api/v1/model/status" && req.method === "GET") {
+      return sendJson(200, {
+        status: "success",
+        data: blindAiUnifiedModel.getModelSummary()
+      });
+    }
+
+    // 7. Unified 11-Stage Pipeline Inference (Camera + ByteTrack + LiDAR + 3D + Velocity + Radar + Gemini + GPS/Tram)
+    if (pathname === "/api/v1/model/infer" && req.method === "POST") {
+      const body = await readBody();
+      const result = await blindAiUnifiedModel.runUnifiedPipeline(body);
+      return sendJson(200, {
+        status: "success",
+        data: result
+      });
+    }
+
+    // 8. Continuous Visual Model Training (Ingest & learn from any image/scene provided by user)
+    if (pathname === "/api/v1/model/train" && req.method === "POST") {
+      const body = await readBody();
+      const result = await blindAiUnifiedModel.trainOnImage(body);
+      return sendJson(200, {
+        status: "success",
+        data: result
       });
     }
 
