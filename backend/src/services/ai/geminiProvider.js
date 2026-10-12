@@ -487,6 +487,18 @@ Rules:
     }
 
     // 5i. Crosswalk query
+    // 5i-a. Crossing Path / Zebra Crosswalk Detection Query
+    if (/^(is there a crossing|is there a crossing path|where is the crossing|where is the crossing path|crossing path|zebra crossing|detect crossing|detect crossing path|is there a crosswalk)$/i.test(cleaned)) {
+      return {
+        intent: "crossing_path_query",
+        action: "crossing_path_query",
+        spoken_response: "Scanning road surface ahead for zebra crossing path stripes and pedestrian signals.",
+        confidence: 0.99,
+        provider: `${this.name} (Crossing Path YOLO Match)`
+      };
+    }
+
+    // 5i-b. Crosswalk Quiet Mode
     if (/^(can i cross|is it safe to cross|crosswalk|pedestrian crossing|cross the street)$/i.test(cleaned)) {
       return {
         intent: "click_button",

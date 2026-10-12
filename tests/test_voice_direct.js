@@ -143,6 +143,11 @@ async function runDirectTests() {
       label: '26. Crosswalk Traffic Acoustic Query ("Is it quiet?")',
       input: 'is it quiet',
       expectedIntent: 'traffic_query'
+    },
+    {
+      label: '27. Crossing Path YOLO Detection Query ("Is there a crossing path?")',
+      input: 'is there a crossing path',
+      expectedIntent: 'crossing_path_query'
     }
   ];
 

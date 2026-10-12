@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-10-11T21:56:40.035Z",
+  "timestamp": "2026-10-12T20:54:16.423Z",
   "totalVectors": 120,
   "metrics": {
     "maeMeters": 0.048,
@@ -19,6 +19,7 @@
       "car": 1.5,
       "dog": 0.55,
       "stairs": 1.5,
+      "crossing path": 0.65,
       "fire hydrant": 0.75,
       "bench": 0.85,
       "default": 1.4
@@ -82,7 +83,7 @@
     },
     {
       "id": 6,
-      "class": "fire hydrant",
+      "class": "crossing path",
       "gtDist": "0.50m",
       "estDist": "0.49m",
       "error": "0.01m",
@@ -93,7 +94,7 @@
     },
     {
       "id": 7,
-      "class": "person",
+      "class": "fire hydrant",
       "gtDist": "0.50m",
       "estDist": "0.50m",
       "error": "0.00m",
@@ -104,7 +105,7 @@
     },
     {
       "id": 8,
-      "class": "car",
+      "class": "person",
       "gtDist": "0.50m",
       "estDist": "0.51m",
       "error": "0.01m",
@@ -115,7 +116,7 @@
     },
     {
       "id": 9,
-      "class": "bicycle",
+      "class": "car",
       "gtDist": "0.50m",
       "estDist": "0.51m",
       "error": "0.01m",
@@ -126,7 +127,7 @@
     },
     {
       "id": 10,
-      "class": "dog",
+      "class": "bicycle",
       "gtDist": "0.50m",
       "estDist": "0.51m",
       "error": "0.01m",
@@ -137,7 +138,7 @@
     },
     {
       "id": 11,
-      "class": "stairs",
+      "class": "dog",
       "gtDist": "0.50m",
       "estDist": "0.53m",
       "error": "0.03m",
@@ -148,7 +149,7 @@
     },
     {
       "id": 12,
-      "class": "fire hydrant",
+      "class": "stairs",
       "gtDist": "0.50m",
       "estDist": "0.52m",
       "error": "0.02m",
@@ -159,7 +160,7 @@
     },
     {
       "id": 13,
-      "class": "person",
+      "class": "crossing path",
       "gtDist": "0.75m",
       "estDist": "0.77m",
       "error": "0.02m",
@@ -170,7 +171,7 @@
     },
     {
       "id": 14,
-      "class": "car",
+      "class": "fire hydrant",
       "gtDist": "0.75m",
       "estDist": "0.76m",
       "error": "0.01m",
@@ -181,7 +182,7 @@
     },
     {
       "id": 15,
-      "class": "bicycle",
+      "class": "person",
       "gtDist": "0.75m",
       "estDist": "0.75m",
       "error": "0.00m",
@@ -192,7 +193,7 @@
     },
     {
       "id": 16,
-      "class": "dog",
+      "class": "car",
       "gtDist": "0.75m",
       "estDist": "0.74m",
       "error": "0.01m",
@@ -203,7 +204,7 @@
     },
     {
       "id": 24,
-      "class": "fire hydrant",
+      "class": "bicycle",
       "gtDist": "0.75m",
       "estDist": "0.77m",
       "error": "0.02m",
@@ -214,7 +215,7 @@
     },
     {
       "id": 32,
-      "class": "car",
+      "class": "dog",
       "gtDist": "1.00m",
       "estDist": "0.97m",
       "error": "0.03m",
@@ -225,7 +226,7 @@
     },
     {
       "id": 40,
-      "class": "dog",
+      "class": "stairs",
       "gtDist": "1.25m",
       "estDist": "1.30m",
       "error": "0.05m",
@@ -236,7 +237,7 @@
     },
     {
       "id": 48,
-      "class": "fire hydrant",
+      "class": "crossing path",
       "gtDist": "1.25m",
       "estDist": "1.20m",
       "error": "0.05m",
@@ -247,7 +248,7 @@
     },
     {
       "id": 56,
-      "class": "car",
+      "class": "fire hydrant",
       "gtDist": "1.50m",
       "estDist": "1.56m",
       "error": "0.06m",
@@ -258,7 +259,7 @@
     },
     {
       "id": 64,
-      "class": "dog",
+      "class": "person",
       "gtDist": "2.00m",
       "estDist": "1.93m",
       "error": "0.07m",
@@ -269,7 +270,7 @@
     },
     {
       "id": 72,
-      "class": "fire hydrant",
+      "class": "car",
       "gtDist": "2.00m",
       "estDist": "2.07m",
       "error": "0.07m",
@@ -280,7 +281,7 @@
     },
     {
       "id": 80,
-      "class": "car",
+      "class": "bicycle",
       "gtDist": "2.50m",
       "estDist": "2.44m",
       "error": "0.06m",
@@ -302,7 +303,7 @@
     },
     {
       "id": 96,
-      "class": "fire hydrant",
+      "class": "stairs",
       "gtDist": "3.00m",
       "estDist": "2.98m",
       "error": "0.02m",
@@ -313,7 +314,7 @@
     },
     {
       "id": 104,
-      "class": "car",
+      "class": "crossing path",
       "gtDist": "4.00m",
       "estDist": "3.99m",
       "error": "0.01m",
@@ -324,7 +325,7 @@
     },
     {
       "id": 112,
-      "class": "dog",
+      "class": "fire hydrant",
       "gtDist": "5.00m",
       "estDist": "5.07m",
       "error": "0.07m",
@@ -335,7 +336,7 @@
     },
     {
       "id": 120,
-      "class": "fire hydrant",
+      "class": "person",
       "gtDist": "5.00m",
       "estDist": "4.91m",
       "error": "0.09m",

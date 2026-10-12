@@ -98,13 +98,22 @@ public final class YOLOObjectDetector: @unchecked Sendable {
                     return
                 }
                 
-                for rect in results where rect.confidence > 0.60 {
+                var groundStripeRects: [CGRect] = []
+                
+                for rect in results where rect.confidence > 0.58 {
                     let uiRect = CGRect(
                         x: rect.boundingBox.origin.x,
                         y: 1.0 - rect.boundingBox.origin.y - rect.boundingBox.size.height,
                         width: rect.boundingBox.size.width,
                         height: rect.boundingBox.size.height
                     )
+                    
+                    let aspectRatio = uiRect.width / max(0.01, uiRect.height)
+                    // Wide horizontal bars on the ground plane indicate zebra crossing stripes
+                    if uiRect.origin.y > 0.42 && aspectRatio >= 1.85 {
+                        groundStripeRects.append(uiRect)
+                        continue
+                    }
                     
                     let lane = self.determineLane(for: uiRect)
                     let estimatedDist = self.estimateDistance(for: uiRect)
@@ -120,10 +129,28 @@ public final class YOLOObjectDetector: @unchecked Sendable {
                         isHazard: isHazard
                     ))
                 }
+                
+                // Fuse ground-plane zebra stripes into a unified Crossing Path detection
+                if !groundStripeRects.isEmpty {
+                    let unionRect = groundStripeRects.reduce(groundStripeRects[0]) { $0.union($1) }
+                    let lane = self.determineLane(for: unionRect)
+                    let bottomY = max(0.22, Double(unionRect.maxY) - 0.24)
+                    let crossDist = max(0.6, min(6.5, 1.35 / bottomY))
+                    detections.append(YOLODetection(
+                        label: "Crossing Path",
+                        icon: "🚸",
+                        confidence: min(0.98, 0.82 + Float(groundStripeRects.count) * 0.03),
+                        boundingBox: unionRect,
+                        distanceMeters: crossDist,
+                        lane: lane,
+                        isHazard: false
+                    ))
+                }
             }
-            rectRequest.minimumAspectRatio = 0.2
-            rectRequest.maximumAspectRatio = 4.0
-            rectRequest.minimumConfidence = 0.65
+            rectRequest.minimumAspectRatio = 0.15
+            rectRequest.maximumAspectRatio = 8.0
+            rectRequest.maximumObservations = 12
+            rectRequest.minimumConfidence = 0.58
             
             let handler = VNImageRequestHandler(cvPixelBuffer: pixelBuffer, options: [:])
             do {

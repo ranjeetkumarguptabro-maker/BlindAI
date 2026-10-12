@@ -24,6 +24,7 @@ const metricObjectHeights = {
   'car': 1.50,
   'dog': 0.55,
   'stairs': 1.50,
+  'crossing path': 0.65,
   'fire hydrant': 0.75,
   'bench': 0.85,
   'default': 1.40
@@ -48,7 +49,7 @@ function generateBenchmarkDataset() {
     { name: 'night_vision_active', noiseSigma: 0.04, latencyMs: 42 }
   ];
   const speeds = [0.0, 0.8, 1.2, 1.6]; // m/s
-  const classes = ['person', 'car', 'bicycle', 'dog', 'stairs', 'fire hydrant'];
+  const classes = ['person', 'car', 'bicycle', 'dog', 'stairs', 'crossing path', 'fire hydrant'];
 
   const dataset = [];
   const videoHeight = 720;
