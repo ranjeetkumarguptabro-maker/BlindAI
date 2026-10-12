@@ -158,6 +158,26 @@ async function runDirectTests() {
       label: '29. Riga Road Sign YOLO Detection Query ("Detect road signs")',
       input: 'detect road signs',
       expectedIntent: 'detect_signs'
+    },
+    {
+      label: '30. Standing People & People Around Query ("Is anyone standing ahead?")',
+      input: 'is anyone standing ahead',
+      expectedIntent: 'people_around_query'
+    },
+    {
+      label: '31. Ground Depth Hole / Drop-off Query ("Is there a depth hole?")',
+      input: 'is there a depth hole',
+      expectedIntent: 'depth_hole_query'
+    },
+    {
+      label: '32. Dual-Move Choice 1: Surface Walk ("Normal walk to bus stop")',
+      input: 'normal walk to bus stop',
+      expectedIntent: 'dual_move_select'
+    },
+    {
+      label: '33. Dual-Move Choice 2: Underpass ("Use tunnel going down")',
+      input: 'use tunnel going down',
+      expectedIntent: 'dual_move_select'
     }
   ];
 

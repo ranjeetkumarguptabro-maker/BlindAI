@@ -771,6 +771,38 @@ html_content = f"""<!DOCTYPE html>
                   <span id="nav-pace-pill" class="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">0 steps/min</span>
                 </div>
               </div>
+
+              <!-- Dual-Move Path Tracker & Standing People / Depth Hole HUD -->
+              <div id="nav-dual-move-hud" class="w-full py-2 px-3 rounded-2xl bg-black/90 backdrop-blur-md border border-cyan-500/40 text-white shadow-xl flex flex-col space-y-1.5" role="region" aria-label="Dual-Move Path Choice and Standing People Tracker">
+                <div class="flex items-center justify-between">
+                  <span class="text-[9px] font-extrabold text-cyan-300 uppercase tracking-wider flex items-center gap-1">
+                    <span aria-hidden="true">🛣️</span> Dual-Move Path Tracker
+                  </span>
+                  <div class="flex items-center gap-1">
+                    <span id="nav-depth-hole-badge" class="px-1.5 py-0.5 rounded-full text-[9px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Ground: Level</span>
+                    <span id="nav-people-around-badge" class="px-1.5 py-0.5 rounded-full text-[9px] font-mono font-bold bg-sky-500/20 text-sky-300 border border-sky-500/30">👥 0 People</span>
+                  </div>
+                </div>
+                <div class="grid grid-cols-2 gap-1.5">
+                  <button type="button" id="btn-move-normal-walk" onclick="selectDualMovePath('normal_walk', true)" aria-label="Move 1: Normal surface walk to Bus Stop" class="py-1.5 px-2 rounded-xl bg-emerald-600/35 border-2 border-emerald-400 text-left flex items-center space-x-1.5 transition active:scale-95">
+                    <span class="text-sm shrink-0" aria-hidden="true">🚶</span>
+                    <div class="flex flex-col min-w-0">
+                      <span class="text-[10px] font-black text-white leading-tight truncate">Move 1: Bus Stop</span>
+                      <span class="text-[8px] font-semibold text-emerald-200 truncate">Normal Surface Walk</span>
+                    </div>
+                  </button>
+                  <button type="button" id="btn-move-tunnel-down" onclick="selectDualMovePath('tunnel_down', true)" aria-label="Move 2: Use tunnel going down into underpass" class="py-1.5 px-2 rounded-xl bg-white/10 border border-white/25 text-left flex items-center space-x-1.5 transition active:scale-95">
+                    <span class="text-sm shrink-0" aria-hidden="true">🚇</span>
+                    <div class="flex flex-col min-w-0">
+                      <span class="text-[10px] font-black text-white leading-tight truncate">Move 2: Tunnel Down</span>
+                      <span class="text-[8px] font-semibold text-slate-300 truncate">Underpass Going Down</span>
+                    </div>
+                  </button>
+                </div>
+                <div id="nav-dual-move-status" class="text-[10px] font-semibold text-cyan-200 truncate">
+                  Active Move: Normal Walk to Bus Stop • Scanning people &amp; ground depth
+                </div>
+              </div>
             </div>
 
             <!-- Bottom Hands-Free Voice Interaction Hub for Blind Pedestrians (No Button Clutter) -->
@@ -1719,7 +1751,8 @@ html_content = f"""<!DOCTYPE html>
     let lastSceneDescription = "";
 
     const metricObjectHeights = {{
-      'person': 1.70, 'bicycle': 1.05, 'car': 1.50, 'motorcycle': 1.15,
+      'person': 1.70, 'person standing': 1.70, 'person walking': 1.70,
+      'bicycle': 1.05, 'car': 1.50, 'motorcycle': 1.15,
       'bus': 3.20, 'truck': 2.80, 'traffic light': 0.90, 'stop sign': 0.75,
       'fire hydrant': 0.75, 'bench': 0.85, 'dog': 0.55, 'cat': 0.30,
       'backpack': 0.45, 'umbrella': 0.85, 'handbag': 0.35, 'suitcase': 0.60,
@@ -1727,6 +1760,8 @@ html_content = f"""<!DOCTYPE html>
       'dining table': 0.75, 'tv': 0.65, 'laptop': 0.25, 'cell phone': 0.15,
       'door': 2.05, 'stairs': 1.50, 'pole': 2.20,
       'tree': 2.60, 'tree trunk': 2.60,
+      'depth hole': 0.45, 'depth hole / drop-off': 0.45,
+      'tunnel going down': 2.20, 'underpass tunnel': 2.20,
       'road sign': 0.75, 'warning sign': 0.75, 'prohibition sign': 0.75,
       'mandatory sign': 0.75, 'information sign': 0.75, 'direction sign': 0.85,
       'temporary sign': 0.75, 'additional plate': 0.45,
@@ -2598,13 +2633,16 @@ html_content = f"""<!DOCTYPE html>
       const matchedSign = typeof matchRigaRoadSignClient === 'function' ? matchRigaRoadSignClient(l) : null;
       if (matchedSign && matchedSign.icon) return matchedSign.icon;
       const icons = {{
-        'chair': '🪑', 'person': '👤', 'car': '🚗', 'bicycle': '🚲',
+        'chair': '🪑', 'person': '👤', 'person standing': '🧍', 'person walking': '🚶',
+        'car': '🚗', 'bicycle': '🚲',
         'bus': '🚌', 'truck': '🚛', 'motorcycle': '🏍️',
         'dog': '🐕', 'cat': '🐈', 'bottle': '🍾', 'cup': '☕',
         'couch': '🛋️', 'table': '🪑', 'tv': '📺', 'laptop': '💻',
         'cell phone': '📱', 'door': '🚪', 'stairs': '🪜', 'backpack': '🎒',
         'traffic light': '🚦', 'stop sign': '🛑', 'bench': '🪵',
         'tree': '🌳', 'tree trunk': '🌳', 'potted plant': '🌳',
+        'depth hole': '🕳️', 'depth hole / drop-off': '🕳️',
+        'tunnel going down': '🚇', 'underpass tunnel': '🚇',
         'road sign': '🪧', 'warning sign': '⚠️', 'prohibition sign': '🚫',
         'mandatory sign': '🔵', 'information sign': 'ℹ️', 'direction sign': '🪧',
         'temporary sign': '🚧', 'additional plate': '🪧',
@@ -2640,15 +2678,15 @@ html_content = f"""<!DOCTYPE html>
         snapshotBase64 = snap.toDataURL('image/jpeg', 0.75);
       }}
 
-      // First run browser COCO-SSD neural detection if available
+      // First run browser COCO-SSD neural detection if available (0.28 minScore for outdoor pedestrian recall)
       let browserDetections = [];
       if (cocoSsdModel && video && video.readyState >= 2) {{
         try {{
-          const preds = await cocoSsdModel.detect(video);
+          const preds = await cocoSsdModel.detect(video, 20, 0.28);
           browserDetections = preds.map(p => ({{
             label: p.class.charAt(0).toUpperCase() + p.class.slice(1),
             confidence: Math.round(p.score * 100),
-            lane: p.bbox[0] + p.bbox[2] / 2 < video.videoWidth * 0.4 ? 'on your left' : (p.bbox[0] + p.bbox[2] / 2 > video.videoWidth * 0.6 ? 'on your right' : 'directly ahead')
+            lane: p.bbox[0] + p.bbox[2] / 2 < video.videoWidth * 0.36 ? 'on your left' : (p.bbox[0] + p.bbox[2] / 2 > video.videoWidth * 0.64 ? 'on your right' : 'directly ahead')
           }}));
         }} catch(e){{}}
       }}
@@ -3558,22 +3596,23 @@ html_content = f"""<!DOCTYPE html>
           const frameData = crosswalkScanCtx.getImageData(0, 0, sW, sH).data;
 
           // --- 2A. Arboreal Canopy & Trunk Detector (🌳 Tree) ---
+          // Require both upper foliage canopy AND a narrow vertical bark trunk so park grass/bushes never false-trigger center-path caution loops
           const hasCocoTree = (rawDetections || []).some(d => d.isTree || d.rawClass === 'tree');
           if (!hasCocoTree) {{
             let foliageCount = 0;
             let tMinX = sW, tMaxX = 0, tMinY = sH, tMaxY = 0;
             let textureTransitions = 0;
 
-            for (let y = 4; y <= 40; y++) {{
+            for (let y = 4; y <= 34; y++) {{
               let prevFoliage = false;
-              for (let x = 4; x <= 76; x++) {{
+              for (let x = 6; x <= 74; x++) {{
                 const idx = (y * sW + x) * 4;
                 const r = frameData[idx];
                 const g = frameData[idx + 1];
                 const b = frameData[idx + 2];
                 const sat = Math.max(r, g, b) - Math.min(r, g, b);
-                // Natural foliage green or autumn leaf canopy
-                const isFoliage = (g > r + 9 && g > b + 12 && g > 44 && g < 215 && sat > 16);
+                // Natural foliage green canopy in upper frame
+                const isFoliage = (g > r + 12 && g > b + 15 && g > 48 && g < 205 && sat > 22);
                 if (isFoliage) {{
                   foliageCount++;
                   if (!prevFoliage) textureTransitions++;
@@ -3590,30 +3629,54 @@ html_content = f"""<!DOCTYPE html>
 
             const spanX = tMaxX - tMinX;
             const spanY = tMaxY - tMinY;
-            if (foliageCount >= 28 && textureTransitions >= 8 && spanX >= 7 && spanY >= 7) {{
-              // Extend bounding box downward to include tree trunk to sidewalk contact
-              const trunkBottomY = Math.min(sH - 4, Math.round(tMaxY + spanY * 0.65));
-              const boxX = Math.max(8, (tMinX / sW) * cW);
-              const boxY = Math.max(8, (tMinY / sH) * cH);
-              const boxW = Math.max(cW * 0.18, Math.min(cW * 0.58, (spanX / sW) * cW));
-              const boxH = Math.max(cH * 0.24, Math.min(cH * 0.68, ((trunkBottomY - tMinY) / sH) * cH));
-              const centerX = boxX + boxW / 2;
-              const estDist = Math.max(0.8, Math.min(6.0, parseFloat(((cH * 0.85) / Math.max(40, boxH)).toFixed(1))));
+            if (foliageCount >= 38 && textureTransitions >= 10 && spanX >= 8 && spanX <= 32 && spanY >= 8) {{
+              // Verify a narrow vertical bark trunk below the canopy before emitting a sidewalk tree
+              const canopyMidX = Math.round((tMinX + tMaxX) / 2);
+              const searchLeft = Math.max(4, canopyMidX - 10);
+              const searchRight = Math.min(sW - 4, canopyMidX + 10);
+              let trunkPixels = 0;
+              let trMinX = sW, trMaxX = 0;
+              for (let y = Math.max(22, tMaxY - 2); y <= Math.min(52, tMaxY + 18); y++) {{
+                for (let x = searchLeft; x <= searchRight; x++) {{
+                  const idx = (y * sW + x) * 4;
+                  const r = frameData[idx];
+                  const g = frameData[idx + 1];
+                  const b = frameData[idx + 2];
+                  // Dark brown/grey bark trunk signature
+                  const isBark = (r > 35 && r < 125 && g > 28 && g < 115 && b < 100 && r >= b && Math.abs(r - g) < 32);
+                  if (isBark) {{
+                    trunkPixels++;
+                    if (x < trMinX) trMinX = x;
+                    if (x > trMaxX) trMaxX = x;
+                  }}
+                }}
+              }}
+              const trunkSpanX = trMaxX >= trMinX ? (trMaxX - trMinX) : 99;
+              if (trunkPixels >= 12 && trunkSpanX >= 2 && trunkSpanX <= 14) {{
+                const trunkBottomY = Math.min(sH - 4, Math.round(tMaxY + spanY * 0.65));
+                const boxX = Math.max(8, (tMinX / sW) * cW);
+                const boxY = Math.max(8, (tMinY / sH) * cH);
+                const boxW = Math.max(cW * 0.16, Math.min(cW * 0.42, (spanX / sW) * cW));
+                const boxH = Math.max(cH * 0.24, Math.min(cH * 0.62, ((trunkBottomY - tMinY) / sH) * cH));
+                const centerX = boxX + boxW / 2;
+                const estDist = Math.max(1.2, Math.min(5.5, parseFloat(((cH * 0.85) / Math.max(40, boxH)).toFixed(1))));
 
-              extraDetections.push({{
-                label: 'Tree',
-                rawClass: 'tree',
-                icon: '🌳',
-                x: boxX,
-                y: boxY,
-                w: boxW,
-                h: boxH,
-                conf: Math.min(0.96, 0.82 + foliageCount * 0.0012),
-                distance: estDist,
-                lane: centerX < cW * 0.33 ? 'left' : (centerX > cW * 0.67 ? 'right' : 'center'),
-                isTree: true,
-                spokenGuidance: 'Caution: Tree ahead on sidewalk. Watch for tree trunk and low-hanging branches.'
-              }});
+                extraDetections.push({{
+                  label: 'Tree',
+                  rawClass: 'tree',
+                  icon: '🌳',
+                  x: boxX,
+                  y: boxY,
+                  w: boxW,
+                  h: boxH,
+                  conf: Math.min(0.95, 0.82 + foliageCount * 0.001),
+                  distance: estDist,
+                  lane: centerX < cW * 0.36 ? 'left' : (centerX > cW * 0.64 ? 'right' : 'center'),
+                  isTree: true,
+                  isPixelHeuristicTree: true,
+                  spokenGuidance: 'Tree alongside sidewalk. Watch for tree trunk and low-hanging branches.'
+                }});
+              }}
             }}
           }}
 
@@ -3761,6 +3824,285 @@ html_content = f"""<!DOCTYPE html>
       return extraDetections;
     }}
 
+    // ==================== STANDING PEOPLE vs WALKING PEOPLE & DUAL-MOVE / DEPTH HOLE TRACKER ====================
+    let personMotionHistory = [];
+    let activeDualMovePath = 'normal_walk'; // 'normal_walk' (Move 1: Bus Stop Surface) or 'tunnel_down' (Move 2: Tunnel Going Down)
+    let lastSpokenGuidanceKey = '';
+    let lastSpokenGuidanceDist = 99.0;
+    let lastPeopleAroundSpeechTime = 0;
+    let lastPeopleAroundSignature = '';
+
+    function selectDualMovePath(moveMode, announce = true) {{
+      activeDualMovePath = moveMode === 'tunnel_down' ? 'tunnel_down' : 'normal_walk';
+      triggerHaptic([60, 40]);
+
+      const btnNormal = document.getElementById('btn-move-normal-walk');
+      const btnTunnel = document.getElementById('btn-move-tunnel-down');
+      const statusEl = document.getElementById('nav-dual-move-status');
+      const stepLbl = document.getElementById('nav-step-label');
+      const instrTxt = document.getElementById('nav-instruction-text');
+      const manIcon = document.getElementById('nav-maneuver-icon');
+
+      if (activeDualMovePath === 'tunnel_down') {{
+        if (btnNormal) {{
+          btnNormal.className = 'py-1.5 px-2 rounded-xl bg-white/10 border border-white/25 text-left flex items-center space-x-1.5 transition active:scale-95';
+        }}
+        if (btnTunnel) {{
+          btnTunnel.className = 'py-1.5 px-2 rounded-xl bg-cyan-600/40 border-2 border-cyan-400 text-left flex items-center space-x-1.5 transition active:scale-95';
+        }}
+        if (statusEl) {{
+          statusEl.innerText = 'Active Move 2: Tunnel Going Down • Tracking downward stairs, depth holes & people';
+        }}
+        if (stepLbl) stepLbl.innerText = 'Dual-Move Route • Move 2: Underpass Tunnel';
+        if (instrTxt) instrTxt.innerText = 'Use tunnel going down — hold handrail & watch ground depth';
+        if (manIcon) manIcon.innerText = '🚇';
+        if (announce) {{
+          const msg = 'Move 2 active: Using pedestrian tunnel going down. Tracking downward stairs, ground depth holes, and people standing in the underpass.';
+          showUniversalVoiceHUD('Move 2: Tunnel Going Down', msg, false);
+          speakText(msg);
+        }}
+      }} else {{
+        if (btnNormal) {{
+          btnNormal.className = 'py-1.5 px-2 rounded-xl bg-emerald-600/35 border-2 border-emerald-400 text-left flex items-center space-x-1.5 transition active:scale-95';
+        }}
+        if (btnTunnel) {{
+          btnTunnel.className = 'py-1.5 px-2 rounded-xl bg-white/10 border border-white/25 text-left flex items-center space-x-1.5 transition active:scale-95';
+        }}
+        if (statusEl) {{
+          statusEl.innerText = 'Active Move 1: Normal Walk to Bus Stop • Tracking surface path & people around';
+        }}
+        if (stepLbl) stepLbl.innerText = 'Dual-Move Route • Move 1: Surface Walk to Bus Stop';
+        if (instrTxt) instrTxt.innerText = 'Normal walk along surface sidewalk toward Bus Stop';
+        if (manIcon) manIcon.innerText = '🚶';
+        if (announce) {{
+          const msg = 'Move 1 active: Normal surface walk to Bus Stop. Tracking sidewalk clearance, ground depth holes, and people standing around you.';
+          showUniversalVoiceHUD('Move 1: Normal Walk to Bus Stop', msg, false);
+          speakText(msg);
+        }}
+      }}
+    }}
+
+    function classifyPeopleAndStandingStatus(rawDetections, cW, cH, now) {{
+      // Prune stale person motion tracks older than 3.2 seconds
+      personMotionHistory = personMotionHistory.filter(t => (now - t.lastSeen) < 3200);
+
+      (rawDetections || []).forEach(d => {{
+        if (d.rawClass !== 'person') return;
+        d.isPerson = true;
+        const cx = d.x + d.w / 2;
+        const cy = d.y + d.h / 2;
+
+        // Match with existing person track by spatial proximity
+        let matchedTrack = null;
+        let minDistPx = Math.max(48, cW * 0.22);
+        for (const tr of personMotionHistory) {{
+          const deltaPx = Math.hypot(cx - tr.cx, cy - tr.cy);
+          if (deltaPx < minDistPx) {{
+            minDistPx = deltaPx;
+            matchedTrack = tr;
+          }}
+        }}
+
+        if (matchedTrack) {{
+          const totalShiftPx = Math.hypot(cx - matchedTrack.anchorCx, cy - matchedTrack.anchorCy);
+          const distShiftM = Math.abs(d.distance - matchedTrack.anchorDist);
+          matchedTrack.cx = cx;
+          matchedTrack.cy = cy;
+          matchedTrack.lastDist = d.distance;
+          matchedTrack.lastSeen = now;
+          matchedTrack.framesSeen = (matchedTrack.framesSeen || 1) + 1;
+
+          // If person has barely moved across frames (< 6.5% screen width and < 0.45m depth change), they are STANDING STILL in one place
+          const isStationary = (totalShiftPx < cW * 0.065 && distShiftM < 0.45);
+          if (isStationary) {{
+            d.isPersonStanding = true;
+            d.label = 'Person Standing';
+            d.rawClass = 'person standing';
+            d.icon = '🧍';
+          }} else {{
+            d.isPersonStanding = false;
+            d.label = 'Person Walking';
+            d.rawClass = 'person walking';
+            d.icon = '🚶';
+            // Reset anchor to current position for continuous motion comparison
+            matchedTrack.anchorCx = cx;
+            matchedTrack.anchorCy = cy;
+            matchedTrack.anchorDist = d.distance;
+          }}
+        }} else {{
+          personMotionHistory.push({{
+            anchorCx: cx,
+            anchorCy: cy,
+            anchorDist: d.distance,
+            cx: cx,
+            cy: cy,
+            lastDist: d.distance,
+            framesSeen: 1,
+            lastSeen: now
+          }});
+          // If a person is detected close in the user's forward corridor on frame 1, immediately flag as Person Standing so user doesn't bump into them
+          if (d.distance <= 2.8) {{
+            d.isPersonStanding = true;
+            d.label = 'Person Standing';
+            d.rawClass = 'person standing';
+            d.icon = '🧍';
+          }} else {{
+            d.isPersonStanding = false;
+            d.label = 'Person';
+            d.icon = '👤';
+          }}
+        }}
+      }});
+    }}
+
+    function detectDepthHoleAndTunnelInFrame(video, cW, cH, rawDetections) {{
+      const groundAndTunnelObjs = [];
+      try {{
+        if (!video || video.readyState < 2 || !(video.videoWidth > 0)) return groundAndTunnelObjs;
+        if (!crosswalkScanCanvas) {{
+          crosswalkScanCanvas = document.createElement('canvas');
+          crosswalkScanCanvas.width = 80;
+          crosswalkScanCanvas.height = 60;
+          crosswalkScanCtx = crosswalkScanCanvas.getContext('2d', {{ willReadFrequently: true }});
+        }}
+        const sW = 80;
+        const sH = 60;
+        crosswalkScanCtx.drawImage(video, 0, 0, sW, sH);
+        const frameData = crosswalkScanCtx.getImageData(0, 0, sW, sH).data;
+
+        const lum = new Float32Array(sW * sH);
+        for (let i = 0; i < sW * sH; i++) {{
+          const idx = i * 4;
+          lum[i] = 0.299 * frameData[idx] + 0.587 * frameData[idx + 1] + 0.114 * frameData[idx + 2];
+        }}
+
+        // --- 1. Ground Depth Hole / Drop-Off / Trench / Open Pit Detector (🕳️ Depth Hole) ---
+        // Compute mean ground walkway luminance in lower sidewalk corridor (y: 35..56, x: 12..68)
+        let groundSum = 0;
+        let groundCount = 0;
+        for (let y = 35; y <= 56; y++) {{
+          for (let x = 12; x <= 68; x++) {{
+            groundSum += lum[y * sW + x];
+            groundCount++;
+          }}
+        }}
+        const groundMeanLum = groundCount > 0 ? (groundSum / groundCount) : 0;
+
+        // Only detect a ground cavity when surrounding pavement is visible (groundMeanLum > 68)
+        if (groundMeanLum > 68) {{
+          let holePixels = 0;
+          let rimEdgePixels = 0;
+          let hMinX = sW, hMaxX = 0, hMinY = sH, hMaxY = 0;
+
+          for (let y = 37; y <= 55; y++) {{
+            for (let x = 16; x <= 64; x++) {{
+              const l = lum[y * sW + x];
+              // Localized deep dark cavity significantly darker than surrounding pavement
+              if (l < groundMeanLum - 38 && l < 65) {{
+                holePixels++;
+                if (x < hMinX) hMinX = x;
+                if (x > hMaxX) hMaxX = x;
+                if (y < hMinY) hMinY = y;
+                if (y > hMaxY) hMaxY = y;
+                const upperLum = lum[(y - 2) * sW + x];
+                if (upperLum - l >= 28) {{
+                  rimEdgePixels++;
+                }}
+              }}
+            }}
+          }}
+
+          const hSpanX = hMaxX - hMinX;
+          const hSpanY = hMaxY - hMinY;
+          // Bounded ground cavity (prevents wide road asphalt or full-frame shadow from false-triggering)
+          if (holePixels >= 12 && holePixels <= 175 && rimEdgePixels >= 5 && hSpanX >= 5 && hSpanX <= 32 && hSpanY >= 3 && hSpanY <= 15) {{
+            const boxX = Math.max(10, (hMinX / sW) * cW);
+            const boxY = Math.max(cH * 0.56, (hMinY / sH) * cH);
+            const boxW = Math.max(cW * 0.16, Math.min(cW * 0.46, ((hSpanX + 4) / sW) * cW));
+            const boxH = Math.max(cH * 0.10, Math.min(cH * 0.25, ((hSpanY + 3) / sH) * cH));
+            const centerX = boxX + boxW / 2;
+            const normBottom = Math.min(1.0, Math.max(0.0, (hMaxY - 36) / 20));
+            const holeDist = parseFloat((2.8 - normBottom * 1.9).toFixed(1));
+            const holeLane = centerX < cW * 0.35 ? 'left' : (centerX > cW * 0.65 ? 'right' : 'center');
+
+            groundAndTunnelObjs.push({{
+              label: 'Depth Hole / Drop-off',
+              rawClass: 'depth hole',
+              icon: '🕳️',
+              x: boxX,
+              y: boxY,
+              w: boxW,
+              h: boxH,
+              conf: 0.94,
+              distance: holeDist,
+              lane: holeLane,
+              isDepthHole: true,
+              spokenGuidance: `Danger: Ground depth hole or drop-off detected ${{holeDist.toFixed(1)}} meters ahead in ${{holeLane}} path! Step around carefully.`
+            }});
+          }}
+        }}
+
+        // --- 2. Underpass / Tunnel Going Down Detector (🚇 Tunnel Going Down) ---
+        const hasUnderpassSign = (rawDetections || []).some(d =>
+          (d.label && d.label.toLowerCase().includes('underpass')) ||
+          (d.spokenGuidance && d.spokenGuidance.toLowerCase().includes('underpass'))
+        );
+
+        // Check for recessed dark tunnel entrance portal framed by brighter side walls + horizontal stair risers
+        let portalSum = 0, portalCnt = 0;
+        let sideWallSum = 0, sideWallCnt = 0;
+        let stairRiserEdges = 0;
+
+        for (let y = 16; y <= 40; y++) {{
+          for (let x = 26; x <= 54; x++) {{
+            portalSum += lum[y * sW + x];
+            portalCnt++;
+          }}
+          for (let x = 6; x <= 18; x++) {{
+            sideWallSum += lum[y * sW + x];
+            sideWallCnt++;
+          }}
+          for (let x = 62; x <= 74; x++) {{
+            sideWallSum += lum[y * sW + x];
+            sideWallCnt++;
+          }}
+        }}
+        for (let y = 32; y <= 50; y++) {{
+          let edgeHitsInRow = 0;
+          for (let x = 24; x <= 56; x++) {{
+            if (Math.abs(lum[y * sW + x] - lum[(y - 1) * sW + x]) > 22) {{
+              edgeHitsInRow++;
+            }}
+          }}
+          if (edgeHitsInRow >= 14) stairRiserEdges++;
+        }}
+
+        const portalMean = portalCnt > 0 ? (portalSum / portalCnt) : 128;
+        const sideWallMean = sideWallCnt > 0 ? (sideWallSum / sideWallCnt) : 128;
+        const isVisualTunnelPortal = (portalMean < 64 && sideWallMean > portalMean + 36 && stairRiserEdges >= 4);
+
+        if (hasUnderpassSign || isVisualTunnelPortal) {{
+          groundAndTunnelObjs.push({{
+            label: 'Tunnel Going Down',
+            rawClass: 'tunnel going down',
+            icon: '🚇',
+            x: cW * 0.22,
+            y: cH * 0.26,
+            w: cW * 0.56,
+            h: cH * 0.44,
+            conf: 0.93,
+            distance: 2.4,
+            lane: 'center',
+            isTunnelDown: true,
+            spokenGuidance: 'Two moves ahead: Move 1 is normal surface walk to Bus Stop. Move 2 is tunnel going down into the underpass.'
+          }});
+        }}
+      }} catch (err) {{
+        console.warn('[YOLO Depth Hole & Tunnel Detector] Notice:', err);
+      }}
+      return groundAndTunnelObjs;
+    }}
+
     async function runYoloPerceptionCycle() {{
       if (activeRoute !== 'activeNavigation' && activeRoute !== 'crosswalkSafety') return;
       simWalkFrame++;
@@ -3777,11 +4119,12 @@ html_content = f"""<!DOCTYPE html>
       let activeObjects = [];
       const now = Date.now();
 
-      // Real Camera + COCO-SSD Neural Object Detection + Zebra Crossing Path + Road Signs & Tree Detector
+      // Real Camera + COCO-SSD Neural Object Detection + Standing People + Depth Hole & Tunnel + Zebra Crossing + Road Signs
       if (isRealCameraActive && video && video.readyState >= 2 && !isDetectingFrame) {{
         isDetectingFrame = true;
         try {{
-          const predictions = cocoSsdModel ? await cocoSsdModel.detect(video) : [];
+          // Lower score threshold to 0.28 so real pedestrians standing or walking outdoors at 1.5m-5m are reliably detected
+          const predictions = cocoSsdModel ? await cocoSsdModel.detect(video, 20, 0.28) : [];
           if (typeof UnifiedSafetyEngine !== 'undefined') {{
             UnifiedSafetyEngine.updateSensor('camera');
           }}
@@ -3814,7 +4157,7 @@ html_content = f"""<!DOCTYPE html>
             const calculatedDist = (focalLengthPx * nominalHeight) / rawBoxH;
             const estimatedDist = Math.max(0.35, Math.min(10.0, parseFloat(calculatedDist.toFixed(1))));
 
-            const lane = centerX < cW * 0.33 ? 'left' : (centerX > cW * 0.67 ? 'right' : 'center');
+            const lane = centerX < cW * 0.35 ? 'left' : (centerX > cW * 0.65 ? 'right' : 'center');
 
             return {{
               label: p.class.charAt(0).toUpperCase() + p.class.slice(1),
@@ -3830,6 +4173,9 @@ html_content = f"""<!DOCTYPE html>
             }};
           }});
 
+          // Classify People Around User & Standing People (🧍 Person Standing vs 🚶 Person Walking)
+          classifyPeopleAndStandingStatus(rawDetections, cW, cH, now);
+
           // Execute dedicated Zebra Stripe & Crossing Path Spatial Detector on live camera frame
           const crossingObj = detectCrossingPathInFrame(video, cW, cH, rawDetections);
           if (crossingObj) {{
@@ -3842,6 +4188,12 @@ html_content = f"""<!DOCTYPE html>
             signAndTreeObjs.forEach(item => rawDetections.push(item));
           }}
 
+          // Execute Ground Depth Hole / Drop-off & Underpass Tunnel Detector on live camera frame
+          const holeAndTunnelObjs = detectDepthHoleAndTunnelInFrame(video, cW, cH, rawDetections);
+          if (holeAndTunnelObjs && holeAndTunnelObjs.length > 0) {{
+            holeAndTunnelObjs.forEach(item => rawDetections.push(item));
+          }}
+
           // Temporal Exponential Moving Average (EMA) smoothing using IoU tracking
           const alpha = 0.65;
           const smoothedObjects = [];
@@ -3851,7 +4203,8 @@ html_content = f"""<!DOCTYPE html>
             let bestIoU = 0.28;
 
             trackedSmoothedObjects.forEach(prev => {{
-              if (prev.label === raw.label) {{
+              const sameCategory = (prev.label === raw.label) || (prev.isPerson && raw.isPerson);
+              if (sameCategory) {{
                 const iou = computeBoundingBoxIoU(raw, prev);
                 if (iou > bestIoU) {{
                   bestIoU = iou;
@@ -3896,7 +4249,19 @@ html_content = f"""<!DOCTYPE html>
         let tintFill = 'rgba(0, 245, 155, 0.12)';
         let badgeSectorBg = '#059669';
 
-        if (obj.isCrossingPath || obj.rawClass === 'crossing path') {{
+        if (obj.isDepthHole || obj.rawClass === 'depth hole') {{
+          neonColor = '#FF0055'; // High-alert magenta-crimson for ground depth hole / drop-off
+          tintFill = 'rgba(255, 0, 85, 0.24)';
+          badgeSectorBg = '#BE123C';
+        }} else if (obj.isTunnelDown || obj.rawClass === 'tunnel going down') {{
+          neonColor = '#38BDF8'; // Electric sky-blue for tunnel going down
+          tintFill = 'rgba(56, 189, 248, 0.18)';
+          badgeSectorBg = '#0369A1';
+        }} else if (obj.isPersonStanding) {{
+          neonColor = obj.distance < 2.2 ? '#FF1E44' : '#FB923C'; // High-contrast orange/red for stationary person
+          tintFill = obj.distance < 2.2 ? 'rgba(255, 30, 68, 0.20)' : 'rgba(251, 146, 60, 0.18)';
+          badgeSectorBg = '#EA580C';
+        }} else if (obj.isCrossingPath || obj.rawClass === 'crossing path') {{
           neonColor = '#00E5FF'; // Electric safety cyan for pedestrian crossing path
           tintFill = 'rgba(0, 229, 255, 0.16)';
           badgeSectorBg = '#0284C7';
@@ -3960,7 +4325,6 @@ html_content = f"""<!DOCTYPE html>
         }}
 
         // 3. WCAG AAA Dual-Layer Anti-Glare Bounding Box
-        // Layer 3A: Outer Deep Black Contrast Halo (Prevents box washing out on bright backgrounds)
         ctx.save();
         ctx.strokeStyle = 'rgba(0, 0, 0, 0.95)';
         ctx.lineWidth = 6;
@@ -3973,7 +4337,6 @@ html_content = f"""<!DOCTYPE html>
           ctx.strokeRect(obj.x, obj.y, obj.w, obj.h);
         }}
 
-        // Layer 3B: Inner High-Intensity Neon Core
         ctx.strokeStyle = neonColor;
         ctx.lineWidth = 3.5;
         if (ctx.roundRect) {{
@@ -3985,7 +4348,7 @@ html_content = f"""<!DOCTYPE html>
         }}
         ctx.restore();
 
-        // 4. Tactical Aerospace Corner Reticles (Top-Left, Top-Right, Bottom-Left, Bottom-Right)
+        // 4. Tactical Aerospace Corner Reticles
         const reticles = [
           [[obj.x, obj.y + cornerLen], [obj.x, obj.y], [obj.x + cornerLen, obj.y]],
           [[obj.x + obj.w - cornerLen, obj.y], [obj.x + obj.w, obj.y], [obj.x + obj.w, obj.y + cornerLen]],
@@ -3994,7 +4357,6 @@ html_content = f"""<!DOCTYPE html>
         ];
 
         reticles.forEach(pts => {{
-          // Outer black outline
           ctx.strokeStyle = 'rgba(0, 0, 0, 0.95)';
           ctx.lineWidth = 7;
           ctx.lineCap = 'square';
@@ -4004,7 +4366,6 @@ html_content = f"""<!DOCTYPE html>
           ctx.lineTo(pts[2][0], pts[2][1]);
           ctx.stroke();
 
-          // Inner neon core
           ctx.strokeStyle = neonColor;
           ctx.lineWidth = 4;
           ctx.beginPath();
@@ -4026,7 +4387,6 @@ html_content = f"""<!DOCTYPE html>
         const pillX = Math.max(6, Math.min(canvas.width - pillW - 6, obj.x));
         const pillY = Math.max(8, obj.y - pillH - 6);
 
-        // Badge Background (Obsidian Glass + Dual Contrast Border)
         ctx.fillStyle = 'rgba(10, 15, 24, 0.94)';
         if (ctx.roundRect) {{
           ctx.beginPath();
@@ -4036,7 +4396,6 @@ html_content = f"""<!DOCTYPE html>
           ctx.fillRect(pillX, pillY, pillW, pillH);
         }}
 
-        // Badge Border
         ctx.strokeStyle = neonColor;
         ctx.lineWidth = 2;
         if (ctx.roundRect) {{
@@ -4047,19 +4406,17 @@ html_content = f"""<!DOCTYPE html>
           ctx.strokeRect(pillX, pillY, pillW, pillH);
         }}
 
-        // Sector Indicator Dot
         ctx.beginPath();
         ctx.arc(pillX + 11, pillY + pillH / 2, 4, 0, Math.PI * 2);
         ctx.fillStyle = neonColor;
         ctx.fill();
 
-        // Main Text
         ctx.fillStyle = '#FFFFFF';
         ctx.font = 'bold 12px system-ui, -apple-system, sans-serif';
         ctx.fillText(pillText, pillX + 22, pillY + 17);
       }});
 
-      // Multi-Lane LiDAR Corridor Clearance Analysis
+      // Multi-Lane Corridor, People Around, Standing People, Depth Hole & Dual-Move Analysis
       let minLeftDist = 5.0;
       let minCenterDist = 5.0;
       let minRightDist = 5.0;
@@ -4067,6 +4424,10 @@ html_content = f"""<!DOCTYPE html>
       let detectedCrossing = null;
       let detectedRoadSign = null;
       let detectedTree = null;
+      let detectedDepthHole = null;
+      let detectedTunnelDown = null;
+      const peopleAround = [];
+      const standingPeople = [];
       const solidObstacles = [];
 
       activeObjects.forEach(obj => {{
@@ -4074,18 +4435,37 @@ html_content = f"""<!DOCTYPE html>
           if (!detectedCrossing || obj.distance < detectedCrossing.distance) {{
             detectedCrossing = obj;
           }}
-          return; // Crossing path is a walkable corridor, not a solid blocking obstacle
+          return;
+        }}
+        if (obj.isTunnelDown || obj.rawClass === 'tunnel going down') {{
+          if (!detectedTunnelDown || obj.distance < detectedTunnelDown.distance) {{
+            detectedTunnelDown = obj;
+          }}
+          return;
         }}
         if (obj.isRoadSign || obj.rawClass === 'road sign') {{
           if (!detectedRoadSign || obj.distance < detectedRoadSign.distance) {{
             detectedRoadSign = obj;
           }}
-          return; // Elevated road sign board provides guidance
+          return;
+        }}
+        if (obj.isDepthHole || obj.rawClass === 'depth hole') {{
+          if (!detectedDepthHole || obj.distance < detectedDepthHole.distance) {{
+            detectedDepthHole = obj;
+          }}
+        }}
+        if (obj.isPerson || obj.rawClass.includes('person')) {{
+          peopleAround.push(obj);
+          if (obj.isPersonStanding) {{
+            standingPeople.push(obj);
+          }}
         }}
         if (obj.isTree || obj.rawClass === 'tree') {{
           if (!detectedTree || obj.distance < detectedTree.distance) {{
             detectedTree = obj;
           }}
+          // Do not let pixel-heuristic foliage trigger center-path obstacle loops
+          if (obj.isPixelHeuristicTree) return;
         }}
         solidObstacles.push(obj);
         if (obj.lane === 'left') {{
@@ -4104,30 +4484,106 @@ html_content = f"""<!DOCTYPE html>
       currentLidarDepthLeft = minLeftDist;
       currentLidarDepthRight = minRightDist;
 
+      // Update Dual-Move & People Around / Ground Depth Badges
+      const peopleBadge = document.getElementById('nav-people-around-badge');
+      if (peopleBadge) {{
+        if (peopleAround.length > 0) {{
+          peopleBadge.innerText = standingPeople.length > 0
+            ? `🧍 ${{peopleAround.length}} (${{standingPeople.length}} Standing)`
+            : `👥 ${{peopleAround.length}} Around`;
+          peopleBadge.className = standingPeople.length > 0
+            ? 'px-1.5 py-0.5 rounded-full text-[9px] font-mono font-bold bg-orange-500/30 text-orange-200 border border-orange-400'
+            : 'px-1.5 py-0.5 rounded-full text-[9px] font-mono font-bold bg-sky-500/30 text-sky-200 border border-sky-400';
+        }} else {{
+          peopleBadge.innerText = '👥 0 People';
+          peopleBadge.className = 'px-1.5 py-0.5 rounded-full text-[9px] font-mono font-bold bg-sky-500/20 text-sky-300 border border-sky-500/30';
+        }}
+      }}
+
+      const depthHoleBadge = document.getElementById('nav-depth-hole-badge');
+      if (depthHoleBadge) {{
+        if (detectedDepthHole) {{
+          depthHoleBadge.innerText = `🕳️ Hole ${{detectedDepthHole.distance.toFixed(1)}}m`;
+          depthHoleBadge.className = 'px-1.5 py-0.5 rounded-full text-[9px] font-mono font-bold bg-rose-600/40 text-rose-200 border border-rose-400 animate-pulse';
+        }} else if (detectedTunnelDown || activeDualMovePath === 'tunnel_down') {{
+          depthHoleBadge.innerText = '🚇 Tunnel Down';
+          depthHoleBadge.className = 'px-1.5 py-0.5 rounded-full text-[9px] font-mono font-bold bg-cyan-500/30 text-cyan-200 border border-cyan-400';
+        }} else {{
+          depthHoleBadge.innerText = 'Ground: Level';
+          depthHoleBadge.className = 'px-1.5 py-0.5 rounded-full text-[9px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30';
+        }}
+      }}
+
       const approachingVehicle = solidObstacles.find(o =>
         ['car', 'bus', 'truck', 'motorcycle', 'bicycle'].includes(o.rawClass) && o.distance < 5.0
       );
+
+      // Find closest standing person in or near walking path (so user never bumps into someone standing still)
+      const closestStandingPerson = standingPeople.sort((a, b) => a.distance - b.distance)[0] || null;
+      const closestPersonAny = peopleAround.sort((a, b) => a.distance - b.distance)[0] || null;
 
       // Intelligent Spatial Direction Decision (WHERE TO WALK)
       let directionStatus = 'WALK STRAIGHT • PATH CLEAR';
       let directionArrow = '⬆️';
       let guidanceSpoken = '';
+      let guidanceKey = '';
+      let guidanceDist = 99.0;
       let statusClass = 'text-emerald-300';
       let borderClass = 'border-emerald-500/50';
 
-      if (detectedCrossing && minCenterDist >= 1.2) {{
+      if (detectedDepthHole && detectedDepthHole.distance <= 3.0) {{
+        const safeSide = detectedDepthHole.lane === 'left' ? 'RIGHT' : (detectedDepthHole.lane === 'right' ? 'LEFT' : (minLeftDist >= minRightDist ? 'LEFT' : 'RIGHT'));
+        directionStatus = `DEPTH HOLE / DROP-OFF (${{detectedDepthHole.distance.toFixed(1)}}m) • STEP ${{safeSide}}`;
+        directionArrow = '🕳️';
+        statusClass = 'text-rose-400 font-extrabold animate-pulse';
+        borderClass = 'border-rose-500';
+        guidanceSpoken = `Danger! Ground depth hole or drop-off detected ${{detectedDepthHole.distance.toFixed(1)}} meters ahead on your ${{detectedDepthHole.lane === 'center' ? 'center path' : detectedDepthHole.lane}}. Step ${{safeSide.toLowerCase()}} to avoid it.`;
+        guidanceKey = `depth_hole_${{detectedDepthHole.lane}}`;
+        guidanceDist = detectedDepthHole.distance;
+      }} else if (closestStandingPerson && closestStandingPerson.distance <= 3.2) {{
+        const avoidDir = closestStandingPerson.lane === 'left' ? 'RIGHT' : (closestStandingPerson.lane === 'right' ? 'LEFT' : (minLeftDist >= minRightDist ? 'LEFT' : 'RIGHT'));
+        const posPhrase = closestStandingPerson.lane === 'center' ? 'ahead in your path' : `on your ${{closestStandingPerson.lane}}`;
+        directionStatus = `PERSON STANDING (${{closestStandingPerson.distance.toFixed(1)}}m ${{closestStandingPerson.lane.toUpperCase()}}) • STEP ${{avoidDir}}`;
+        directionArrow = '🧍';
+        statusClass = 'text-orange-300 font-extrabold';
+        borderClass = 'border-orange-500';
+        guidanceSpoken = `Caution: A person is standing still ${{closestStandingPerson.distance.toFixed(1)}} meters ${{posPhrase}}. Step ${{avoidDir.toLowerCase()}} so you do not bump into them.`;
+        guidanceKey = `person_standing_${{closestStandingPerson.lane}}`;
+        guidanceDist = closestStandingPerson.distance;
+      }} else if (closestPersonAny && closestPersonAny.distance <= 4.0) {{
+        const posPhrase = closestPersonAny.lane === 'center' ? 'ahead' : `on your ${{closestPersonAny.lane}}`;
+        directionStatus = `PERSON AROUND (${{closestPersonAny.distance.toFixed(1)}}m ${{closestPersonAny.lane.toUpperCase()}}) • KEEP CLEAR`;
+        directionArrow = '🚶';
+        statusClass = 'text-sky-300 font-bold';
+        borderClass = 'border-sky-400';
+        guidanceSpoken = `Person detected ${{closestPersonAny.distance.toFixed(1)}} meters ${{posPhrase}}.`;
+        guidanceKey = `person_around_${{closestPersonAny.lane}}`;
+        guidanceDist = closestPersonAny.distance;
+      }} else if (detectedTunnelDown && minCenterDist >= 1.2) {{
+        directionStatus = `TWO MOVES: 1) WALK TO BUS STOP • 2) TUNNEL DOWN (${{detectedTunnelDown.distance.toFixed(1)}}m)`;
+        directionArrow = '🚇';
+        statusClass = 'text-cyan-300 font-extrabold';
+        borderClass = 'border-cyan-400';
+        guidanceSpoken = detectedTunnelDown.spokenGuidance;
+        guidanceKey = 'tunnel_dual_move';
+        guidanceDist = detectedTunnelDown.distance;
+      }} else if (detectedCrossing && minCenterDist >= 1.2) {{
         if (approachingVehicle) {{
           directionStatus = `STOP AT CURB • VEHICLE NEAR CROSSING (${{approachingVehicle.distance.toFixed(1)}}m)`;
           directionArrow = '🛑';
           statusClass = 'text-red-400 font-extrabold animate-pulse';
           borderClass = 'border-red-500';
           guidanceSpoken = `Stop at curb! Crossing path ahead at ${{detectedCrossing.distance.toFixed(1)}} meters, ${{approachingVehicle.label}} approaching at ${{approachingVehicle.distance.toFixed(1)}} meters.`;
+          guidanceKey = `crossing_vehicle_${{approachingVehicle.rawClass}}`;
+          guidanceDist = approachingVehicle.distance;
         }} else {{
           directionStatus = `CROSSING PATH AHEAD (${{detectedCrossing.distance.toFixed(1)}}m) • ALIGN STRAIGHT`;
           directionArrow = '🚸';
           statusClass = 'text-cyan-300 font-extrabold';
           borderClass = 'border-cyan-400';
           guidanceSpoken = `Crossing path detected ahead, ${{detectedCrossing.distance.toFixed(1)}} meters. Path is clear to align and cross.`;
+          guidanceKey = 'crossing_clear';
+          guidanceDist = detectedCrossing.distance;
         }}
       }} else if (detectedRoadSign && minCenterDist >= 1.8) {{
         directionStatus = `SIGN DETECTED: ${{detectedRoadSign.label.toUpperCase()}} (${{detectedRoadSign.distance.toFixed(1)}}m)`;
@@ -4135,16 +4591,22 @@ html_content = f"""<!DOCTYPE html>
         statusClass = 'text-yellow-300 font-extrabold';
         borderClass = 'border-yellow-400';
         guidanceSpoken = detectedRoadSign.spokenGuidance || `Road sign ahead at ${{detectedRoadSign.distance.toFixed(1)}} meters: ${{detectedRoadSign.label}}.`;
-      }} else if (detectedTree && detectedTree.distance < 2.4 && minCenterDist >= 0.8) {{
+        guidanceKey = `sign_${{detectedRoadSign.label}}`;
+        guidanceDist = detectedRoadSign.distance;
+      }} else if (detectedTree && !detectedTree.isPixelHeuristicTree && detectedTree.distance < 2.4 && minCenterDist >= 0.8) {{
         const veerSide = detectedTree.lane === 'left' ? 'RIGHT' : 'LEFT';
         directionStatus = `TREE AHEAD (${{detectedTree.distance.toFixed(1)}}m ON ${{detectedTree.lane.toUpperCase()}}) • KEEP ${{veerSide}}`;
         directionArrow = '🌳';
         statusClass = 'text-lime-300 font-bold';
         borderClass = 'border-lime-400';
         guidanceSpoken = `Caution: Tree ahead at ${{detectedTree.distance.toFixed(1)}} meters on your ${{detectedTree.lane}}. Watch for tree trunk and low branches. Keep ${{veerSide.toLowerCase()}}.`;
+        guidanceKey = `tree_${{detectedTree.lane}}`;
+        guidanceDist = detectedTree.distance;
       }} else if (minCenterDist >= 2.2) {{
-        directionStatus = 'WALK STRAIGHT • PATH CLEAR';
-        directionArrow = '⬆️';
+        directionStatus = activeDualMovePath === 'tunnel_down'
+          ? 'TUNNEL PATH • WATCH STEPS & DEPTH AHEAD'
+          : 'WALK STRAIGHT • PATH CLEAR';
+        directionArrow = activeDualMovePath === 'tunnel_down' ? '🚇' : '⬆️';
         statusClass = 'text-emerald-300';
         borderClass = 'border-emerald-500/50';
       }} else if (minCenterDist < 0.8) {{
@@ -4153,27 +4615,32 @@ html_content = f"""<!DOCTYPE html>
         statusClass = 'text-red-400 font-extrabold animate-pulse';
         borderClass = 'border-red-500';
         guidanceSpoken = `Stop! ${{closestCenter ? closestCenter.label : 'Obstacle'}} directly ahead at ${{minCenterDist.toFixed(1)}} meters!`;
+        guidanceKey = `critical_${{closestCenter ? closestCenter.rawClass : 'obstacle'}}`;
+        guidanceDist = minCenterDist;
       }} else {{
-        // Obstacle 0.8m - 2.2m in walking path
+        // Real COCO-SSD obstacle 0.8m - 2.2m in walking path
+        const obsLabel = closestCenter ? closestCenter.label : 'Obstacle';
         if (minLeftDist >= minRightDist && minLeftDist >= 1.8) {{
-          directionStatus = 'VEER LEFT 15° • CLEAR OPENING';
+          directionStatus = `STEER LEFT • ${{obsLabel.toUpperCase()}} (${{minCenterDist.toFixed(1)}}m)`;
           directionArrow = '↖️';
           statusClass = 'text-amber-300 font-bold';
           borderClass = 'border-amber-500';
-          guidanceSpoken = `Caution: ${{closestCenter ? closestCenter.label : 'Obstacle'}} ${{minCenterDist.toFixed(1)}} meters ahead in center path. Clear opening on your left. Veer left 15 degrees.`;
+          guidanceSpoken = `${{obsLabel}} ${{minCenterDist.toFixed(1)}} meters ahead. Step left to pass.`;
         }} else if (minRightDist > minLeftDist && minRightDist >= 1.8) {{
-          directionStatus = 'VEER RIGHT 15° • CLEAR OPENING';
+          directionStatus = `STEER RIGHT • ${{obsLabel.toUpperCase()}} (${{minCenterDist.toFixed(1)}}m)`;
           directionArrow = '↗️';
           statusClass = 'text-amber-300 font-bold';
           borderClass = 'border-amber-500';
-          guidanceSpoken = `Caution: ${{closestCenter ? closestCenter.label : 'Obstacle'}} ${{minCenterDist.toFixed(1)}} meters ahead in center path. Clear opening on your right. Veer right 15 degrees.`;
+          guidanceSpoken = `${{obsLabel}} ${{minCenterDist.toFixed(1)}} meters ahead. Step right to pass.`;
         }} else {{
           directionStatus = 'SLOW DOWN • NARROW CORRIDOR';
           directionArrow = '⚠️';
           statusClass = 'text-orange-300 font-bold';
           borderClass = 'border-orange-500';
-          guidanceSpoken = `Caution: Narrow pathway. ${{closestCenter ? closestCenter.label : 'Obstacle'}} ${{minCenterDist.toFixed(1)}} meters in walking path. Proceed carefully.`;
+          guidanceSpoken = `${{obsLabel}} ${{minCenterDist.toFixed(1)}} meters ahead. Proceed carefully.`;
         }}
+        guidanceKey = `obs_${{obsLabel}}_${{closestCenter ? closestCenter.lane : 'center'}}`;
+        guidanceDist = minCenterDist;
       }}
 
       // Update Screen 5 Corridor HUD
@@ -4195,9 +4662,13 @@ html_content = f"""<!DOCTYPE html>
         statEl.className = 'text-[11px] font-bold tracking-wide uppercase ' + statusClass;
       }}
       if (depthEl) {{
-        depthEl.innerText = detectedCrossing
-          ? (detectedCrossing.distance.toFixed(1) + 'm 🚸')
-          : (detectedRoadSign ? (detectedRoadSign.distance.toFixed(1) + 'm 🪧') : (solidObstacles.length > 0 ? (minCenterDist.toFixed(1) + 'm') : 'Clear (>3m)'));
+        depthEl.innerText = detectedDepthHole
+          ? (detectedDepthHole.distance.toFixed(1) + 'm 🕳️')
+          : (closestStandingPerson
+              ? (closestStandingPerson.distance.toFixed(1) + 'm 🧍')
+              : (detectedCrossing
+                  ? (detectedCrossing.distance.toFixed(1) + 'm 🚸')
+                  : (detectedRoadSign ? (detectedRoadSign.distance.toFixed(1) + 'm 🪧') : (solidObstacles.length > 0 ? (minCenterDist.toFixed(1) + 'm') : 'Clear (>3m)'))));
       }}
       if (lanesEl) {{
         lanesEl.innerText = activeObjects.length > 0 
@@ -4218,7 +4689,13 @@ html_content = f"""<!DOCTYPE html>
       }}
 
       if (badge && pathText) {{
-        if (detectedCrossing && approachingVehicle) {{
+        if (detectedDepthHole) {{
+          badge.className = "w-full mt-2 py-1.5 px-3 rounded-xl bg-rose-100 border border-rose-400 text-rose-950 text-[11px] font-extrabold flex items-center justify-between";
+          pathText.innerText = `🕳️ Depth Hole / Drop-off (${{detectedDepthHole.distance.toFixed(1)}}m ${{detectedDepthHole.lane}})`;
+        }} else if (closestStandingPerson && closestStandingPerson.distance <= 3.2) {{
+          badge.className = "w-full mt-2 py-1.5 px-3 rounded-xl bg-orange-100 border border-orange-400 text-orange-950 text-[11px] font-extrabold flex items-center justify-between";
+          pathText.innerText = `🧍 Person Standing (${{closestStandingPerson.distance.toFixed(1)}}m ${{closestStandingPerson.lane}}) • Step Around`;
+        }} else if (detectedCrossing && approachingVehicle) {{
           badge.className = "w-full mt-2 py-1.5 px-3 rounded-xl bg-red-100 border border-red-300 text-red-900 text-[11px] font-semibold flex items-center justify-between";
           pathText.innerText = `🛑 Crossing Path (${{detectedCrossing.distance.toFixed(1)}}m) • Vehicle Nearby!`;
         }} else if (detectedCrossing && (!closestCenter || closestCenter.distance >= 1.5)) {{
@@ -4227,9 +4704,6 @@ html_content = f"""<!DOCTYPE html>
         }} else if (detectedRoadSign && (!closestCenter || closestCenter.distance >= 1.5)) {{
           badge.className = "w-full mt-2 py-1.5 px-3 rounded-xl bg-yellow-50 border border-yellow-300 text-yellow-900 text-[11px] font-bold flex items-center justify-between";
           pathText.innerText = `${{detectedRoadSign.icon || '🪧'}} ${{detectedRoadSign.label}} (${{detectedRoadSign.distance.toFixed(1)}}m)`;
-        }} else if (detectedTree && detectedTree.distance < 2.5) {{
-          badge.className = "w-full mt-2 py-1.5 px-3 rounded-xl bg-lime-100 border border-lime-300 text-lime-900 text-[11px] font-bold flex items-center justify-between";
-          pathText.innerText = `🌳 Tree on Sidewalk (${{detectedTree.distance.toFixed(1)}}m ${{detectedTree.lane}})`;
         }} else if (closestCenter && closestCenter.distance < 1.5) {{
           badge.className = "w-full mt-2 py-1.5 px-3 rounded-xl bg-red-100 border border-red-300 text-red-900 text-[11px] font-semibold flex items-center justify-between";
           pathText.innerText = `Hazard: ${{closestCenter.label}} (${{closestCenter.distance.toFixed(1)}}m)`;
@@ -4245,26 +4719,32 @@ html_content = f"""<!DOCTYPE html>
       // Update 180° Top-Down Proximity Radar
       drawProximityRadar(activeObjects);
 
-      // Real-Time Binaural Sonar Proximity Ping (Non-Verbal Spatial Awareness)
-      if (closestCenter && closestCenter.distance <= 3.2) {{
-        const pingCadence = closestCenter.distance < 1.0 ? 320 : (closestCenter.distance < 2.0 ? 600 : 950);
-        if (now - lastSonarPingTime > pingCadence) {{
-          lastSonarPingTime = now;
-          playBinauralSonarPing(closestCenter.distance, closestCenter.lane);
+      // Smart Deduplicated Voice Guidance (No repetitive 5-second "Caution ... center path" loops and no popping sound)
+      if (!guidanceSpoken) {{
+        // Reset spoken key when corridor becomes clear for over 3 seconds
+        if (now - lastSpokenObstacleTime > 3500) {{
+          lastSpokenGuidanceKey = '';
+          lastSpokenGuidanceDist = 99.0;
         }}
-      }}
+      }} else {{
+        const isNewHazard = (guidanceKey !== lastSpokenGuidanceKey);
+        const gotSignificantlyCloser = (lastSpokenGuidanceDist - guidanceDist >= 0.65);
+        const criticalRepeat = (guidanceDist < 1.0 && (now - lastSpokenObstacleTime > 12000));
+        const cooldownElapsed = (now - lastSpokenObstacleTime > 4200);
 
-      // Emergency or Directional Voice Guidance (Throttled)
-      if (guidanceSpoken && (now - lastSpokenObstacleTime > 5000)) {{
-        lastSpokenObstacleTime = now;
-        triggerHaptic(minCenterDist < 0.8 ? [150, 50, 150, 50, 200] : [80, 50, 80]);
-        if (minCenterDist < 0.8) playEarcon('hazard');
-        speakText(guidanceSpoken);
+        if (cooldownElapsed && (isNewHazard || gotSignificantlyCloser || criticalRepeat)) {{
+          lastSpokenObstacleTime = now;
+          lastSpokenGuidanceKey = guidanceKey;
+          lastSpokenGuidanceDist = guidanceDist;
+          triggerHaptic(guidanceDist < 1.0 ? [150, 50, 150, 50, 200] : [80, 50, 80]);
+          if (guidanceDist < 0.85 || detectedDepthHole) playEarcon('hazard');
+          speakText(guidanceSpoken);
 
-        // If Critical Stop, navigate to Screen 8 with real obstacle details
-        if (minCenterDist < 0.8 && closestCenter) {{
-          updateLidarState(closestCenter.distance, closestCenter.label, closestCenter.lane, false);
-          navigateTo('obstacleAlert');
+          // If Critical Stop (< 0.8m), navigate to Screen 8 with real obstacle details
+          if (minCenterDist < 0.8 && closestCenter) {{
+            updateLidarState(closestCenter.distance, closestCenter.label, closestCenter.lane, false);
+            navigateTo('obstacleAlert');
+          }}
         }}
       }}
     }}
@@ -4760,10 +5240,63 @@ html_content = f"""<!DOCTYPE html>
         }};
       }}
 
+      // People Around & Standing Person Collision-Prevention Query
+      if (/^(are there people around( me)?|is anyone standing( ahead| there| near me)?|is someone standing( ahead| there| in front of me)?|is there a person standing|people around( me)?|who is around( me)?|anyone standing still)$/i.test(cleaned)) {{
+        const peopleList = lastLiveDetections.filter(o => o.isPerson || o.rawClass.includes('person'));
+        const standingList = peopleList.filter(o => o.isPersonStanding);
+        let spoken = "No people detected in immediate camera view around you.";
+        if (standingList.length > 0) {{
+          const s = standingList[0];
+          spoken = `Caution: A person is standing still ${{s.distance.toFixed(1)}} meters ${{s.lane === 'center' ? 'ahead in your path' : 'on your ' + s.lane}}. Total ${{peopleList.length}} ${{peopleList.length === 1 ? 'person' : 'people'}} around you.`;
+        }} else if (peopleList.length > 0) {{
+          spoken = `${{peopleList.length}} ${{peopleList.length === 1 ? 'person' : 'people'}} detected around you: ` + peopleList.map(p => `${{p.label}} at ${{p.distance.toFixed(1)}} meters (${{p.lane}})`).join(', ') + '.';
+        }}
+        return {{
+          intent: "people_around_query",
+          action: "people_around_query",
+          spoken_response: spoken,
+          confidence: 0.99
+        }};
+      }}
+
+      // Ground Depth Hole / Pothole / Drop-off Query
+      if (/^(is there a( depth)? hole|any( depth)? holes?|depth hole|ground hole|pothole|drop off( ahead)?|is the ground level|check ground depth)$/i.test(cleaned)) {{
+        const holeObj = lastLiveDetections.find(o => o.isDepthHole || o.rawClass === 'depth hole');
+        const spoken = holeObj
+          ? `Danger: Ground depth hole or drop-off detected ${{holeObj.distance.toFixed(1)}} meters ahead in ${{holeObj.lane}} path. Step around carefully.`
+          : "No ground depth holes or drop-offs detected in immediate walking corridor. Ground level is clear.";
+        return {{
+          intent: "depth_hole_query",
+          action: "depth_hole_query",
+          spoken_response: spoken,
+          confidence: 0.99
+        }};
+      }}
+
+      // Dual-Move Path Choice: Move 1 (Normal Walk to Bus Stop) vs Move 2 (Tunnel Going Down)
+      if (/^(normal walk( to bus stop)?|choose normal walk|surface walk( to bus stop)?|move 1|move one|walk on surface)$/i.test(cleaned)) {{
+        return {{
+          intent: "dual_move_select",
+          action: "dual_move_select",
+          move_mode: "normal_walk",
+          spoken_response: "Move 1 selected: Normal surface walk to Bus Stop. Tracking sidewalk clearance and people standing around you.",
+          confidence: 0.99
+        }};
+      }}
+      if (/^(use tunnel( going down)?|tunnel going down|take( the)? tunnel|underpass( going down)?|choose tunnel|move 2|move two|go down tunnel)$/i.test(cleaned)) {{
+        return {{
+          intent: "dual_move_select",
+          action: "dual_move_select",
+          move_mode: "tunnel_down",
+          spoken_response: "Move 2 selected: Using pedestrian tunnel going down. Tracking downward stairs, ground depth holes, and people ahead.",
+          confidence: 0.99
+        }};
+      }}
+
       // Stairs / Steps query
       if (/^(is there stairs|are there stairs|are there steps|any stairs|staircase)$/i.test(cleaned)) {{
-        const stairsObj = lastLiveDetections.find(o => o.label.toLowerCase().includes('stair'));
-        const spoken = stairsObj ? `Warning: Stairs detected directly ahead, ${{stairsObj.distance.toFixed(1)}} meters.` : "No stairs detected in immediate camera view. Ground level is clear.";
+        const stairsObj = lastLiveDetections.find(o => o.label.toLowerCase().includes('stair') || o.isTunnelDown);
+        const spoken = stairsObj ? `Warning: ${{stairsObj.label}} detected directly ahead, ${{stairsObj.distance.toFixed(1)}} meters.` : "No stairs detected in immediate camera view. Ground level is clear.";
         return {{
           intent: "stairs_query",
           action: "stairs_query",
@@ -5256,11 +5789,12 @@ html_content = f"""<!DOCTYPE html>
         (dir === 'left' && d.x < 160)
       );
 
-      const personMatch = matched.find(d => d.label.toLowerCase() === 'person');
+      const personMatch = matched.find(d => d.isPerson || d.label.toLowerCase().includes('person'));
       let responseSpeech = "";
 
       if (personMatch) {{
-        responseSpeech = `Yes, I see a person on your ${{dir}}, about ${{personMatch.distance.toFixed(1)}} meters away.`;
+        const stateText = personMatch.isPersonStanding ? 'standing still' : 'walking';
+        responseSpeech = `Yes, I see a person ${{stateText}} on your ${{dir}}, about ${{personMatch.distance.toFixed(1)}} meters away.`;
       }} else if (matched.length > 0) {{
         responseSpeech = `I see a ${{matched[0].label}} on your ${{dir}}, about ${{matched[0].distance.toFixed(1)}} meters away.`;
       }} else {{
@@ -5354,13 +5888,14 @@ html_content = f"""<!DOCTYPE html>
     }}
 
     function evaluateLiveTurnedSector(dir) {{
-      const persons = lastLiveDetections.filter(d => d.label.toLowerCase() === 'person');
-      const otherObjects = lastLiveDetections.filter(d => d.label.toLowerCase() !== 'person');
+      const persons = lastLiveDetections.filter(d => d.isPerson || d.label.toLowerCase().includes('person'));
+      const otherObjects = lastLiveDetections.filter(d => !(d.isPerson || d.label.toLowerCase().includes('person')));
 
       let reply = "";
       if (persons.length > 0) {{
         const closest = persons[0];
-        reply = `Phone pointed ${{dir}}: Person detected ${{closest.distance.toFixed(1)}} meters ahead in camera view.`;
+        const stateText = closest.isPersonStanding ? 'standing still' : 'walking';
+        reply = `Phone pointed ${{dir}}: Person ${{stateText}} detected ${{closest.distance.toFixed(1)}} meters ahead in camera view.`;
       }} else if (otherObjects.length > 0) {{
         const obj = otherObjects[0];
         reply = `Phone pointed ${{dir}}: ${{obj.label}} detected ${{obj.distance.toFixed(1)}} meters ahead.`;
@@ -5528,6 +6063,39 @@ html_content = f"""<!DOCTYPE html>
         showUniversalVoiceHUD('Sidewalk Tree Detection', text, false);
         speakText(text);
         triggerHaptic([60, 40]);
+        return;
+      }}
+      if (result.intent === 'people_around_query' || result.action === 'people_around_query') {{
+        const peopleList = lastLiveDetections.filter(o => o.isPerson || o.rawClass.includes('person'));
+        const standingList = peopleList.filter(o => o.isPersonStanding);
+        let text = result.spoken_response || 'Scanning around you for people and stationary pedestrians.';
+        if (standingList.length > 0) {{
+          const s = standingList[0];
+          text = `Caution: A person is standing still ${{s.distance.toFixed(1)}} meters ${{s.lane === 'center' ? 'ahead in your path' : 'on your ' + s.lane}}. Total ${{peopleList.length}} ${{peopleList.length === 1 ? 'person' : 'people'}} around you.`;
+        }} else if (peopleList.length > 0) {{
+          text = `${{peopleList.length}} ${{peopleList.length === 1 ? 'person' : 'people'}} detected around you: ` + peopleList.map(p => `${{p.label}} at ${{p.distance.toFixed(1)}} meters (${{p.lane}})`).join(', ') + '.';
+        }}
+        showUniversalVoiceHUD('People & Standing Check', text, false);
+        speakText(text);
+        triggerHaptic([60, 40]);
+        return;
+      }}
+      if (result.intent === 'depth_hole_query' || result.action === 'depth_hole_query') {{
+        const holeObj = lastLiveDetections.find(o => o.isDepthHole || o.rawClass === 'depth hole');
+        const text = holeObj
+          ? `Danger: Ground depth hole or drop-off detected ${{holeObj.distance.toFixed(1)}} meters ahead in ${{holeObj.lane}} path. Step around carefully.`
+          : (result.spoken_response || 'Scanning ground corridor ahead for depth holes, potholes, and drop-offs.');
+        showUniversalVoiceHUD('Ground Depth Hole Check', text, false);
+        speakText(text);
+        triggerHaptic([80, 40, 80]);
+        return;
+      }}
+      if (result.intent === 'dual_move_select' || result.action === 'dual_move_select') {{
+        const mode = result.move_mode || (rawText && /tunnel|underpass|move 2|move two|down/i.test(rawText) ? 'tunnel_down' : 'normal_walk');
+        if (activeRoute !== 'activeNavigation') {{
+          navigateTo('activeNavigation');
+        }}
+        selectDualMovePath(mode, true);
         return;
       }}
       if (result.intent === 'stairs_query' || result.action === 'stairs_query') {{
@@ -5808,7 +6376,7 @@ html_content = f"""<!DOCTYPE html>
 
     // ==================== WEBAUDIO 3D BINAURAL EARCONS & PROXIMITY SONAR ====================
     let audioCtx = null;
-    let sonarPingsEnabled = true;
+    let sonarPingsEnabled = false;
     let lastSonarPingTime = 0;
 
     function getAudioContext() {{

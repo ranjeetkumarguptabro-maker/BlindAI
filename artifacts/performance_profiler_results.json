@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-10-12T21:12:13.142Z",
+  "timestamp": "2026-10-12T21:36:55.134Z",
   "framesProfiled": 100,
   "latency": {
     "minMs": 0,
@@ -9,7 +9,7 @@
     "p99Ms": 0.05,
     "maxMs": 0.05
   },
-  "throughputFps": 626307.4,
+  "throughputFps": 602692.8,
   "memoryHeapDeltaMb": 0.81,
   "batteryThermal": {
     "estimatedBatteryDrainPerHourPct": 0,

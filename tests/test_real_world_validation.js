@@ -22,7 +22,7 @@ console.log('  BLIND AI: REAL-WORLD NAVIGATION VALIDATION SUITE (P1)         ');
 console.log('================================================================\n');
 
 let passedTests = 0;
-let totalTests = 8;
+let totalTests = 9;
 
 
 // --- AC-1: Route Guidance & Turn-by-Turn Waypoint Progression ---
@@ -329,6 +329,34 @@ try {
   passedTests++;
 } catch (err) {
   console.error('❌ [FAIL] AC-8:', err.message);
+}
+
+// --- AC-9: Standing Person Collision-Avoidance, Ground Depth Hole & Dual-Move Path Tracker ---
+try {
+  const fs = require('fs');
+  const html = fs.readFileSync('preview.html', 'utf8');
+
+  // 1. Verify continuous popping sound is disabled by default
+  assert.ok(html.includes('let sonarPingsEnabled = false;'), 'sonarPingsEnabled must be false by default to prevent continuous popping sound');
+
+  // 2. Verify Standing Person vs Walking Person motion classifier exists
+  assert.ok(html.includes('function classifyPeopleAndStandingStatus'), 'Must include classifyPeopleAndStandingStatus for real-model pedestrian standing detection');
+  assert.ok(html.includes("d.label = 'Person Standing'"), 'Must classify stationary pedestrians as Person Standing (🧍)');
+
+  // 3. Verify Ground Depth Hole / Drop-off & Underpass Tunnel detector exists
+  assert.ok(html.includes('function detectDepthHoleAndTunnelInFrame'), 'Must include detectDepthHoleAndTunnelInFrame for ground depth holes and underpass tunnels');
+  assert.ok(html.includes("label: 'Depth Hole / Drop-off'"), 'Must detect Depth Hole / Drop-off (🕳️)');
+  assert.ok(html.includes("label: 'Tunnel Going Down'"), 'Must detect Tunnel Going Down (🚇)');
+
+  // 4. Verify Dual-Move Path Selector & Tracker (Move 1: Normal Walk to Bus Stop vs Move 2: Tunnel Going Down)
+  assert.ok(html.includes('function selectDualMovePath'), 'Must include selectDualMovePath for tracking Move 1 (Normal Walk) vs Move 2 (Tunnel Down)');
+  assert.ok(html.includes('btn-move-normal-walk') && html.includes('btn-move-tunnel-down'), 'Must render Dual-Move Path Tracker buttons on Active Navigation screen');
+
+  console.log('✅ [PASS] AC-9: Standing Person Collision-Avoidance, Ground Depth Hole & Dual-Move Path Tracker');
+  console.log('   -> Zero continuous popping sound, Person Standing (🧍) vs Walking (🚶), Depth Hole (🕳️), and Move 1 (Bus Stop) vs Move 2 (Tunnel Going Down) verified.');
+  passedTests++;
+} catch (err) {
+  console.error('❌ [FAIL] AC-9:', err.message);
 }
 
 console.log('\n================================================================');

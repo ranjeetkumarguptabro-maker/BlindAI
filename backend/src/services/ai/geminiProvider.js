@@ -633,6 +633,49 @@ Rules:
       };
     }
 
+    // 7c. People Around & Standing Person Collision-Prevention Query
+    if (/^(are there people around( me)?|is anyone standing( ahead| there| near me)?|is someone standing( ahead| there| in front of me)?|is there a person standing|people around( me)?|who is around( me)?|anyone standing still)$/i.test(cleaned)) {
+      return {
+        intent: "people_around_query",
+        action: "people_around_query",
+        spoken_response: "Scanning around you for people and stationary pedestrians.",
+        confidence: 0.99,
+        provider: `${this.name} (Pedestrian Standing & Proximity Match)`
+      };
+    }
+
+    // 7d. Ground Depth Hole / Drop-off / Pothole Query
+    if (/^(is there a( depth)? hole|any( depth)? holes?|depth hole|ground hole|pothole|drop off( ahead)?|is the ground level|check ground depth)$/i.test(cleaned)) {
+      return {
+        intent: "depth_hole_query",
+        action: "depth_hole_query",
+        spoken_response: "Scanning ground corridor ahead for depth holes, potholes, and drop-offs.",
+        confidence: 0.99,
+        provider: `${this.name} (Ground Depth Hole Match)`
+      };
+    }
+
+    // 7e. Dual-Move Path Choice: Move 1 (Normal Walk to Bus Stop) vs Move 2 (Tunnel Going Down)
+    if (/^(normal walk( to bus stop)?|choose normal walk|surface walk( to bus stop)?|move 1|move one|walk on surface)$/i.test(cleaned)) {
+      return {
+        intent: "dual_move_select",
+        action: "dual_move_select",
+        move_mode: "normal_walk",
+        spoken_response: "Move 1 selected: Normal surface walk to Bus Stop. Tracking sidewalk clearance and people standing around you.",
+        confidence: 0.99,
+        provider: `${this.name} (Dual-Move Path Tracker Match)`
+      };
+    }
+    if (/^(use tunnel( going down)?|tunnel going down|take( the)? tunnel|underpass( going down)?|choose tunnel|move 2|move two|go down tunnel)$/i.test(cleaned)) {
+      return {
+        intent: "dual_move_select",
+        action: "dual_move_select",
+        move_mode: "tunnel_down",
+        spoken_response: "Move 2 selected: Using pedestrian tunnel going down. Tracking downward stairs, ground depth holes, and people ahead.",
+        confidence: 0.99,
+        provider: `${this.name} (Dual-Move Path Tracker Match)`
+      };
+    }
 
     // 8. Camera toggle
     if (/^(camera|switch camera|toggle camera|turn camera on|open camera|back camera)$/i.test(cleaned)) {
