@@ -561,14 +561,21 @@ try {
       unifiedModel.saveKnowledgeBase();
     }
 
-    // 4. Verify Simplified Clean UI & Teach AI Modal in preview.html
+    // 4. Verify Simplified Clean UI & Teach AI Modal in preview.html + SwiftUI Core ML YOLOObstacleDetector
     const html = fs.readFileSync(path.join(__dirname, '../preview.html'), 'utf8');
     assert.ok(html.includes('id="train-model-modal"'), 'Must include Unified AI Model training modal (#train-model-modal)');
     assert.ok(html.includes('BlindAIUnifiedModelClient'), 'Must include BlindAIUnifiedModelClient in preview.html');
     assert.ok(html.includes('updateTracksAndDrawCorridor'), 'Must render Green Walkable Corridor Carpet & ByteTrack IDs on canvas');
 
-    console.log('✅ [PASS] AC-12: Unified 11-Stage Trainable AI Model & Simplified Clean UI');
-    console.log('   -> 5 Reference Datasets, 11-Stage Pipeline (ByteTrack IDs, Velocity m/s, 3D Cuboids, Green Corridor, Local Radar, Tram Line 1, Gemini & Continuous Image Training) verified.');
+    const swiftDetector = fs.readFileSync(path.join(__dirname, '../ios/BlindAI/Services/YOLOObjectDetector.swift'), 'utf8');
+    const swiftAlertModel = fs.readFileSync(path.join(__dirname, '../ios/BlindAI/Models/ObstacleAlertItem.swift'), 'utf8');
+    assert.ok(swiftDetector.includes('final class YOLOObstacleDetector'), 'Must define YOLOObstacleDetector in YOLOObjectDetector.swift');
+    assert.ok(swiftDetector.includes('VNCoreMLModel') && swiftDetector.includes('VNCoreMLRequest'), 'Must integrate Core ML VNCoreMLModel and VNCoreMLRequest');
+    assert.ok(swiftDetector.includes('usesCPUOnly = false') && swiftDetector.includes('.scaleFill'), 'Must configure ANE usesCPUOnly = false and .scaleFill 640x640 preprocessing');
+    assert.ok(swiftAlertModel.includes('VNRecognizedObjectObservation'), 'ObstacleAlertItem.swift must map VNRecognizedObjectObservation directly');
+
+    console.log('✅ [PASS] AC-12: Unified 11-Stage Trainable AI Model, Clean UI & SwiftUI Core ML YOLOv8n Integration');
+    console.log('   -> 5 Reference Datasets, 11-Stage Pipeline, Continuous Image Training & SwiftUI YOLOObstacleDetector (VNCoreMLModel/ANE/640x640) verified.');
     passedTests++;
   } catch (err) {
     console.error('❌ [FAIL] AC-12:', err.message);

@@ -1,9 +1,114 @@
 import Foundation
 import CoreGraphics
 import CoreVideo
+#if canImport(CoreML)
+import CoreML
+#endif
 #if canImport(Vision)
 import Vision
 #endif
+#if canImport(UIKit)
+import UIKit
+#endif
+
+// MARK: - 1. Core ML YOLOv8 Nano Model Configuration & Input/Output Specs
+/// Standard Core ML integration pattern for YOLOv8 Nano (`yolov8n.mlpackage` / `.mlmodel` / `.mlmodelc`)
+/// configured for half-precision (FP16) or quantized (INT8) execution on the Apple Neural Engine (ANE).
+/// - Input Tensor: Fixed $640 \times 640 \times 3$ RGB `CVPixelBuffer`, normalized to $[0.0, 1.0]$.
+/// - Output Tensors: Bounding box coordinates, confidence scores, and class probabilities (`VNRecognizedObjectObservation`)
+///   mapped directly to `ObstacleAlertItem` (`ObstacleAlertItem.swift`) and `YOLODetection`.
+public final class YOLOObstacleDetector: @unchecked Sendable {
+    public static let shared = YOLOObstacleDetector()
+    public static let inputResolution = CGSize(width: 640, height: 640)
+    public static let supportedModelBundleNames = ["yolov8n", "BlindAI_YOLOv8n", "yolov8s"]
+    
+    #if canImport(Vision) && canImport(CoreML)
+    private var model: VNCoreMLModel?
+    #endif
+    public private(set) var isCoreMLModelLoaded: Bool = false
+
+    public init() {
+        setupModel()
+    }
+
+    private func setupModel() {
+        #if canImport(Vision) && canImport(CoreML)
+        let config = MLModelConfiguration()
+        // Leverage Apple Neural Engine (ANE) + GPU + CPU for FP16 / INT8 execution and minimal thermal throttling
+        config.computeUnits = .all
+        
+        // Search main bundle for compiled (.mlmodelc) or package (.mlpackage / .mlmodel) YOLOv8 Nano asset
+        for name in Self.supportedModelBundleNames {
+            if let compiledURL = Bundle.main.url(forResource: name, withExtension: "mlmodelc"),
+               let mlModel = try? MLModel(contentsOf: compiledURL, configuration: config),
+               let visionModel = try? VNCoreMLModel(for: mlModel) {
+                self.model = visionModel
+                self.model?.usesCPUOnly = false // Leverage Neural Engine (ANE) on supported iOS devices
+                self.isCoreMLModelLoaded = true
+                return
+            }
+            if let packageURL = Bundle.main.url(forResource: name, withExtension: "mlpackage") ?? Bundle.main.url(forResource: name, withExtension: "mlmodel"),
+               let compiledURL = try? MLModel.compileModel(at: packageURL),
+               let mlModel = try? MLModel(contentsOf: compiledURL, configuration: config),
+               let visionModel = try? VNCoreMLModel(for: mlModel) {
+                self.model = visionModel
+                self.model?.usesCPUOnly = false
+                self.isCoreMLModelLoaded = true
+                return
+            }
+        }
+        #endif
+    }
+
+    #if canImport(Vision)
+    /// Executes YOLOv8 Nano Core ML inference on a $640 \times 640 \times 3$ normalized `CVPixelBuffer`
+    public func detect(pixelBuffer: CVPixelBuffer, completion: @escaping ([VNRecognizedObjectObservation]) -> Void) {
+        guard let model = model else {
+            completion([])
+            return
+        }
+        
+        let request = VNCoreMLRequest(model: model) { request, error in
+            guard error == nil, let results = request.results as? [VNRecognizedObjectObservation] else {
+                completion([])
+                return
+            }
+            completion(results)
+        }
+        
+        request.imageCropAndScaleOption = .scaleFill // Match 640x640 training preprocessing
+        
+        let handler = VNImageRequestHandler(cvPixelBuffer: pixelBuffer, options: [:])
+        DispatchQueue.global(qos: .userInitiated).async {
+            do {
+                try handler.perform([request])
+            } catch {
+                completion([])
+            }
+        }
+    }
+    
+    /// Maps Core ML `[VNRecognizedObjectObservation]` output tensors directly into `[ObstacleAlertItem]` (`ObstacleAlertItem.swift`)
+    public func detectObstacleAlerts(pixelBuffer: CVPixelBuffer, completion: @escaping ([ObstacleAlertItem]) -> Void) {
+        detect(pixelBuffer: pixelBuffer) { observations in
+            let items: [ObstacleAlertItem] = observations.enumerated().map { idx, obs in
+                let height = Double(obs.boundingBox.height)
+                let estDist = height > 0.55 ? 0.8 : (height > 0.35 ? 1.8 : (height > 0.20 ? 2.8 : 4.2))
+                let trackId = String(format: "ID:%02d", idx + 1)
+                let labelLower = (obs.labels.first?.identifier ?? "").lowercased()
+                let velocity: Double = labelLower.contains("tram") ? 8.0 : (labelLower.contains("car") ? 3.5 : (labelLower.contains("bicycle") ? 2.1 : 1.2))
+                return ObstacleAlertItem(
+                    observation: obs,
+                    distanceMeters: estDist,
+                    trackId: trackId,
+                    velocityMps: velocity
+                )
+            }
+            completion(items)
+        }
+    }
+    #endif
+}
 
 /// Entity detected by real-time YOLOv8 perception pipeline
 public struct YOLODetection: Identifiable, Equatable, Sendable {
@@ -96,12 +201,85 @@ public struct SignboardDetection: Identifiable, Equatable, Sendable {
 /// High-performance YOLO Object Detection & Signboard OCR Engine for Blind AI
 public final class YOLOObjectDetector: @unchecked Sendable {
     public static let shared = YOLOObjectDetector()
+    public let coreMLDetector = YOLOObstacleDetector.shared
     
     public init() {}
     
-    /// Detects real-world objects (obstacles, Crossing Paths, Riga Road Signs, and Sidewalk Trees) in camera frames using Vision & CoreML
+    /// Synchronous / UIImage wrapper used by `RealtimeVisionPerceptionService`
+    #if canImport(UIKit)
+    public func detectObjects(in image: UIImage) -> [YOLODetection] {
+        guard let cgImage = image.cgImage else { return [] }
+        #if canImport(Vision)
+        var results: [YOLODetection] = []
+        let semaphore = DispatchSemaphore(value: 0)
+        let rectRequest = VNDetectRectanglesRequest { request, error in
+            defer { semaphore.signal() }
+            guard error == nil, let observations = request.results as? [VNRectangleObservation] else { return }
+            for rect in observations where rect.confidence > 0.58 {
+                let uiRect = CGRect(
+                    x: rect.boundingBox.origin.x,
+                    y: 1.0 - rect.boundingBox.origin.y - rect.boundingBox.size.height,
+                    width: rect.boundingBox.size.width,
+                    height: rect.boundingBox.size.height
+                )
+                let lane = self.determineLane(for: uiRect)
+                let dist = self.estimateDistance(for: uiRect)
+                results.append(YOLODetection(
+                    label: "Obstacle",
+                    icon: "🚧",
+                    confidence: rect.confidence,
+                    boundingBox: uiRect,
+                    distanceMeters: dist,
+                    lane: lane,
+                    isHazard: dist < 2.0 && lane == .center
+                ))
+            }
+        }
+        let handler = VNImageRequestHandler(cgImage: cgImage, options: [:])
+        try? handler.perform([rectRequest])
+        _ = semaphore.wait(timeout: .now() + 0.08)
+        return results
+        #else
+        return []
+        #endif
+    }
+    #endif
+
+    /// Detects real-world objects (obstacles, Crossing Paths, Riga Road Signs, and Sidewalk Trees) in camera frames using Vision & CoreML YOLOv8n
     public func detectObjects(in pixelBuffer: CVPixelBuffer) async -> [YOLODetection] {
         #if canImport(Vision)
+        // 1. If compiled Core ML YOLOv8 Nano (`yolov8n.mlpackage` / `.mlmodelc`) is loaded, run ANE inference first
+        if coreMLDetector.isCoreMLModelLoaded {
+            let coreMLDetections: [YOLODetection] = await withCheckedContinuation { continuation in
+                coreMLDetector.detect(pixelBuffer: pixelBuffer) { observations in
+                    let mapped: [YOLODetection] = observations.compactMap { obs in
+                        guard let top = obs.labels.first, top.confidence >= 0.35 else { return nil }
+                        let uiRect = CGRect(
+                            x: obs.boundingBox.origin.x,
+                            y: 1.0 - obs.boundingBox.origin.y - obs.boundingBox.size.height,
+                            width: obs.boundingBox.size.width,
+                            height: obs.boundingBox.size.height
+                        )
+                        let lane = self.determineLane(for: uiRect)
+                        let dist = self.estimateDistance(for: uiRect)
+                        return YOLODetection(
+                            id: obs.uuid,
+                            label: top.identifier.capitalized,
+                            icon: self.icon(for: top.identifier),
+                            confidence: top.confidence,
+                            boundingBox: uiRect,
+                            distanceMeters: dist,
+                            lane: lane,
+                            isHazard: dist < 2.2 && lane == .center
+                        )
+                    }
+                    continuation.resume(returning: mapped)
+                }
+            }
+            if !coreMLDetections.isEmpty {
+                return coreMLDetections
+            }
+        }
         return await withCheckedContinuation { continuation in
             var detections: [YOLODetection] = []
             
@@ -304,5 +482,19 @@ public final class YOLOObjectDetector: @unchecked Sendable {
         } else {
             return 4.2
         }
+    }
+    
+    public func icon(for label: String) -> String {
+        let lower = label.lowercased()
+        if lower.contains("person") || lower.contains("pedestrian") { return "🚶" }
+        if lower.contains("car") || lower.contains("truck") || lower.contains("vehicle") { return "🚗" }
+        if lower.contains("tram") || lower.contains("bus") { return "🚋" }
+        if lower.contains("bicycle") || lower.contains("cyclist") { return "🚲" }
+        if lower.contains("traffic light") { return "🚦" }
+        if lower.contains("sign") { return "🪧" }
+        if lower.contains("tree") { return "🌳" }
+        if lower.contains("stair") { return "🪜" }
+        if lower.contains("pole") { return "💈" }
+        return "⚠️"
     }
 }

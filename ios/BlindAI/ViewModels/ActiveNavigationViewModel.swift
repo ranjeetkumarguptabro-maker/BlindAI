@@ -7,10 +7,12 @@ public final class ActiveNavigationViewModel: ObservableObject {
     @Published public var isShowingDetails: Bool = false
     @Published public var currentWaypoint: Int = 1
     @Published public var totalWaypoints: Int = 4
+    @Published public private(set) var liveObstacleAlerts: [ObstacleAlertItem] = []
     
     public var onNavigateToRoute: ((AppRoute) -> Void)?
     
     private let navService = NavigationService.shared
+    private let perceptionService = RealtimeVisionPerceptionService.shared
     private let hapticsService = HapticsService.shared
     private var cancellables = Set<AnyCancellable>()
     
@@ -40,6 +42,13 @@ public final class ActiveNavigationViewModel: ObservableObject {
                 if !navigating {
                     self?.onNavigateToRoute?(.home)
                 }
+            }
+            .store(in: &cancellables)
+            
+        perceptionService.$obstacleAlertItems
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] alerts in
+                self?.liveObstacleAlerts = alerts
             }
             .store(in: &cancellables)
     }

@@ -12,13 +12,15 @@ public final class RealtimeVisionPerceptionService: ObservableObject {
     // Dependencies
     private let cameraService: CameraCaptureService
     private let yoloDetector: YOLOObjectDetector
+    public let yoloObstacleDetector: YOLOObstacleDetector
     private let obstacleSystem: ObstacleDangerSystem
     private let backendClient: BlindAIBackendClient
     private let speechService: SpeechService
     private let hapticsService: HapticsService
     
-    // Published State for SwiftUI HUD
+    // Published State for SwiftUI HUD & ViewModels
     @Published public private(set) var detectedObjects: [DetectedObject] = []
+    @Published public private(set) var obstacleAlertItems: [ObstacleAlertItem] = []
     @Published public private(set) var highestDangerObject: DetectedObject?
     @Published public private(set) var currentSceneDescription: String = "Scanning forward path..."
     @Published public private(set) var detectedSignboards: [SignboardItem] = []
@@ -34,6 +36,7 @@ public final class RealtimeVisionPerceptionService: ObservableObject {
     public init(
         cameraService: CameraCaptureService = .shared,
         yoloDetector: YOLOObjectDetector = .shared,
+        yoloObstacleDetector: YOLOObstacleDetector = .shared,
         obstacleSystem: ObstacleDangerSystem = .shared,
         backendClient: BlindAIBackendClient = .shared,
         speechService: SpeechService = .shared,
@@ -41,6 +44,7 @@ public final class RealtimeVisionPerceptionService: ObservableObject {
     ) {
         self.cameraService = cameraService
         self.yoloDetector = yoloDetector
+        self.yoloObstacleDetector = yoloObstacleDetector
         self.obstacleSystem = obstacleSystem
         self.backendClient = backendClient
         self.speechService = speechService
@@ -50,6 +54,20 @@ public final class RealtimeVisionPerceptionService: ObservableObject {
     }
     
     private func setupSubscriptions() {
+        cameraService.pixelBufferPublisher
+            .receive(on: DispatchQueue.global(qos: .userInitiated))
+            .sink { [weak self] pixelBuffer in
+                guard let self = self else { return }
+                #if canImport(Vision)
+                self.yoloObstacleDetector.detectObstacleAlerts(pixelBuffer: pixelBuffer) { alerts in
+                    DispatchQueue.main.async {
+                        self.obstacleAlertItems = alerts
+                    }
+                }
+                #endif
+            }
+            .store(in: &cancellables)
+            
         cameraService.framePublisher
             .receive(on: DispatchQueue.global(qos: .userInteractive))
             .sink { [weak self] image in

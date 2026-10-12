@@ -28,6 +28,11 @@ public final class CameraCaptureService: NSObject, ObservableObject, CameraCaptu
         frameSubject.eraseToAnyPublisher()
     }
     
+    private let pixelBufferSubject = PassthroughSubject<CVPixelBuffer, Never>()
+    public var pixelBufferPublisher: AnyPublisher<CVPixelBuffer, Never> {
+        pixelBufferSubject.eraseToAnyPublisher()
+    }
+    
     public let captureSession = AVCaptureSession()
     private let videoOutput = AVCaptureVideoDataOutput()
     private let sessionQueue = DispatchQueue(label: "com.blindai.camera.sessionQueue", qos: .userInitiated)
@@ -196,6 +201,7 @@ extension CameraCaptureService: AVCaptureVideoDataOutputSampleBufferDelegate {
         lastFrameTime = now
         
         guard let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
+        pixelBufferSubject.send(pixelBuffer)
         let ciImage = CIImage(cvPixelBuffer: pixelBuffer)
         let context = CIContext(options: nil)
         guard let cgImage = context.createCGImage(ciImage, from: ciImage.extent) else { return }
