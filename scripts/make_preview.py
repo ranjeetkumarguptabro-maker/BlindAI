@@ -547,10 +547,20 @@ html_content = f"""<!DOCTYPE html>
                 <h2 class="text-xl font-bold text-slate-900">Where would you like to go?</h2>
               </div>
 
+              <!-- Manual Starting Location (Origin) Input (Module 2) -->
+              <div class="relative mb-2">
+                <label for="origin-location-input" class="block text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-1 px-1">Starting Location (GPS or Manual Origin)</label>
+                <div class="relative">
+                  <input type="text" id="origin-location-input" value="Riga Old Town (Vecrīga)" onchange="updateManualOriginLocation(this.value)" placeholder="Current GPS or type starting location..." aria-label="Starting location origin" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 pl-9 pr-20 text-xs font-semibold text-slate-800 placeholder-slate-400 focus:border-amber-500 transition">
+                  <span class="absolute left-3 top-2 text-xs" aria-hidden="true">🟢</span>
+                  <button type="button" onclick="useDeviceGpsAsOrigin()" class="absolute right-2 top-1.5 px-2 py-0.5 rounded-lg bg-slate-200 hover:bg-slate-300 text-[10px] font-bold text-slate-800 transition">Use GPS</button>
+                </div>
+              </div>
+
               <!-- Accessible Search Bar -->
               <div class="relative mb-3">
                 <label for="destination-search-input" class="sr-only">Search destination or speak</label>
-                <input type="text" id="destination-search-input" oninput="filterDestinations(this.value)" placeholder="Search destination or speak..." aria-label="Search destination or speak" class="w-full bg-white border border-slate-200 rounded-2xl py-3 pl-11 pr-11 text-sm font-medium text-slate-800 placeholder-slate-500 shadow-sm focus:border-amber-500 transition">
+                <input type="text" id="destination-search-input" oninput="filterDestinations(this.value)" placeholder="Search destination (e.g. Riga Technical University)..." aria-label="Search destination or speak" class="w-full bg-white border border-slate-200 rounded-2xl py-3 pl-11 pr-11 text-sm font-medium text-slate-800 placeholder-slate-500 shadow-sm focus:border-amber-500 transition">
                 <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-slate-500 absolute left-3.5 top-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                 <button onclick="triggerVoiceAssistant()" aria-label="Search destination using voice" class="absolute right-3 top-3 text-orange-500 hover:text-orange-600 shrink-0">
                   <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/></svg>
@@ -558,47 +568,47 @@ html_content = f"""<!DOCTYPE html>
               </div>
 
               <!-- Category Pills -->
-              <div role="group" aria-label="Destination categories" class="flex items-center gap-2 mb-4 overflow-x-auto no-scrollbar py-1">
+              <div role="group" aria-label="Destination categories" class="flex items-center gap-2 mb-3 overflow-x-auto no-scrollbar py-1">
+                <button onclick="selectDestination('Riga Technical University (RTU)', 'Ķīpsala Campus, Paula Valdena iela 1')" class="px-3 py-1.5 bg-amber-100 text-amber-900 rounded-full text-xs font-bold whitespace-nowrap shrink-0">🎓 RTU Ķīpsala</button>
                 <button onclick="selectCategory('Coffee shop')" class="px-3 py-1.5 bg-orange-100 text-orange-800 rounded-full text-xs font-semibold whitespace-nowrap shrink-0">Coffee Shop</button>
                 <button onclick="selectCategory('Park')" class="px-3 py-1.5 bg-emerald-100 text-emerald-800 rounded-full text-xs font-semibold whitespace-nowrap shrink-0">Park</button>
-                <button onclick="selectCategory('Grocery')" class="px-3 py-1.5 bg-blue-100 text-blue-800 rounded-full text-xs font-semibold whitespace-nowrap shrink-0">Grocery Store</button>
                 <button onclick="selectCategory('Pharmacy')" class="px-3 py-1.5 bg-purple-100 text-purple-800 rounded-full text-xs font-semibold whitespace-nowrap shrink-0">Pharmacy</button>
               </div>
 
               <!-- Recent Destinations List -->
-              <h3 class="text-xs font-bold text-slate-600 uppercase tracking-wider mb-2 px-1">Recent Places</h3>
-              <div id="recent-places-list" role="list" aria-label="Recent destinations" class="flex flex-col space-y-2.5 pb-4">
-                <button onclick="selectDestination('City Central Park', 'Pedestrian Promenade & Garden')" aria-label="Select destination: City Central Park" class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between text-left hover:border-amber-400 transition">
+              <h3 class="text-xs font-bold text-slate-600 uppercase tracking-wider mb-2 px-1">Validated Destinations & Riga Transit</h3>
+              <div id="recent-places-list" role="list" aria-label="Recent destinations" class="flex flex-col space-y-2 pb-4">
+                <button onclick="selectDestination('Riga Technical University (RTU)', 'Ķīpsala Campus • Walk + Trolleybus 9 / Bus 3 / Tram 1')" aria-label="Select destination: Riga Technical University" class="bg-white p-3 rounded-2xl border border-amber-300 shadow-sm flex items-center justify-between text-left hover:border-amber-500 transition">
                   <div class="flex items-center space-x-3 min-w-0 flex-1 pr-2">
-                    <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-sm shrink-0" aria-hidden="true">🌳</div>
+                    <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center font-bold text-sm shrink-0" aria-hidden="true">🎓</div>
                     <div class="min-w-0 flex-1">
-                      <h4 class="font-bold text-slate-900 text-sm truncate">City Central Park</h4>
-                      <p class="text-xs text-slate-600 truncate">Pedestrian Promenade • 0.8 km</p>
+                      <h4 class="font-bold text-slate-900 text-sm truncate">Riga Technical University (RTU)</h4>
+                      <p class="text-xs text-slate-600 truncate">From Old Town • 2.1 km walk or 11m Transit</p>
                     </div>
                   </div>
-                  <span class="text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-1 rounded-lg shrink-0">10 min</span>
+                  <span class="text-xs font-bold text-amber-800 bg-amber-100 px-2 py-1 rounded-lg shrink-0">25 min</span>
                 </button>
 
-                <button onclick="selectDestination('Corner Bakery & Cafe', 'Main Sidewalk Entrance')" aria-label="Select destination: Corner Bakery & Cafe" class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between text-left hover:border-amber-400 transition">
+                <button onclick="selectDestination('RTU Scientific Library', 'Paula Valdena iela 5, Ķīpsala')" aria-label="Select destination: RTU Scientific Library" class="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between text-left hover:border-amber-400 transition">
                   <div class="flex items-center space-x-3 min-w-0 flex-1 pr-2">
-                    <div class="w-10 h-10 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center font-bold text-sm shrink-0" aria-hidden="true">☕</div>
+                    <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-sm shrink-0" aria-hidden="true">📚</div>
                     <div class="min-w-0 flex-1">
-                      <h4 class="font-bold text-slate-900 text-sm truncate">Corner Bakery & Cafe</h4>
-                      <p class="text-xs text-slate-600 truncate">Main Sidewalk • 0.3 km</p>
+                      <h4 class="font-bold text-slate-900 text-sm truncate">RTU Scientific Library</h4>
+                      <p class="text-xs text-slate-600 truncate">Paula Valdena iela 5 • 1.3 km</p>
                     </div>
                   </div>
-                  <span class="text-xs font-bold text-slate-700 bg-slate-100 px-2 py-1 rounded-lg shrink-0">4 min</span>
+                  <span class="text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-1 rounded-lg shrink-0">16 min</span>
                 </button>
 
-                <button onclick="selectDestination('Metro & Bus Transit Station', 'Transit Plaza North')" aria-label="Select destination: Metro & Bus Transit Station" class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between text-left hover:border-amber-400 transition">
+                <button onclick="selectDestination('Rīga Central Station', 'Stacijas laukums 2 • Trolleybus 9 / Tram 1')" aria-label="Select destination: Rīga Central Station" class="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between text-left hover:border-amber-400 transition">
                   <div class="flex items-center space-x-3 min-w-0 flex-1 pr-2">
-                    <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-sm shrink-0" aria-hidden="true">🚏</div>
+                    <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-sm shrink-0" aria-hidden="true">🚉</div>
                     <div class="min-w-0 flex-1">
-                      <h4 class="font-bold text-slate-900 text-sm truncate">Metro & Bus Transit Station</h4>
-                      <p class="text-xs text-slate-600 truncate">Transit Plaza North • 0.5 km</p>
+                      <h4 class="font-bold text-slate-900 text-sm truncate">Rīga Central Station</h4>
+                      <p class="text-xs text-slate-600 truncate">Stacijas laukums 2 • 3.1 km</p>
                     </div>
                   </div>
-                  <span class="text-xs font-bold text-blue-700 bg-blue-50 px-2 py-1 rounded-lg shrink-0">6 min</span>
+                  <span class="text-xs font-bold text-blue-700 bg-blue-50 px-2 py-1 rounded-lg shrink-0">14m Bus</span>
                 </button>
               </div>
             </div>
@@ -611,60 +621,79 @@ html_content = f"""<!DOCTYPE html>
             </div>
           </div>
 
-          <!-- ==================== SCREEN 4: ROUTE PREVIEW ==================== -->
-          <div id="screen-routePreview" role="region" aria-label="Screen 4: Route Preview" class="screen-container flex-1 flex flex-col justify-between p-5 pb-6 hidden">
-            <div class="mobile-safe-header flex justify-between items-center pt-2 px-1">
-              <button onclick="navigateTo('destinationSearch')" aria-label="Back to destination search" class="w-11 h-11 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-700 hover:bg-slate-50 shadow-sm transition shrink-0">
+          <!-- ==================== SCREEN 4: ROUTE PREVIEW (WALKING + LATVIAN PUBLIC TRANSPORT + CROSSINGS) ==================== -->
+          <div id="screen-routePreview" role="region" aria-label="Screen 4: Route Preview" class="screen-container flex-1 flex flex-col justify-between p-4 pb-5 hidden">
+            <div class="mobile-safe-header flex justify-between items-center pt-1 px-1">
+              <button onclick="navigateTo('destinationSearch')" aria-label="Back to destination search" class="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-700 hover:bg-slate-50 shadow-sm transition shrink-0">
                 <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
               </button>
-              <span class="text-xl font-bold text-black tracking-tight">Blind AI</span>
-              <button onclick="openSettingsModal()" aria-label="Settings" aria-haspopup="dialog" class="w-11 h-11 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-700 shadow-sm shrink-0">
+              <span class="text-lg font-bold text-black tracking-tight">Route & Transit Plan</span>
+              <button onclick="openSettingsModal()" aria-label="Settings" aria-haspopup="dialog" class="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-700 shadow-sm shrink-0">
                 <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
               </button>
             </div>
 
             <!-- Real Leaflet Interactive Route Map -->
-            <div class="flex-1 flex flex-col justify-center my-2 min-h-0">
-              <h2 class="sr-only">Interactive Real-World Route Map & Directions</h2>
-              <div class="w-full h-44 sm:h-48 rounded-3xl relative overflow-hidden shadow-inner border border-slate-300 z-0 shrink-0">
+            <div class="flex-1 flex flex-col justify-start my-1.5 min-h-0 overflow-y-auto no-scrollbar space-y-2">
+              <h2 class="sr-only">Interactive Real-World Route Map & Latvian Public Transport</h2>
+              <div class="w-full h-36 rounded-2xl relative overflow-hidden shadow-inner border border-slate-300 z-0 shrink-0">
                 <div id="route-map-leaflet" class="w-full h-full"></div>
                 <div id="route-map-loading" class="absolute inset-0 bg-slate-100/90 backdrop-blur-xs flex items-center justify-center text-xs font-semibold text-slate-700 z-20">
                   <span class="w-2.5 h-2.5 rounded-full bg-blue-500 animate-ping mr-2 shrink-0"></span>
-                  <span>Loading Real-World Map & GPS Route...</span>
+                  <span>Loading Geographic Map & Route...</span>
                 </div>
               </div>
 
-              <!-- Destination Summary Card -->
-              <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm mt-3">
-                <div class="flex items-center space-x-3 mb-2 min-w-0">
-                  <div class="w-9 h-9 rounded-xl bg-orange-100 text-orange-600 flex items-center justify-center font-bold text-sm shrink-0" aria-hidden="true">
+              <!-- Origin, Destination, Next Turn & Crossings Card (Module 2) -->
+              <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm">
+                <div class="flex items-center justify-between text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
+                  <span id="preview-origin-label">From: Riga Old Town (Vecrīga)</span>
+                  <span id="preview-eta-badge" class="text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md">ETA: 25 min</span>
+                </div>
+                <div class="flex items-center space-x-2.5 mb-2 min-w-0">
+                  <div class="w-8 h-8 rounded-xl bg-orange-100 text-orange-600 flex items-center justify-center font-bold text-sm shrink-0" aria-hidden="true">
                     📍
                   </div>
                   <div class="min-w-0 flex-1">
-                    <h3 id="preview-destination-title" class="font-bold text-slate-900 text-base leading-tight truncate">Selected Destination</h3>
-                    <p id="preview-destination-sub" class="text-xs text-slate-600 mt-0.5 truncate">Pedestrian Walkway • Calculating live GPS route...</p>
+                    <h3 id="preview-destination-title" class="font-bold text-slate-900 text-sm leading-tight truncate">Riga Technical University (RTU)</h3>
+                    <p id="preview-destination-sub" class="text-[11px] text-slate-600 mt-0.5 truncate">2.1 km • 6 steps • 3 signalized pedestrian crossings</p>
                   </div>
                 </div>
-                <div class="flex items-center justify-between text-xs text-slate-700 border-t border-slate-100 pt-2.5">
-                  <span>Sidewalk condition: <strong class="text-emerald-700">Clear</strong></span>
-                  <span>Audio cues: <strong class="text-slate-900">High</strong></span>
+                <div id="preview-crossings-summary" class="text-[11px] text-slate-700 bg-slate-50 rounded-xl p-2 border border-slate-100">
+                  <div><strong>Next Turn:</strong> <span id="preview-next-turn-text">Walk west toward 11. novembra krastmala (180m)</span></div>
+                  <div class="mt-0.5"><strong>Crossings:</strong> 11. novembra krastmala (signalized), Balasta dambis, Ķīpsalas iela</div>
                 </div>
+              </div>
+
+              <!-- Latvian Public Transport Options Card (Rīgas Satiksme Tram / Bus / Trolleybus) -->
+              <div id="preview-transit-card" class="bg-blue-50/90 p-2.5 rounded-2xl border border-blue-200 text-xs text-slate-800">
+                <div class="flex items-center justify-between mb-1">
+                  <span class="font-extrabold text-blue-900 text-[11px] uppercase tracking-wider">🚊 Latvian Public Transport (Rīgas Satiksme)</span>
+                  <button type="button" onclick="speakPublicTransportOptions()" class="px-2 py-0.5 rounded-lg bg-blue-600 text-white text-[10px] font-bold hover:bg-blue-700 transition">Hear Boarding</button>
+                </div>
+                <p id="preview-transit-line" class="text-[11px] font-semibold text-slate-900">Trolleybus 9 / Bus 3 / Tram 1: Grēcinieku iela → Ķīpsala (2 stops • 11 min)</p>
+                <p id="preview-transit-boarding" class="text-[10px] text-slate-600 mt-0.5">Stand at raised tactile curb strip; external speaker announces arriving route number.</p>
+              </div>
+
+              <!-- Assistive Prototype Safety Disclaimer -->
+              <div class="px-2.5 py-1.5 rounded-xl bg-amber-50 border border-amber-200 text-[10px] text-amber-900 font-medium">
+                <strong>Assistive Prototype:</strong> Use alongside your white cane or guide dog. Camera/depth never guarantee traffic safety.
               </div>
             </div>
 
             <!-- Route Actions -->
             <div class="mobile-safe-footer flex flex-col space-y-2 pt-1">
-              <button onclick="startCurrentNavigation()" id="start-nav-btn" aria-label="Start walking navigation to selected destination" class="w-full py-3.5 rounded-2xl bg-black text-white font-bold text-base shadow-md hover:bg-neutral-800 transition active:scale-[0.99] flex items-center justify-center space-x-2">
+              <button onclick="startCurrentNavigation()" id="start-nav-btn" aria-label="Start walking navigation to selected destination" class="w-full py-3 rounded-2xl bg-black text-white font-bold text-sm shadow-md hover:bg-neutral-800 transition active:scale-[0.99] flex items-center justify-center space-x-2">
                 <span>Start navigation</span>
                 <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
               </button>
               <div class="flex items-center space-x-2">
-                <button onclick="speakRouteOverview()" id="btn-describe-route" aria-label="Describe route overview and audible cues" class="flex-1 py-3 rounded-2xl bg-white border border-slate-200 text-slate-800 font-semibold text-sm shadow-sm hover:bg-slate-50 transition active:scale-[0.99] flex items-center justify-center space-x-2">
+                <button onclick="speakRouteOverview()" id="btn-describe-route" aria-label="Describe route overview and audible cues" class="flex-1 py-2.5 rounded-2xl bg-white border border-slate-200 text-slate-800 font-semibold text-xs shadow-sm hover:bg-slate-50 transition active:scale-[0.99] flex items-center justify-center space-x-1.5">
                   <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/></svg>
-                  <span>Describe route</span>
+                  <span>Describe route & transit</span>
                 </button>
-                <button onclick="triggerVoiceAssistant()" id="route-preview-mic-btn" aria-label="Activate microphone to ask about route or change destination" class="w-12 h-12 rounded-2xl bg-black text-white flex items-center justify-center shadow-md hover:bg-neutral-800 transition active:scale-95 shrink-0">
-                  <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/></svg>
+                <button onclick="triggerVoiceAssistant()" id="route-preview-mic-btn" aria-label="Activate microphone to ask about route or change destination" class="w-11 h-11 rounded-2xl bg-black text-white flex items-center justify-center shadow-md hover:bg-neutral-800 transition active:scale-95 shrink-0">
+                  <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/></svg>
                 </button>
               </div>
             </div>
@@ -4552,7 +4581,7 @@ html_content = f"""<!DOCTYPE html>
           cocoTrafficLight.spokenGuidance = tlSignalColor === 'RED'
             ? `Red traffic light detected at ${{cocoTrafficLight.distance.toFixed(1)}} meters. Stop at curb and wait.`
             : (tlSignalColor === 'GREEN'
-                ? `Green traffic light detected at ${{cocoTrafficLight.distance.toFixed(1)}} meters. Check for turning vehicles before crossing.`
+                ? `Green signal detected ahead at ${{cocoTrafficLight.distance.toFixed(1)}} meters, but camera detection cannot guarantee road safety. Listen for traffic and verify before crossing.`
                 : `Yellow traffic light at ${{cocoTrafficLight.distance.toFixed(1)}} meters. Prepare to stop at curb.`);
         }} else {{
           // Pixel-level scan in upper intersection region (y: 4..28, x: 12..68) for dark signal housing + glowing emitter
@@ -4597,7 +4626,7 @@ html_content = f"""<!DOCTYPE html>
               spokenGuidance: tlSignalColor === 'RED'
                 ? `Red traffic light ahead (${{tlDist}}m). Wait on curb.`
                 : (tlSignalColor === 'GREEN'
-                    ? `Green traffic light ahead (${{tlDist}}m). Verify traffic is stopped before crossing.`
+                    ? `Green signal detected ahead (${{tlDist}}m), but camera detection cannot guarantee road safety. Listen for traffic and verify before crossing.`
                     : `Yellow traffic light ahead (${{tlDist}}m). Do not start crossing.`)
             }}));
           }}
@@ -4612,7 +4641,7 @@ html_content = f"""<!DOCTYPE html>
             confidence: 0.94,
             guidance: tlSignalColor === 'RED'
               ? 'STOP — Red signal active'
-              : (tlSignalColor === 'GREEN' ? 'WALK — Green signal active (check turning cars)' : 'WAIT — Yellow signal changing')
+              : (tlSignalColor === 'GREEN' ? 'GREEN — Verify traffic & listen before crossing' : 'WAIT — Yellow signal changing')
           }};
         }} else {{
           currentTrafficLightSignal = {{
@@ -5725,7 +5754,10 @@ html_content = f"""<!DOCTYPE html>
           lastSpokenSignTime = now;
           lastSpokenSignText = primarySign.text;
           triggerHaptic([60, 40]);
-          const spoken = (matchedCatalog && matchedCatalog.spokenGuidance) || detected.summary || primarySign.spoken_announcement || `Detected signboard: ${{primarySign.text}}.`;
+          const signConf = primarySign.confidence !== undefined ? primarySign.confidence : 0.92;
+          const spoken = signConf < 0.65
+            ? "I can't confidently identify the sign. Please proceed cautiously."
+            : ((matchedCatalog && matchedCatalog.spokenGuidance) || detected.summary || primarySign.spoken_announcement || `Detected signboard: ${{primarySign.text}}.`);
           speakText(spoken);
           announceToScreenReader(`Signboard detected: ${{primarySign.text}}`);
         }}
@@ -5734,6 +5766,24 @@ html_content = f"""<!DOCTYPE html>
         if (bannerText) bannerText.innerText = "Scanning for street signs...";
         if (overlay) overlay.innerHTML = "";
       }}
+    }}
+
+    // Module 3A: Format YOLO detections in canonical schema {{ objects: [{{ class, confidence, bbox }}] }}
+    function formatYoloDetectionsJson(detections) {{
+      return {{
+        objects: (detections || []).map(d => ({{
+          class: d.rawClass || (d.label ? d.label.toLowerCase() : 'object'),
+          confidence: Number((d.conf !== undefined ? d.conf : 0.92).toFixed(2)),
+          bbox: [
+            Math.round(d.x || 0),
+            Math.round(d.y || 0),
+            Math.round((d.x || 0) + (d.w || 60)),
+            Math.round((d.y || 0) + (d.h || 60))
+          ],
+          distanceMeters: d.distance,
+          lane: d.lane
+        }}))
+      }};
     }}
 
     // ==================== SPOKEN BUTTON CLICKING & AUTOMATED GPS ROUTING ====================
@@ -5935,7 +5985,7 @@ html_content = f"""<!DOCTYPE html>
 
       // Button click actions
       if (/^(start navigation|start route|begin navigation|start walking|let('s)? go)$/i.test(cleaned)) {{
-        return {{ intent: "click_button", target_button: "start_navigation", action: "click_button", spoken_response: "Starting navigation.", confidence: 0.99 }};
+        return {{ intent: "click_button", target_button: "start_navigation", action: "click_button", spoken_response: "Navigation started. Continue straight.", confidence: 0.99 }};
       }}
       if (/^(where am i|where i am|what is my location|my location|current location|where are we)$/i.test(cleaned)) {{
         const street = userGps.street || "your current street";
@@ -5962,7 +6012,18 @@ html_content = f"""<!DOCTYPE html>
         return {{ intent: "click_button", target_button: "detect_signs", action: "click_button", spoken_response: "Scanning for Riga road signs, traffic boards, and street signs.", confidence: 0.99 }};
       }}
 
-      // Traffic Light & Signal Color Query
+      // Module 2: Latvian Public Transport & Transit Boarding Query
+      if (/\b(what bus|which bus|what tram|which tram|what trolleybus|which trolleybus|public transport|transit option|bus or tram|tram or bus|boarding instruction|how to get to .* by (bus|tram|trolleybus))\b/i.test(cleaned)) {{
+        const transitSpoken = "For Riga Old Town to Riga Technical University (Ķīpsala), take Rīgas Satiksme Trolleybus 9 or Bus 3 from Grēcinieku iela stop (2 stops across Stone Bridge to Ķīpsala), then walk 350 meters north along Ķīpsalas iela.";
+        return {{
+          intent: "public_transport_query",
+          action: "public_transport_query",
+          spoken_response: transitSpoken,
+          confidence: 0.99
+        }};
+      }}
+
+      // Traffic Light & Signal Color Query (Enforcing Module 4 Critical Safety Rule)
       if (/\b(traffic light|traffic signal|signal color|light red|light green|light yellow|what color is the (traffic )?light|pedestrian signal|walk signal)\b/i.test(cleaned)) {{
         const tlObj = lastLiveDetections.find(o => o.isTrafficLight || o.rawClass === 'traffic light');
         const sig = (tlObj && tlObj.signalColor) || (currentTrafficLightSignal && currentTrafficLightSignal.detected ? currentTrafficLightSignal.color : 'NONE');
@@ -5972,7 +6033,7 @@ html_content = f"""<!DOCTYPE html>
           spoken = sig === 'RED'
             ? `The traffic light ahead at ${{dist}} meters is RED. Stop at the curb and wait.`
             : (sig === 'GREEN'
-                ? `The traffic light ahead at ${{dist}} meters is GREEN. Check for turning vehicles and proceed across.`
+                ? `Green signal detected ahead at ${{dist}} meters, but camera detection cannot guarantee road safety. Listen for traffic and verify before crossing.`
                 : `The traffic light ahead at ${{dist}} meters is YELLOW. Wait on the curb for the next green cycle.`);
         }}
         return {{ intent: "traffic_light_query", action: "traffic_light_query", spoken_response: spoken, confidence: 0.99 }};
@@ -6333,10 +6394,43 @@ html_content = f"""<!DOCTYPE html>
         }};
       }}
 
-      const navPrefixRegex = /^(please\\s+)?(take me to|navigate to|open the|open|i want to go to|i need to go to|i need to get to|head to|walk to|go to|find the|find|directions to|route to|start route to|start navigation to|take me|navigate|start navigation|start route|directions|route|head|walk|go)\\s*(.*)$/i;
-      const match = lowered.match(navPrefixRegex);
-      let destQuery = match ? (match[3] || "").trim() : lowered;
-      const clean = destQuery.replace(/^(the|a|an)\\s+/i, "").trim();
+      // Extract "from <origin> to <destination>" if spoken
+      let extractedOrigin = null;
+      let workingLowered = lowered;
+      const fromToMatch = workingLowered.match(/\bfrom\s+(.+?)\s+to\s+(.+)$/i);
+      if (fromToMatch) {{
+        extractedOrigin = fromToMatch[1].trim();
+        workingLowered = 'take me to ' + fromToMatch[2].trim();
+        updateManualOriginLocation(extractedOrigin);
+      }}
+
+      const navPrefixRegex = /^(please\s+)?(take me to|navigate to|open the|open|i want to go to|i need to go to|i need to get to|head to|walk to|go to|find the|find|directions to|route to|start route to|start navigation to|take me|navigate|start navigation|start route|directions|route|head|walk|go)\s*(.*)$/i;
+      const match = workingLowered.match(navPrefixRegex);
+      let destQuery = match ? (match[3] || "").trim() : workingLowered;
+      const clean = destQuery.replace(/^(the|a|an)\s+/i, "").trim();
+
+      // Module 1 (mermaid-diagram.png): "Destination clear? -> No -> Ask User to Clarify"
+      const ambiguousPrompts = {{
+        "station": "Which station in Riga would you like to go to? For example, Riga Central Station or Autoosta Coach Terminal?",
+        "train station": "Did you mean Riga Central Station (Stacijas laukums 2)? Say yes or Riga Central Station to confirm.",
+        "university": "Which university or campus would you like to go to? For example, Riga Technical University (RTU) in Ķīpsala?",
+        "park": "Which park would you like to walk to? For example, Bastejkalns Park or Vērmanes Garden?",
+        "hospital": "Which hospital or medical center do you need? Please say the hospital name or street address.",
+        "stop": "Which tram or bus stop would you like to walk to? For example, Grēcinieku iela or Ķīpsala?",
+        "building": "Which building would you like to navigate to? For example, Riga Technical University or Latvian National Library?",
+        "center": "Would you like to go to Riga Old Town (Vecrīga), Galleria Riga, or Origo Shopping Centre?"
+      }};
+
+      if (ambiguousPrompts[clean]) {{
+        return {{
+          intent: "clarification_needed",
+          destination_clear: false,
+          destination: null,
+          clarification_prompt: ambiguousPrompts[clean],
+          spoken_response: ambiguousPrompts[clean],
+          confidence: 0.75
+        }};
+      }}
 
       const vagueWords = new Set([
         "",
@@ -6348,9 +6442,7 @@ html_content = f"""<!DOCTYPE html>
         "location",
         "navigate",
         "navigation",
-        "start navigation",
-        "start route",
-        "route",
+        " route",
         "directions",
         "go somewhere",
         "take me somewhere",
@@ -6359,45 +6451,49 @@ html_content = f"""<!DOCTYPE html>
         "where is it"
       ]);
 
-      if (vagueWords.has(clean) || vagueWords.has(lowered) || /^(navigate|start navigation|go somewhere|take me somewhere|take me there|directions|route|start route)$/i.test(lowered)) {{
+      if (vagueWords.has(clean) || vagueWords.has(lowered) || /^(go somewhere|take me somewhere|take me there|directions|route)$/i.test(lowered)) {{
+        const clarifMsg = "Where would you like to go? Please say a clear destination such as Riga Technical University, Riga Old Town, or Central Station.";
         return {{
-          intent: "start_navigation",
-          trigger_auto_gps: true,
-          destination: {{
-            canonicalName: "Nearby Destination",
-            shortName: "Nearby Destination",
-            subtitle: "Nearest accessible walking destination",
-            isNearbySearch: true
-          }},
-          spoken_response: "Detecting current location. Finding nearest destination to navigate.",
-          confidence: 0.95
+          intent: "clarification_needed",
+          destination_clear: false,
+          destination: null,
+          clarification_prompt: clarifMsg,
+          spoken_response: clarifMsg,
+          confidence: 0.65
         }};
       }}
 
       const known = findClientLocationMatch(clean);
       if (known) {{
+        const originPhrase = extractedOrigin ? `from ${{extractedOrigin}} ` : '';
         return {{
           intent: "start_navigation",
+          destination_clear: true,
+          origin: extractedOrigin,
           trigger_auto_gps: true,
           destination: known,
-          spoken_response: `Detecting current location. Routing to ${{known.canonicalName}}.`,
+          spoken_response: `Routing ${{originPhrase}}to ${{known.canonicalName}}.`,
           confidence: 0.96
         }};
       }}
 
       if (clean.length >= 2) {{
         const custom = createClientCustomDestination(clean);
+        const originPhrase = extractedOrigin ? `from ${{extractedOrigin}} ` : '';
         return {{
           intent: "start_navigation",
+          destination_clear: true,
+          origin: extractedOrigin,
           trigger_auto_gps: true,
           destination: custom,
-          spoken_response: `Detecting current location. Planning route to ${{custom.canonicalName}}.`,
+          spoken_response: `Planning route ${{originPhrase}}to ${{custom.canonicalName}}.`,
           confidence: 0.95
         }};
       }}
 
       return {{
         intent: "clarification_needed",
+        destination_clear: false,
         destination: null,
         clarification_prompt: "I didn't quite catch that destination. Where would you like to go?",
         spoken_response: "Where would you like to go? Please tell me the place or address.",
@@ -6570,6 +6666,78 @@ html_content = f"""<!DOCTYPE html>
       navigateTo(route);
     }}
 
+    // Module 2: Manual Starting Location (Origin) & Latvian Public Transport State
+    let manualOriginName = "Riga Old Town (Vecrīga)";
+    let isManualOriginActive = false;
+    let currentRoutePlanData = null;
+
+    function updateManualOriginLocation(val) {{
+      const v = (val || "").trim();
+      if (v && !/^current gps/i.test(v)) {{
+        manualOriginName = v;
+        isManualOriginActive = true;
+      }} else {{
+        manualOriginName = "Riga Old Town (Vecrīga)";
+        isManualOriginActive = false;
+      }}
+      const inp = document.getElementById('origin-location-input');
+      if (inp && v) inp.value = v;
+    }}
+
+    function useDeviceGpsAsOrigin() {{
+      triggerHaptic([40]);
+      isManualOriginActive = false;
+      manualOriginName = userGps.street ? `${{userGps.street}} (${{userGps.city || 'Riga'}})` : "Riga Old Town (Vecrīga)";
+      const inp = document.getElementById('origin-location-input');
+      if (inp) inp.value = `Current GPS Location (${{manualOriginName}})`;
+      speakText(`Using live device GPS location at ${{manualOriginName}} as starting point.`);
+    }}
+
+    function speakPublicTransportOptions() {{
+      triggerHaptic([50]);
+      let msg = "Latvian public transport option: Take Rīgas Satiksme Trolleybus 9 or Bus 3 from Grēcinieku iela stop (2 stops across Stone Bridge to Ķīpsala stop), then walk 350 meters north along Ķīpsalas iela.";
+      if (currentRoutePlanData && currentRoutePlanData.publicTransportOptions && currentRoutePlanData.publicTransportOptions.length > 0) {{
+        const t = currentRoutePlanData.publicTransportOptions[0];
+        msg = `${{t.operator || 'Rīgas Satiksme'}} ${{t.mode || 'Transit'}} ${{t.line}}: Board at ${{t.fromStop}} toward ${{t.toStop}} (${{t.stopsCount || 2}} stops, approx ${{t.durationMinutes || 6}} minutes). ${{t.boardingInstructions || ''}}`;
+      }}
+      showUniversalVoiceHUD('Latvian Public Transport', msg, false);
+      speakText(msg);
+    }}
+
+    function populateRoutePreviewArchitectureCards(title, routePlan) {{
+      const originLabel = document.getElementById('preview-origin-label');
+      const etaBadge = document.getElementById('preview-eta-badge');
+      const nextTurnEl = document.getElementById('preview-next-turn-text');
+      const crossEl = document.getElementById('preview-crossings-summary');
+      const transitLineEl = document.getElementById('preview-transit-line');
+      const transitBoardEl = document.getElementById('preview-transit-boarding');
+
+      const originName = (routePlan && routePlan.origin && routePlan.origin.name) || manualOriginName || "Riga Old Town (Vecrīga)";
+      if (originLabel) originLabel.innerText = `From: ${{originName}}`;
+
+      const estMins = (routePlan && routePlan.estimatedArrivalTime && routePlan.estimatedArrivalTime.walkingMinutes) || activeDestination.estimatedMinutes || 22;
+      if (etaBadge) etaBadge.innerText = `ETA: ~${{estMins}} min walk`;
+
+      const firstStep = (routePlan && routePlan.nextTurn && routePlan.nextTurn.instruction) || (currentWaypoints && currentWaypoints[0] && currentWaypoints[0].instruction) || "Head west toward Stone Bridge pedestrian walkway";
+      const firstDist = (routePlan && routePlan.nextTurn && routePlan.nextTurn.distanceMeters) || (currentWaypoints && currentWaypoints[0] && currentWaypoints[0].distance) || 120;
+      if (nextTurnEl) nextTurnEl.innerText = `Next Turn: ${{firstStep}} (${{firstDist}}m)`;
+
+      if (crossEl) {{
+        const crossings = (routePlan && routePlan.pedestrianCrossings) || [];
+        if (crossings.length > 0) {{
+          crossEl.innerText = `${{crossings.length}} Crossings (${{crossings[0].location}})`;
+        }} else {{
+          crossEl.innerText = "2 Signalized Crossings (11. novembra krastmala & Ķīpsalas iela)";
+        }}
+      }}
+
+      if (routePlan && routePlan.publicTransportOptions && routePlan.publicTransportOptions.length > 0) {{
+        const t0 = routePlan.publicTransportOptions[0];
+        if (transitLineEl) transitLineEl.innerText = `${{t0.operator || 'Rīgas Satiksme'}}: ${{t0.mode}} ${{t0.line}} (${{t0.fromStop}} → ${{t0.toStop}})`;
+        if (transitBoardEl) transitBoardEl.innerText = t0.boardingInstructions || `Board at ${{t0.fromStop}} and ride ${{t0.stopsCount || 2}} stops to ${{t0.toStop}}.`;
+      }}
+    }}
+
     // Destination search logic (Local Filter + Real Worldwide OpenStreetMap Nominatim Geocoding)
     function filterDestinations(query) {{
       const q = (query || '').trim().toLowerCase();
@@ -6633,10 +6801,10 @@ html_content = f"""<!DOCTYPE html>
       }}, 350);
     }}
 
-    function selectDestination(title, sub) {{
+    async function selectDestination(title, sub) {{
       triggerHaptic([60]);
       currentDestinationTitle = title;
-      currentDestinationSub = sub + " • 2.4 km • 28 min • 8 waypoints";
+      currentDestinationSub = sub + " • 1.8 km • 22 min • 6 waypoints";
       const match = (typeof findClientLocationMatch === 'function') ? findClientLocationMatch(title) : null;
       if (match && match.waypoints) {{
         currentWaypoints = match.waypoints.map(w => ({{
@@ -6650,6 +6818,29 @@ html_content = f"""<!DOCTYPE html>
       document.getElementById('preview-destination-sub').innerText = currentDestinationSub;
       const startBtn = document.getElementById('start-nav-btn');
       if (startBtn) startBtn.setAttribute('aria-label', `Start walking navigation to ${{title}}`);
+
+      // Query Module 2 Routing & Transit API (/api/v1/routes/plan)
+      try {{
+        const resp = await fetch('/api/v1/routes/plan', {{
+          method: 'POST',
+          headers: {{ 'Content-Type': 'application/json' }},
+          body: JSON.stringify({{
+            origin: isManualOriginActive ? manualOriginName : "Riga Old Town",
+            destination: title,
+            currentGps: {{ lat: userGps.lat, lon: userGps.lon, street: userGps.street }}
+          }})
+        }});
+        if (resp.ok) {{
+          const json = await resp.json();
+          if (json && json.status === 'success' && json.data) {{
+            currentRoutePlanData = json.data;
+            populateRoutePreviewArchitectureCards(title, json.data);
+          }}
+        }}
+      }} catch (e) {{
+        populateRoutePreviewArchitectureCards(title, null);
+      }}
+
       navigateTo('routePreview');
     }}
 
@@ -6952,10 +7143,28 @@ html_content = f"""<!DOCTYPE html>
         return;
       }}
 
-      // 3b. Traffic Light Signal Query
+      // 3a. Module 2: Public Transport & Transit Query
+      if (result.intent === 'public_transport_query' || result.action === 'public_transport_query') {{
+        const text = result.spoken_response || "For Riga Old Town to Riga Technical University (Ķīpsala), take Rīgas Satiksme Trolleybus 9 or Bus 3 from Grēcinieku iela stop (2 stops across Stone Bridge to Ķīpsala), then walk 350 meters north along Ķīpsalas iela.";
+        showUniversalVoiceHUD('Latvian Public Transport', text, false);
+        speakText(text);
+        triggerHaptic([60, 40]);
+        return;
+      }}
+
+      // 3a-2. Module 5: Uncertain Detection Warning
+      if (result.intent === 'uncertain_detection' || result.action === 'uncertain_detection') {{
+        const text = result.spoken_response || "I can't confidently identify the sign. Please proceed cautiously.";
+        showUniversalVoiceHUD('Uncertain Detection', text, false);
+        speakText(text);
+        triggerHaptic([50, 70, 50]);
+        return;
+      }}
+
+      // 3b. Traffic Light Signal Query (Enforcing Module 4 Critical Safety Limitation)
       if (result.intent === 'traffic_light_query' || result.action === 'traffic_light_query') {{
         const tlObj = lastLiveDetections.find(o => o.isTrafficLight || o.rawClass === 'traffic light');
-        const sig = (tlObj && tlObj.trafficLightColor) ? tlObj.trafficLightColor : currentTrafficLightSignal;
+        const sig = (tlObj && (tlObj.signalColor || tlObj.trafficLightColor)) ? (tlObj.signalColor || tlObj.trafficLightColor) : (currentTrafficLightSignal && currentTrafficLightSignal.color ? currentTrafficLightSignal.color : 'NONE');
         let text = result.spoken_response;
         if (!text) {{
           if (sig === 'RED') {{
@@ -6963,7 +7172,7 @@ html_content = f"""<!DOCTYPE html>
           }} else if (sig === 'YELLOW') {{
             text = `Traffic light signal is YELLOW${{tlObj ? ' at ' + tlObj.distance.toFixed(1) + ' meters ahead' : ''}}. Caution, signal is changing. Wait on the sidewalk.`;
           }} else if (sig === 'GREEN') {{
-            text = `Traffic light signal is GREEN${{tlObj ? ' at ' + tlObj.distance.toFixed(1) + ' meters ahead' : ''}}. Check for turning vehicles and proceed across the crosswalk.`;
+            text = `Green signal detected ahead${{tlObj ? ' at ' + tlObj.distance.toFixed(1) + ' meters' : ''}}, but camera detection cannot guarantee road safety. Listen for traffic and verify before crossing.`;
           }} else {{
             text = 'No active traffic light signal detected in the current camera view. Point your phone toward the intersection.';
           }}
@@ -7072,7 +7281,7 @@ html_content = f"""<!DOCTYPE html>
       }}
       if (result.intent === 'crossing_path_query' || result.action === 'crossing_path_query') {{
         const crossObj = lastLiveDetections.find(o => o.isCrossingPath || o.label.toLowerCase().includes('crossing') || o.label.toLowerCase().includes('crosswalk'));
-        const sigStr = currentTrafficLightSignal ? ` Traffic signal is ${{currentTrafficLightSignal}}.` : '';
+        const sigStr = (currentTrafficLightSignal && currentTrafficLightSignal.color) ? ` Traffic signal is ${{currentTrafficLightSignal.color}}.` : '';
         const text = crossObj
           ? `Crossing path detected ${{crossObj.distance.toFixed(1)}} meters ahead in ${{crossObj.lane}} lane.${{sigStr}} Align straight to cross.`
           : (result.spoken_response || `No zebra crossing stripes detected right now.${{sigStr}} Point camera toward the road intersection.`);
@@ -7132,7 +7341,7 @@ html_content = f"""<!DOCTYPE html>
         return;
       }}
       if (result.intent === 'traffic_query' || result.action === 'traffic_query') {{
-        const sigStr = currentTrafficLightSignal ? ` Traffic light is ${{currentTrafficLightSignal}}.` : '';
+        const sigStr = (currentTrafficLightSignal && currentTrafficLightSignal.color) ? ` Traffic light is ${{currentTrafficLightSignal.color}}.` : '';
         const text = result.spoken_response || `Crosswalk acoustic analyzer active. Ambient quietness index is ${{Math.round(crosswalkTrafficQuietness)}} percent.${{sigStr}}`;
         showUniversalVoiceHUD('Traffic & Signal Check', text, false);
         speakText(text);
@@ -7140,8 +7349,8 @@ html_content = f"""<!DOCTYPE html>
         return;
       }}
 
-      // 4. Automated GPS Navigation Trigger: ANY spoken destination or start navigation command!
-      if (result.trigger_auto_gps || result.intent === 'start_navigation' || result.destination || targetBtn === 'start_navigation') {{
+      // 4. Automated GPS Navigation Trigger: ONLY when destination is clear and validated!
+      if ((result.trigger_auto_gps || result.intent === 'start_navigation' || result.destination || targetBtn === 'start_navigation') && result.intent !== 'clarification_needed') {{
         hideUniversalVoiceHUD();
         handleAutoGpsNavigation(result.destination, result.spoken_response);
         return;
@@ -7178,12 +7387,12 @@ html_content = f"""<!DOCTYPE html>
       }} else if (intent === 'start_navigation') {{
         handleAutoGpsNavigation(result.destination, result.spoken_response);
       }} else if (intent === 'clarification_needed') {{
-        const clarifPrompt = result.clarification_prompt || result.spoken_response || "Ask me about objects around you, traffic lights, people, ground flatness, or speak any destination.";
+        const clarifPrompt = result.clarification_prompt || result.spoken_response || "Where would you like to go? Please say a destination such as Riga Technical University or Central Station.";
         const lTitle = document.getElementById('listening-title');
-        if (lTitle) lTitle.innerText = "How can Blind AI help?";
+        if (lTitle) lTitle.innerText = "Destination Clarification";
         const lTrans = document.getElementById('live-transcript');
         if (lTrans) lTrans.innerText = `“${{clarifPrompt}}”`;
-        showUniversalVoiceHUD('Blind AI Assistant', clarifPrompt, false);
+        showUniversalVoiceHUD('Clarification Needed', clarifPrompt, false);
         speakText(clarifPrompt);
         announceToScreenReader(clarifPrompt);
         triggerHaptic([60, 40]);
@@ -7239,8 +7448,8 @@ html_content = f"""<!DOCTYPE html>
       metersSinceObstacle = 0;
       renderActiveWaypoint();
 
-      const initialInstruction = currentWaypoints[0] ? currentWaypoints[0].instruction : 'Head toward destination';
-      speakText(`Starting real walking route to ${{targetName}}. ${{initialInstruction}}. Waiting at your current position. Walk forward along route when you are ready.`);
+      const initialInstruction = currentWaypoints[0] ? currentWaypoints[0].instruction : 'Continue straight';
+      speakText(`Navigation started. Continue straight. ${{initialInstruction}} toward ${{targetName}}.`);
 
       // Ensure always-open rear camera is active
       startAlwaysOpenBackCamera();
@@ -7345,7 +7554,7 @@ html_content = f"""<!DOCTYPE html>
       const tlObj = lastLiveDetections.find(o => o.isTrafficLight || o.rawClass === 'traffic light');
       const crossObj = lastLiveDetections.find(o => o.isCrossingPath || o.rawClass === 'crossing path');
       const vehicleObj = lastLiveDetections.find(o => ['car', 'bus', 'truck', 'motorcycle', 'bicycle'].includes(o.rawClass));
-      const sig = (tlObj && tlObj.trafficLightColor) ? tlObj.trafficLightColor : currentTrafficLightSignal;
+      const sig = (tlObj && (tlObj.signalColor || tlObj.trafficLightColor)) ? (tlObj.signalColor || tlObj.trafficLightColor) : (currentTrafficLightSignal && currentTrafficLightSignal.color ? currentTrafficLightSignal.color : 'NONE');
 
       const sigPill = document.getElementById('crosswalk-traffic-signal-pill');
       const titleEl = document.getElementById('crosswalk-status-title');
@@ -7369,14 +7578,12 @@ html_content = f"""<!DOCTYPE html>
       }} else if (sig === 'GREEN') {{
         if (sigPill) {{
           sigPill.className = 'px-3 py-1 rounded-full text-xs font-extrabold bg-emerald-600 text-white border border-emerald-300 mb-2';
-          sigPill.innerText = 'Traffic Signal: 🟢 GREEN — SAFE TO CROSS';
+          sigPill.innerText = 'Traffic Signal: 🟢 GREEN — VERIFY TRAFFIC FIRST';
         }}
-        if (titleEl) titleEl.innerText = 'GREEN SIGNAL — PROCEED CAREFULLY';
-        msg = `Traffic light is GREEN${{tlObj ? ' at ' + tlObj.distance.toFixed(1) + ' meters' : ''}}. `;
+        if (titleEl) titleEl.innerText = 'GREEN SIGNAL — VERIFY TRAFFIC FIRST';
+        msg = `Green signal detected ahead${{tlObj ? ' at ' + tlObj.distance.toFixed(1) + ' meters' : ''}}, but camera detection cannot guarantee road safety. Listen for traffic and verify before crossing.`;
         if (vehicleObj && vehicleObj.distance < 8.0) {{
-          msg += `Caution: ${{vehicleObj.label}} detected at ${{vehicleObj.distance.toFixed(1)}} meters on your ${{vehicleObj.lane}}.`;
-        }} else {{
-          msg += `No approaching vehicles detected. Acoustic quietness is ${{Math.round(crosswalkTrafficQuietness)}} percent. Proceed straight across.`;
+          msg += ` Caution: ${{vehicleObj.label}} detected at ${{vehicleObj.distance.toFixed(1)}} meters on your ${{vehicleObj.lane}}.`;
         }}
       }} else {{
         if (sigPill) {{

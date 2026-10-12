@@ -1,6 +1,13 @@
 const AIProviderInterface = require("./aiProviderInterface");
 const env = require("../../config/env");
-const { LOCATIONS, findLocationMatch, createCustomDestination } = require("../../models/locations");
+const {
+  LOCATIONS,
+  findLocationMatch,
+  createCustomDestination,
+  extractOriginDestinationAndPreferences,
+  validateDestinationBeforeNavigation
+} = require("../../models/locations");
+const routingService = require("../routingService");
 const { RIGA_ROAD_SIGNS_CATALOG, matchRigaRoadSign } = require("../../data/rigaRoadSignsCatalog");
 
 class GeminiProvider extends AIProviderInterface {
@@ -193,7 +200,8 @@ ${contextSummary}
 
 Classify the command into this exact JSON schema:
 {
-  "intent": "start_navigation" | "where_am_i" | "describe_environment" | "traffic_light_query" | "ground_surface_query" | "pedestrian_motion_query" | "object_dimensions_query" | "guidance_query" | "obstacle_query" | "stop" | "repeat" | "clarification_needed" | "visual_qa",
+  "intent": "start_navigation" | "where_am_i" | "describe_environment" | "traffic_light_query" | "ground_surface_query" | "pedestrian_motion_query" | "object_dimensions_query" | "public_transport_query" | "guidance_query" | "obstacle_query" | "stop" | "repeat" | "clarification_needed" | "visual_qa",
+  "origin_query": string or null,
   "destination_query": string or null,
   "matched_canonical_name": string or null,
   "clarification_prompt": string or null,
@@ -204,7 +212,8 @@ Classify the command into this exact JSON schema:
 Rules:
 1. Never repeat a canned demo response. Always answer using the user's actual question and the Live Sensor & Camera Context (and attached camera image if present).
 2. If the user asks about objects, distances, widths/heights, pedestrians (walking toward, moving away, crossing, standing), traffic lights (red, yellow, green), stairs, poles, trees, road signs, or whether the ground is flat, tilted, or uneven, provide the exact live answer in "spoken_response".
-3. If the user asks for directions or wants to navigate to a place, set "intent": "start_navigation" and extract "destination_query" or "matched_canonical_name".
+3. CRITICAL SAFETY LIMITATION: Neither object detection nor depth estimation alone can guarantee that a path is safe. Never tell a user to cross a road merely because a camera model detects a green light. Do not invent geographic routes.
+4. If the user asks for directions or wants to navigate to a place, set "intent": "start_navigation" and extract "destination_query" or "matched_canonical_name". If the destination is vague or ambiguous, set "intent": "clarification_needed" and ask a clarification question.
 Output ONLY raw JSON.`;
 
     const parts = [];
@@ -225,24 +234,49 @@ Output ONLY raw JSON.`;
       const jsonMatch = rawText.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
         const parsed = JSON.parse(jsonMatch[0]);
-        
-        let finalDestination = null;
+        const extracted = extractOriginDestinationAndPreferences(rawTranscript);
+
         if (parsed.intent === "start_navigation") {
-          const query = parsed.matched_canonical_name || parsed.destination_query || parsed.destination;
-          const match = findLocationMatch(query);
-          if (match) {
-            finalDestination = match;
-          } else if (parsed.destination_query || parsed.destination) {
-            finalDestination = createCustomDestination(parsed.destination_query || parsed.destination);
+          const query = extracted.destinationQuery || parsed.matched_canonical_name || parsed.destination_query || parsed.destination || "";
+          const validation = validateDestinationBeforeNavigation(query, rawTranscript);
+
+          if (!validation.isDestinationClear) {
+            return {
+              intent: "clarification_needed",
+              destination_clear: false,
+              destination: null,
+              candidates: validation.candidates || [],
+              trigger_auto_gps: false,
+              clarification_prompt: validation.clarificationPrompt,
+              spoken_response: validation.clarificationPrompt,
+              confidence: 0.95,
+              provider: this.name
+            };
           }
+
+          const finalDestination = validation.validatedDestination;
+          return {
+            intent: "start_navigation",
+            destination_clear: true,
+            validated: true,
+            origin: extracted.originLocation || null,
+            preferences: extracted.preferences,
+            destination: finalDestination,
+            trigger_auto_gps: true,
+            clarification_prompt: null,
+            spoken_response: parsed.spoken_response || `Destination validated. Routing to ${finalDestination.canonicalName}.`,
+            confidence: parsed.confidence || 0.95,
+            provider: this.name
+          };
         }
 
         return {
           intent: parsed.intent || "visual_qa",
-          destination: finalDestination,
-          trigger_auto_gps: parsed.intent === "start_navigation",
+          destination_clear: parsed.intent !== "clarification_needed",
+          destination: null,
+          trigger_auto_gps: false,
           clarification_prompt: parsed.clarification_prompt || null,
-          spoken_response: parsed.spoken_response || (finalDestination ? `Routing to ${finalDestination.canonicalName}.` : "Pathway analyzed."),
+          spoken_response: parsed.spoken_response || "Pathway analyzed.",
           confidence: parsed.confidence || 0.95,
           provider: this.name
         };
@@ -476,16 +510,20 @@ Rules:
       };
     }
 
-    // 5d-2. Traffic Light & Signal Color Query
+    // 5d-2. Traffic Light & Signal Color Query (Enforcing Module 4 Critical Safety Limitation)
     if (/^(traffic light|traffic lights|what color is the( traffic)? light|is the( traffic)? light red or green|is the light green|is the light red|check traffic light|traffic signal|what is the traffic signal|pedestrian signal)$/i.test(cleaned) ||
         /\b(traffic light|traffic signal|light red|light green|signal color)\b/i.test(cleaned)) {
-      let sigMsg = "Scanning intersection ahead for traffic light signals.";
+      let sigMsg = "Scanning intersection ahead for traffic light signals. Camera detection alone cannot guarantee road safety; always listen for traffic.";
       const tlObj = ctxObjs.find(o => o.isTrafficLight || (o.rawClass && o.rawClass.includes("traffic light")));
-      const sigColorStr = typeof ctxSignal === "string" ? ctxSignal : (ctxSignal?.detected ? ctxSignal.color : null);
-      if (tlObj) {
-        sigMsg = `${tlObj.label} detected ${tlObj.distance} meters ahead (${tlObj.widthM || 0.4}m wide by ${tlObj.heightM || 0.9}m tall).`;
-      } else if (sigColorStr) {
-        sigMsg = `Traffic light signal ahead is ${sigColorStr}.`;
+      const sigColorStr = typeof ctxSignal === "string" ? ctxSignal : (ctxSignal?.detected ? ctxSignal.color : (tlObj?.trafficLightColor || null));
+      if (sigColorStr === "GREEN") {
+        sigMsg = `${tlObj ? tlObj.label + " at " + tlObj.distance + " meters ahead. " : ""}Camera detects a GREEN signal, but camera detection cannot guarantee intersection safety. Listen for traffic and verify before crossing.`;
+      } else if (sigColorStr === "RED") {
+        sigMsg = `${tlObj ? tlObj.label + " detected " + tlObj.distance + " meters ahead" : "Traffic light signal ahead is RED"} (${tlObj?.widthM || 0.35}m wide by ${tlObj?.heightM || 0.85}m tall). Stop at the curb and do not cross.`;
+      } else if (sigColorStr === "YELLOW") {
+        sigMsg = `${tlObj ? tlObj.label + " detected " + tlObj.distance + " meters ahead" : "Traffic light signal ahead is YELLOW"}. Signal is changing; wait on the sidewalk.`;
+      } else if (tlObj) {
+        sigMsg = `${tlObj.label} detected ${tlObj.distance} meters ahead (${tlObj.widthM || 0.4}m wide by ${tlObj.heightM || 0.9}m tall). Proceed cautiously.`;
       }
       return {
         intent: "traffic_light_query",
@@ -493,6 +531,23 @@ Rules:
         spoken_response: sigMsg,
         confidence: 0.99,
         provider: `${this.name} (Traffic Signal Match)`
+      };
+    }
+
+    // 5d-2b. Public Transport / Latvian Transit Query (Tram, Bus, Trolleybus)
+    if (/\b(what bus|which bus|what tram|which tram|trolleybus|public transport options|transit options|tram stop|tram route|bus route|boarding instructions)\b/i.test(cleaned)) {
+      const rtuLoc = LOCATIONS.find(l => l.id === "rtu-campus");
+      const transit = rtuLoc?.transitOptions?.[0];
+      const msg = transit
+        ? `Your tram or trolleybus stop is approaching. Available Latvian public transport from Riga Old Town to RTU: ${transit.lineName} from ${transit.boardStop} to ${transit.alightStop} (${transit.stopsCount} stops, ${transit.totalMinutes} minutes). ${transit.boardingInstructions}`
+        : "Your tram stop is approaching. Rīgas Satiksme Trolleybus 9, Bus 3, and Tram 1 serve the Riga Old Town to Ķīpsala corridor.";
+      return {
+        intent: "public_transport_query",
+        action: "public_transport_query",
+        publicTransportOptions: rtuLoc?.transitOptions || [],
+        spoken_response: msg,
+        confidence: 0.99,
+        provider: `${this.name} (Latvian Public Transport Match)`
       };
     }
 
@@ -744,16 +799,16 @@ Rules:
       };
     }
 
-    // 7. Signboard & Riga Road Sign Reading / Detection
-    if (/^(read signs?|read signboards?|detect signs?|detect road signs?|what does the sign say|what sign is (this|ahead|there)|is there a (road )?sign|look for signs?|sign boards?|road signs?|traffic signs?)$/i.test(cleaned)) {
+    // 7. Signboard & Riga Road Sign Reading / Detection (including tram/bus route numbers & uncertain detection handling)
+    if (/^(read signs?|read signboards?|detect signs?|detect road signs?|what does the sign say|what sign is (this|ahead|there)|is there a (road )?sign|look for signs?|sign boards?|road signs?|traffic signs?|read tram number|what tram number|what bus number)$/i.test(cleaned)) {
       return {
         intent: "detect_signs",
         target_button: "detect_signs",
         button_id: "detect_signs",
         action: "click_button",
-        spoken_response: "Scanning for Riga road signs, traffic boards, and street signs.",
+        spoken_response: "Scanning for Riga road signs, tram or bus route numbers, and building names.",
         confidence: 0.99,
-        provider: `${this.name} (Riga Road Sign YOLO Match)`
+        provider: `${this.name} (Riga Road Sign YOLO & OCR Match)`
       };
     }
 
@@ -825,106 +880,74 @@ Rules:
       };
     }
 
-    // 9. Start Navigation button direct click
+    // 9. Start Navigation button direct click (when route is already selected on Route Preview screen)
     if (/^(start navigation|start route|begin navigation|start walking|let('s)? go)$/i.test(cleaned)) {
       return {
         intent: "start_navigation",
         target_button: "start_navigation",
         button_id: "start_navigation",
         action: "click_button",
+        destination_clear: true,
         trigger_auto_gps: true,
-        spoken_response: "Starting navigation.",
+        spoken_response: "Navigation started. Continue straight.",
         confidence: 0.99,
         provider: `${this.name} (Semantic Button Match)`
       };
     }
 
-    // 10. Navigation Intent Extraction with Auto-GPS
-    const navPrefixRegex = /^(please\s+)?(take me to|navigate to|open the|open|i want to go to|i want you to go to|i want you to go|i need to go to|i need to get to|head to|walk to|go to|find the|find|directions to|route to|start route to|start navigation to|take me|navigate|start navigation|start route|directions|route|head|walk|go)\s*(.*)$/i;
-    const match = cleaned.match(navPrefixRegex);
+    // 10. Module 1: Destination Extraction, Origin & Preferences Extraction, and Destination Validation
+    const extracted = extractOriginDestinationAndPreferences(rawTranscript);
+    let cleanQuery = "";
 
-    let destinationQuery = "";
-    if (match) {
-      destinationQuery = (match[3] || "").trim();
+    if (extracted.destinationQuery) {
+      cleanQuery = extracted.destinationQuery;
     } else {
-      destinationQuery = cleaned;
+      const navPrefixRegex = /^(please\s+)?(take me to|navigate to|open the|open|i want to go to|i want you to go to|i want you to go|i need to go to|i need to get to|head to|walk to|go to|find the|find|directions to|route to|start route to|start navigation to|take me|navigate|start navigation|start route|directions|route|head|walk|go)\s*(.*)$/i;
+      const match = cleaned.match(navPrefixRegex);
+      const destinationQuery = match ? (match[3] || "").trim() : cleaned;
+      cleanQuery = destinationQuery
+        .replace(/\b(by bus|by tram|by trolleybus|by public transport|on foot|walking|without stairs|avoiding stairs).*$/i, "")
+        .replace(/^(the|a|an)\s+/i, "")
+        .trim();
     }
 
-    // Clean leading articles
-    const cleanQuery = destinationQuery.replace(/^(the|a|an)\s+/i, "").trim();
+    const validation = validateDestinationBeforeNavigation(cleanQuery, rawTranscript);
 
-    // Check for vague or missing destination phrases
-    const vagueWords = new Set([
-      "",
-      "there",
-      "somewhere",
-      "anywhere",
-      "it",
-      "place",
-      "location",
-      "navigate",
-      "navigation",
-      "start navigation",
-      "start route",
-      "route",
-      "directions",
-      "go somewhere",
-      "take me somewhere",
-      "take me there",
-      "take me",
-      "where is it"
-    ]);
-
-    if (vagueWords.has(cleanQuery) || vagueWords.has(cleaned) || /^(navigate|start navigation|go somewhere|take me somewhere|take me there|directions|route|start route)$/i.test(cleaned)) {
+    // Diagram node: "Destination clear?" -> No -> "Ask User to Clarify" -> "Voice Assistant"
+    if (!validation.isDestinationClear) {
       return {
-        intent: "start_navigation",
-        trigger_auto_gps: true,
-        destination: {
-          canonicalName: "Nearby Destination",
-          shortName: "Nearby Destination",
-          subtitle: "Nearest accessible walking destination",
-          isNearbySearch: true
-        },
-        spoken_response: "Detecting current location. Finding nearest destination to navigate.",
+        intent: "clarification_needed",
+        destination_clear: false,
+        is_ambiguous: true,
+        candidates: validation.candidates || [],
+        trigger_auto_gps: false,
+        destination: null,
+        clarification_prompt: validation.clarificationPrompt,
+        spoken_response: validation.clarificationPrompt,
         confidence: 0.95,
-        provider: `${this.name} (Semantic Fallback)`
+        provider: `${this.name} (Destination Validation & Ambiguity Guard)`
       };
     }
 
-    // Search catalog for a known location match
-    const knownMatch = findLocationMatch(cleanQuery);
-    if (knownMatch) {
-      return {
-        intent: "start_navigation",
-        trigger_auto_gps: true,
-        destination: knownMatch,
-        spoken_response: `Detecting current location. Routing to ${knownMatch.canonicalName}. Distance ${knownMatch.distanceKm} kilometers, estimated ${knownMatch.estimatedMinutes} minutes.`,
-        confidence: 0.96,
-        provider: `${this.name} (Semantic Fallback)`
-      };
-    }
-
-    // Custom arbitrary location specified by user
-    if (cleanQuery.length >= 2) {
-      const customDest = createCustomDestination(cleanQuery);
-      return {
-        intent: "start_navigation",
-        trigger_auto_gps: true,
-        destination: customDest,
-        spoken_response: `Detecting current location. Planning pedestrian route to ${customDest.canonicalName}.`,
-        confidence: 0.95,
-        provider: `${this.name} (Semantic Fallback)`
-      };
-    }
+    // Diagram node: "Destination clear?" -> Yes -> Pass validated destination to Module 2 Navigation System
+    const validatedDest = validation.validatedDestination;
+    const originName = extracted.originLocation ? extracted.originLocation.canonicalName : "Current GPS Location";
+    const transitHint =
+      Array.isArray(validatedDest.transitOptions) && validatedDest.transitOptions.length > 0
+        ? ` Public transport option: ${validatedDest.transitOptions[0].lineName} from ${validatedDest.transitOptions[0].boardStop} to ${validatedDest.transitOptions[0].alightStop}.`
+        : "";
 
     return {
-      intent: "clarification_needed",
-      trigger_auto_gps: false,
-      destination: null,
-      clarification_prompt: "I didn't quite catch that destination. Where would you like to go?",
-      spoken_response: "Where would you like to go? Please tell me the place or address.",
-      confidence: 0.5,
-      provider: `${this.name} (Semantic Fallback)`
+      intent: "start_navigation",
+      destination_clear: true,
+      validated: true,
+      origin: extracted.originLocation || { canonicalName: "Current GPS Location" },
+      preferences: extracted.preferences,
+      trigger_auto_gps: true,
+      destination: validatedDest,
+      spoken_response: `Navigation started. Continue straight from ${originName} to ${validatedDest.canonicalName}. Distance ${validatedDest.distanceKm || 1.5} kilometers, estimated ${validatedDest.estimatedMinutes || 18} minutes.${transitHint}`,
+      confidence: 0.97,
+      provider: `${this.name} (Validated Destination & Route Handoff)`
     };
   }
 }

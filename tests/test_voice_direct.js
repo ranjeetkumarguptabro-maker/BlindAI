@@ -38,9 +38,9 @@ async function runDirectTests() {
       expectedCanonical: 'Old Town'
     },
     {
-      label: '6. Vague Destination (Auto-GPS Routing Triggered)',
+      label: '6. Vague Destination ("Take me there" -> Module 1 Destination Clear? No -> Ask Clarification)',
       input: 'Take me there',
-      expectedIntent: 'start_navigation'
+      expectedIntent: 'clarification_needed'
     },
     {
       label: '7. Where Am I Intent',
@@ -237,6 +237,22 @@ async function runDirectTests() {
           { label: 'Traffic Light (GREEN)', rawClass: 'traffic light', isTrafficLight: true, trafficLightColor: 'GREEN', distance: 5.0, lane: 'center', widthM: 0.35, heightM: 0.85 }
         ]
       }
+    },
+    {
+      label: '40. Module 1 & 2 Origin-to-Destination Journey ("Take me from Riga Old Town to Riga Technical University")',
+      input: 'Take me from Riga Old Town to Riga Technical University',
+      expectedIntent: 'start_navigation',
+      expectedCanonical: 'Riga Technical University (RTU)'
+    },
+    {
+      label: '41. Module 1 Ambiguous Destination Validation ("Take me to the station")',
+      input: 'Take me to the station',
+      expectedIntent: 'clarification_needed'
+    },
+    {
+      label: '42. Module 2 Latvian Public Transport Query ("What bus or tram can I take to RTU?")',
+      input: 'What bus or tram can I take to RTU?',
+      expectedIntent: 'public_transport_query'
     }
   ];
 
