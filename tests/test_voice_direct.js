@@ -148,6 +148,16 @@ async function runDirectTests() {
       label: '27. Crossing Path YOLO Detection Query ("Is there a crossing path?")',
       input: 'is there a crossing path',
       expectedIntent: 'crossing_path_query'
+    },
+    {
+      label: '28. Sidewalk Tree YOLO Detection Query ("Is there a tree?")',
+      input: 'is there a tree',
+      expectedIntent: 'tree_query'
+    },
+    {
+      label: '29. Riga Road Sign YOLO Detection Query ("Detect road signs")',
+      input: 'detect road signs',
+      expectedIntent: 'detect_signs'
     }
   ];
 

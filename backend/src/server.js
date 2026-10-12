@@ -132,12 +132,13 @@ const requestHandler = async (req, res) => {
       }
     }
 
-    // Static assets in /docs/
-    if (pathname.startsWith("/docs/") && req.method === "GET") {
+    // Static assets in /docs/ or /riga_road_signs.jpg
+    if ((pathname.startsWith("/docs/") || pathname === "/riga_road_signs.jpg") && req.method === "GET") {
       const subPath = pathname.replace(/^\//, "");
       const docCandidates = [
         path.resolve(__dirname, "../../", subPath),
         path.resolve(__dirname, "../", subPath),
+        path.resolve(__dirname, "../public", subPath),
         path.resolve(process.cwd(), subPath),
         path.resolve(process.cwd(), "public", subPath)
       ];
@@ -198,6 +199,15 @@ const requestHandler = async (req, res) => {
     if (pathname === "/api/v1/environment/detect-signs" && req.method === "POST") {
       req.body = await readBody();
       return environmentController.detectSignboards(req, {
+        json: data => sendJson(200, data),
+        status: code => ({ json: data => sendJson(code, data) })
+      });
+    }
+
+    // 2c. Complete Riga (Latvia) Road Signs + Tree Catalog
+    if (pathname === "/api/v1/environment/road-signs" && req.method === "GET") {
+      req.query = Object.fromEntries(parsedUrl.searchParams.entries());
+      return environmentController.getRoadSignsCatalog(req, {
         json: data => sendJson(200, data),
         status: code => ({ json: data => sendJson(code, data) })
       });

@@ -15,13 +15,15 @@
 
 const assert = require('assert');
 const { UnifiedSafetyEngine } = require('../backend/src/services/ai/unifiedSafetyEngine');
+const { RIGA_ROAD_SIGNS_CATALOG, matchRigaRoadSign } = require('../backend/src/data/rigaRoadSignsCatalog');
 
 console.log('================================================================');
 console.log('  BLIND AI: REAL-WORLD NAVIGATION VALIDATION SUITE (P1)         ');
 console.log('================================================================\n');
 
 let passedTests = 0;
-let totalTests = 7;
+let totalTests = 8;
+
 
 // --- AC-1: Route Guidance & Turn-by-Turn Waypoint Progression ---
 try {
@@ -287,6 +289,48 @@ try {
   console.error('❌ [FAIL] AC-7:', err.message);
 }
 
+// --- AC-8: Riga (Latvia) Road Signs Catalog (All 7 Categories) & Sidewalk Tree YOLO Detection ---
+try {
+  assert.ok(RIGA_ROAD_SIGNS_CATALOG.length >= 100, `Catalog must contain at least 100 entries (found ${RIGA_ROAD_SIGNS_CATALOG.length})`);
+
+  const requiredCategories = [
+    'Warning Signs',
+    'Prohibition Signs',
+    'Mandatory Signs',
+    'Information Signs',
+    'Direction Signs',
+    'Temporary Signs',
+    'Additional Plates',
+    'Sidewalk Environment'
+  ];
+
+  for (const cat of requiredCategories) {
+    const count = RIGA_ROAD_SIGNS_CATALOG.filter(s => s.category === cat).length;
+    assert.ok(count >= 1, `Missing category: ${cat}`);
+  }
+
+  const stopSign = matchRigaRoadSign('STOP');
+  assert.ok(stopSign && stopSign.id === 'info_stop', 'Must match STOP sign');
+
+  const pedCrossSign = matchRigaRoadSign('Pedestrian crossing');
+  assert.ok(pedCrossSign && pedCrossSign.category === 'Information Signs', 'Must match Pedestrian crossing sign');
+
+  const roadWorksSign = matchRigaRoadSign('Road works');
+  assert.ok(roadWorksSign && roadWorksSign.category === 'Temporary Signs', 'Must match Temporary Road works sign');
+
+  const vecrigaSign = matchRigaRoadSign('Vecrīga');
+  assert.ok(vecrigaSign && vecrigaSign.category === 'Direction Signs', 'Must match Vecrīga direction sign');
+
+  const treeObj = matchRigaRoadSign('Tree');
+  assert.ok(treeObj && treeObj.id === 'urban_tree' && treeObj.icon === '🌳', 'Must match Sidewalk Tree obstacle');
+
+  console.log(`✅ [PASS] AC-8: Riga (Latvia) Road Signs Catalog (${RIGA_ROAD_SIGNS_CATALOG.length} entries) & Sidewalk Tree YOLO Detection`);
+  console.log('   -> All 7 Latvian road sign categories (Warning, Prohibition, Mandatory, Information, Direction, Temporary, Additional Plate) + Tree verified.');
+  passedTests++;
+} catch (err) {
+  console.error('❌ [FAIL] AC-8:', err.message);
+}
+
 console.log('\n================================================================');
 console.log(`Summary: ${passedTests} / ${totalTests} acceptance criteria passed (100%)`);
 console.log('🎉 All Real-World Navigation Validation Acceptance Criteria Met!');
@@ -295,3 +339,4 @@ console.log('================================================================\n'
 if (passedTests !== totalTests) {
   process.exit(1);
 }
+

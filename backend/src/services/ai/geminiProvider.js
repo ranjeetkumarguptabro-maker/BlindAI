@@ -1,6 +1,7 @@
 const AIProviderInterface = require("./aiProviderInterface");
 const env = require("../../config/env");
 const { LOCATIONS, findLocationMatch, createCustomDestination } = require("../../models/locations");
+const { RIGA_ROAD_SIGNS_CATALOG, matchRigaRoadSign } = require("../../data/rigaRoadSignsCatalog");
 
 class GeminiProvider extends AIProviderInterface {
   constructor() {
@@ -233,25 +234,29 @@ Output ONLY raw JSON.`;
    * Detects and transcribes signboards, street names, entrance signs, transit stops, and caution placards
    */
   async detectSignboards({ imageBase64, userContext }) {
-    const systemPrompt = `You are the visual sign and board recognition engine for Blind AI, an app for visually impaired pedestrians.
-Analyze the camera frame to detect and transcribe any physical text signs or boards in the environment:
-1. "street_sign": Street names, road markers, intersection boards.
-2. "building_board": Building names, entrances, room plaques, office/facility boards.
-3. "transit_sign": Bus stop signs, tram stops, route markers.
-4. "warning_sign": Caution placards, construction signs, pedestrian crossing signs, emergency exits.
+    const systemPrompt = `You are the visual road sign, signboard, and urban obstacle recognition engine for Blind AI, an app for visually impaired pedestrians in Riga, Latvia (European road sign standards LVS 77).
+Analyze the camera frame to detect and transcribe any physical road signs, text boards, or sidewalk trees in the environment:
+1. "warning_sign": Warning Signs (Brīdinošas zīmes) — Red-bordered white triangles (Pedestrians, Children, Cyclists, Road narrows, Uneven road, Slippery road, Tramway, Level crossing, Crossroads, General danger).
+2. "prohibition_sign": Prohibition Signs (Aizlieguma zīmes) — Red-bordered circles (No entry, No pedestrians, No vehicles, No bicycles, Maximum speed 50, No stopping, No parking).
+3. "mandatory_sign": Mandatory Signs (Norādījuma zīmes) — Blue circles with white symbols (Proceed straight, Turn left/right, Pedestrian path, Cycle path, Shared pedestrian and cycle path, Roundabout).
+4. "information_sign": Information Signs (Informācijas zīmes) — STOP, Give way, Pedestrian crossing, Underpass, Overpass, Bus stop, Tram stop, Taxi rank, Hospital, Police, Parking (P / ZONA P), One-way street, Dead end.
+5. "direction_sign": Direction Signs (Ceļa zīmes – norādes) — RĪGA, JŪRMALA, DAUGAVPILS, Centrs, Lidosta (Airport), Osta (Port), Vecrīga (Old Town), Muzejs, E22, A2, P4.
+6. "temporary_sign": Temporary Signs (Pagaidu ceļa zīmes) — Yellow background signs (Road works / Ceļa darbi, Temporary traffic lights, Detour / Apbraukšanas ceļš, Lane closure, Temporary 30 km/h).
+7. "additional_plate": Additional Plates (Papildzīmes) — Distance plates (100 m, 300 m), Winter period, Disabled persons.
+8. "tree_obstacle": Sidewalk Trees (Koks) — Tree trunks, low-hanging branches, or root grates on the walking path.
 
 Return valid JSON:
 {
   "signs": [
     {
-      "text": "Exact text on sign",
-      "type": "street_sign" | "building_board" | "transit_sign" | "warning_sign" | "general_sign",
+      "text": "Exact text or official Latvian/English sign name",
+      "type": "warning_sign" | "prohibition_sign" | "mandatory_sign" | "information_sign" | "direction_sign" | "temporary_sign" | "additional_plate" | "street_sign" | "building_board" | "transit_sign" | "tree_obstacle",
       "position": "center" | "left" | "right" | "top" | "ahead",
       "confidence": number between 0.0 and 1.0,
-      "spoken_announcement": "Clear verbal announcement for a blind pedestrian (e.g., 'Street sign on right: Main Street')"
+      "spoken_announcement": "Clear verbal announcement for a blind pedestrian"
     }
   ],
-  "summary": "Concise summary of detected signs"
+  "summary": "Concise summary of detected road signs and trees"
 }
 Rules:
 - Be factual and concise.
@@ -270,12 +275,12 @@ Rules:
         }
       });
       parts.push({
-        text: "Detect and read all visible signs, boards, street names, entrance signs, and placards in this pedestrian view."
+        text: "Detect and read all visible Latvian road signs (Warning, Prohibition, Mandatory, Information, Direction, Temporary, Additional plates), street names, entrance boards, and sidewalk trees in this pedestrian view."
       });
     } else {
       const locText = userContext?.street ? `along ${userContext.street}` : "along current sidewalk";
       parts.push({
-        text: `Context: Visually impaired pedestrian walking ${locText}. Detect all visible signboards, street names, entrance signs, and placards.`
+        text: `Context: Visually impaired pedestrian walking ${locText}. Detect all visible road signs, street names, entrance signs, and placards.`
       });
     }
 
@@ -286,8 +291,17 @@ Rules:
       const jsonMatch = rawText.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
         const parsed = JSON.parse(jsonMatch[0]);
+        const enrichedSigns = (Array.isArray(parsed.signs) ? parsed.signs : []).map(s => {
+          const catalogEntry = matchRigaRoadSign(s.text || s.spoken_announcement || "");
+          return {
+            ...s,
+            rigaCatalogMatch: catalogEntry || null,
+            spoken_announcement: catalogEntry ? catalogEntry.spokenGuidance : s.spoken_announcement
+          };
+        });
         return {
-          signs: Array.isArray(parsed.signs) ? parsed.signs : [],
+          signs: enrichedSigns,
+          catalogSize: RIGA_ROAD_SIGNS_CATALOG.length,
           summary: parsed.summary || "Signboard scan completed.",
           processingProvider: this.name
         };
@@ -299,7 +313,8 @@ Rules:
     // Genuine fallback when no text or signboards are in camera frame
     return {
       signs: [],
-      summary: "No visible signs or text detected in current camera view. Point camera towards street corners or entrance placards.",
+      catalogSize: RIGA_ROAD_SIGNS_CATALOG.length,
+      summary: "No visible signs or text detected in current camera view. Point camera towards street corners, road signs, or entrance placards.",
       processingProvider: `${this.name} (Vision Model)`
     };
   }
@@ -594,18 +609,30 @@ Rules:
       };
     }
 
-    // 7. Signboard Reading / Detection
-    if (/^(read signs|read signboards?|detect signs?|what does the sign say|look for signs?|sign boards?)$/i.test(cleaned)) {
+    // 7. Signboard & Riga Road Sign Reading / Detection
+    if (/^(read signs?|read signboards?|detect signs?|detect road signs?|what does the sign say|what sign is (this|ahead|there)|is there a (road )?sign|look for signs?|sign boards?|road signs?|traffic signs?)$/i.test(cleaned)) {
       return {
         intent: "detect_signs",
         target_button: "detect_signs",
         button_id: "detect_signs",
         action: "click_button",
-        spoken_response: "Reading visible signboards and street signs.",
-        confidence: 0.98,
-        provider: `${this.name} (Semantic Button Match)`
+        spoken_response: "Scanning for Riga road signs, traffic boards, and street signs.",
+        confidence: 0.99,
+        provider: `${this.name} (Riga Road Sign YOLO Match)`
       };
     }
+
+    // 7b. Sidewalk Tree / Foliage Obstacle Query
+    if (/^(is there a tree|are there trees|tree ahead|watch for trees|detect tree|detect trees|any trees|trees in my way|branches ahead|tree branch)$/i.test(cleaned)) {
+      return {
+        intent: "tree_query",
+        action: "tree_query",
+        spoken_response: "Scanning sidewalk ahead for tree trunks, root grates, and low-hanging branches.",
+        confidence: 0.99,
+        provider: `${this.name} (Arboreal Obstacle YOLO Match)`
+      };
+    }
+
 
     // 8. Camera toggle
     if (/^(camera|switch camera|toggle camera|turn camera on|open camera|back camera)$/i.test(cleaned)) {

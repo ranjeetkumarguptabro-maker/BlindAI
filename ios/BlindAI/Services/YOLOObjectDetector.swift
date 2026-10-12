@@ -47,18 +47,30 @@ public struct SignboardDetection: Identifiable, Equatable, Sendable {
     public let spokenAnnouncement: String
     
     public enum SignType: String, Sendable {
+        case warningSign = "warning_sign"
+        case prohibitionSign = "prohibition_sign"
+        case mandatorySign = "mandatory_sign"
+        case informationSign = "information_sign"
+        case directionSign = "direction_sign"
+        case temporarySign = "temporary_sign"
+        case additionalPlate = "additional_plate"
         case streetSign = "street_sign"
         case buildingBoard = "building_board"
         case transitSign = "transit_sign"
-        case warningSign = "warning_sign"
         case generalSign = "general_sign"
         
         public var icon: String {
             switch self {
+            case .warningSign: return "⚠️"
+            case .prohibitionSign: return "🚫"
+            case .mandatorySign: return "🔵"
+            case .informationSign: return "ℹ️"
+            case .directionSign: return "🪧"
+            case .temporarySign: return "🚧"
+            case .additionalPlate: return "🪧"
             case .streetSign: return "🪧"
             case .buildingBoard: return "🏢"
             case .transitSign: return "🚏"
-            case .warningSign: return "⚠️"
             case .generalSign: return "ℹ️"
             }
         }
@@ -87,7 +99,7 @@ public final class YOLOObjectDetector: @unchecked Sendable {
     
     public init() {}
     
-    /// Detects real-world objects in camera frames using Vision & CoreML
+    /// Detects real-world objects (obstacles, Crossing Paths, Riga Road Signs, and Sidewalk Trees) in camera frames using Vision & CoreML
     public func detectObjects(in pixelBuffer: CVPixelBuffer) async -> [YOLODetection] {
         #if canImport(Vision)
         return await withCheckedContinuation { continuation in
@@ -117,6 +129,35 @@ public final class YOLOObjectDetector: @unchecked Sendable {
                     
                     let lane = self.determineLane(for: uiRect)
                     let estimatedDist = self.estimateDistance(for: uiRect)
+                    
+                    // Elevated square/board in upper field -> Road Sign
+                    if uiRect.origin.y < 0.38 && uiRect.height < 0.32 && aspectRatio >= 0.65 && aspectRatio <= 2.6 {
+                        detections.append(YOLODetection(
+                            label: "Road Sign",
+                            icon: "🪧",
+                            confidence: rect.confidence,
+                            boundingBox: uiRect,
+                            distanceMeters: estimatedDist,
+                            lane: lane,
+                            isHazard: false
+                        ))
+                        continue
+                    }
+                    
+                    // Tall vertical trunk/canopy structure -> Tree
+                    if uiRect.origin.y < 0.30 && uiRect.height >= 0.42 && aspectRatio <= 0.65 {
+                        detections.append(YOLODetection(
+                            label: "Tree",
+                            icon: "🌳",
+                            confidence: rect.confidence,
+                            boundingBox: uiRect,
+                            distanceMeters: estimatedDist,
+                            lane: lane,
+                            isHazard: estimatedDist < 2.2
+                        ))
+                        continue
+                    }
+                    
                     let isHazard = estimatedDist < 2.0 && lane == .center
                     
                     detections.append(YOLODetection(
@@ -165,7 +206,7 @@ public final class YOLOObjectDetector: @unchecked Sendable {
         #endif
     }
     
-    /// Recognizes street signboards, entrance plaques, and transit markers via Vision OCR
+    /// Recognizes street signboards, Latvian road signs, entrance plaques, and transit markers via Vision OCR
     public func detectSignboards(in pixelBuffer: CVPixelBuffer) async -> [SignboardDetection] {
         #if canImport(Vision)
         return await withCheckedContinuation { continuation in
@@ -179,7 +220,7 @@ public final class YOLOObjectDetector: @unchecked Sendable {
                 for obs in observations {
                     guard let candidate = obs.topCandidates(1).first, candidate.confidence > 0.60 else { continue }
                     let rawString = candidate.string.trimmingCharacters(in: .whitespacesAndNewlines)
-                    guard rawString.count >= 3 else { continue }
+                    guard rawString.count >= 2 else { continue }
                     
                     let (type, announcement) = self.classifySignboard(text: rawString)
                     signs.append(SignboardDetection(
@@ -208,17 +249,33 @@ public final class YOLOObjectDetector: @unchecked Sendable {
         #endif
     }
     
-    /// Classifies recognized sign text into semantic category
+    /// Classifies recognized sign text into Latvian (Riga) Road Sign category
     private func classifySignboard(text: String) -> (SignboardDetection.SignType, String) {
         let lower = text.lowercased()
-        if lower.contains("iela") || lower.contains("street") || lower.contains("boulevard") || lower.contains("dambis") {
+        if lower == "stop" {
+            return (.informationSign, "STOP sign ahead at intersection. Pause at curb and check traffic.")
+        } else if lower.contains("policija") || lower.contains("police") {
+            return (.informationSign, "Information sign ahead: Latvian Police station (POLICIJA).")
+        } else if lower.contains("zona p") || lower == "p" {
+            return (.informationSign, "Information sign ahead: Parking zone (ZONA P). Watch for vehicles.")
+        } else if lower.contains("taxi") {
+            return (.informationSign, "Information sign ahead: Taxi rank (TAXI).")
+        } else if lower.contains("rīga") || lower.contains("riga") || lower.contains("jūrmala") || lower.contains("jurmala") || lower.contains("daugavpils") || lower.contains("centrs") || lower.contains("lidosta") || lower.contains("osta") || lower.contains("vecrīga") || lower.contains("vecriga") || lower.contains("muzejs") || lower.contains("e22") || lower.contains("a2") || lower.contains("p4") {
+            return (.directionSign, "Riga direction sign ahead: \(text)")
+        } else if lower.contains("ceļa darbi") || lower.contains("road works") || lower.contains("30") {
+            return (.temporarySign, "Temporary road works sign ahead: \(text). Watch for barriers.")
+        } else if lower.contains("50") || lower.contains("4.0m") || lower.contains("2.5m") || lower.contains("6t") || lower.contains("aizliegts") {
+            return (.prohibitionSign, "Prohibition road sign ahead: \(text)")
+        } else if lower.contains("100 m") || lower.contains("300 m") {
+            return (.additionalPlate, "Additional distance plate: \(text)")
+        } else if lower.contains("iela") || lower.contains("street") || lower.contains("boulevard") || lower.contains("dambis") {
             return (.streetSign, "Street sign: \(text)")
         } else if lower.contains("rtu") || lower.contains("fakultāte") || lower.contains("faculty") || lower.contains("library") || lower.contains("ieeja") || lower.contains("entrance") {
             return (.buildingBoard, "Building sign: \(text)")
-        } else if lower.contains("autobuss") || lower.contains("bus") || lower.contains("tram") || lower.contains("pietura") || lower.contains("stop") {
+        } else if lower.contains("autobuss") || lower.contains("bus") || lower.contains("tram") || lower.contains("pietura") {
             return (.transitSign, "Transit sign: \(text)")
-        } else if lower.contains("uzmanību") || lower.contains("caution") || lower.contains("pāreja") || lower.contains("crossing") {
-            return (.warningSign, "Caution sign: \(text)")
+        } else if lower.contains("uzmanību") || lower.contains("caution") || lower.contains("pāreja") || lower.contains("crossing") || lower.contains("10%") {
+            return (.warningSign, "Warning sign ahead: \(text)")
         } else {
             return (.generalSign, "Sign ahead: \(text)")
         }

@@ -1721,12 +1721,157 @@
       'bus': 3.20, 'truck': 2.80, 'traffic light': 0.90, 'stop sign': 0.75,
       'fire hydrant': 0.75, 'bench': 0.85, 'dog': 0.55, 'cat': 0.30,
       'backpack': 0.45, 'umbrella': 0.85, 'handbag': 0.35, 'suitcase': 0.60,
-      'bottle': 0.25, 'chair': 0.85, 'couch': 0.85, 'potted plant': 0.70,
+      'bottle': 0.25, 'chair': 0.85, 'couch': 0.85, 'potted plant': 1.80,
       'dining table': 0.75, 'tv': 0.65, 'laptop': 0.25, 'cell phone': 0.15,
       'door': 2.05, 'stairs': 1.50, 'pole': 2.20,
+      'tree': 2.60, 'tree trunk': 2.60,
+      'road sign': 0.75, 'warning sign': 0.75, 'prohibition sign': 0.75,
+      'mandatory sign': 0.75, 'information sign': 0.75, 'direction sign': 0.85,
+      'temporary sign': 0.75, 'additional plate': 0.45,
+      'pedestrian crossing sign': 0.75, 'bus stop sign': 0.75, 'tram stop sign': 0.75, 'road works sign': 0.75,
       'crossing path': 0.65, 'crosswalk': 0.65, 'zebra crossing': 0.65, 'pedestrian crossing': 0.65,
       'default': 1.40
     };
+
+    let lastDetectedSignboards = [];
+
+    // ==================== COMPLETE RIGA (LATVIA) ROAD SIGNS CATALOG (ALL 7 CATEGORIES + TREE) ====================
+    const rigaRoadSignsCatalog = [
+      // 1. WARNING SIGNS (Brīdinošas zīmes)
+      { id: 'warn_general_danger', code: '124', category: 'Warning', name: 'General danger', latvianName: 'Citi bīstamie posmi', icon: '⚠️', shape: 'triangle_red', keywords: ['general danger', 'danger', 'exclamation', 'warning'], spokenGuidance: 'Warning sign ahead: General danger. Proceed with caution.' },
+      { id: 'warn_bend_left', code: '111', category: 'Warning', name: 'Dangerous bend left', latvianName: 'Bīstams pagrieziens pa kreisi', icon: '⚠️', shape: 'triangle_red', keywords: ['bend left', 'curve left', 'dangerous bend left'], spokenGuidance: 'Warning sign ahead: Dangerous road bend to the left.' },
+      { id: 'warn_bend_right', code: '110', category: 'Warning', name: 'Dangerous bend right', latvianName: 'Bīstams pagrieziens pa labi', icon: '⚠️', shape: 'triangle_red', keywords: ['bend right', 'curve right', 'dangerous bend right'], spokenGuidance: 'Warning sign ahead: Dangerous road bend to the right.' },
+      { id: 'warn_double_bend', code: '112', category: 'Warning', name: 'Double bend', latvianName: 'Bīstami pagriezieni', icon: '⚠️', shape: 'triangle_red', keywords: ['double bend', 'winding road'], spokenGuidance: 'Warning sign ahead: Double bend in road.' },
+      { id: 'warn_steep_descent', code: '113', category: 'Warning', name: 'Steep descent', latvianName: 'Stāvs kritums', icon: '⚠️', shape: 'triangle_red', keywords: ['steep descent', 'downhill', '10%'], spokenGuidance: 'Warning sign ahead: Steep downhill slope (10 percent).' },
+      { id: 'warn_steep_ascent', code: '114', category: 'Warning', name: 'Steep ascent', latvianName: 'Stāvs kāpums', icon: '⚠️', shape: 'triangle_red', keywords: ['steep ascent', 'uphill'], spokenGuidance: 'Warning sign ahead: Steep uphill slope (10 percent).' },
+      { id: 'warn_narrow_road', code: '118', category: 'Warning', name: 'Narrow road', latvianName: 'Ceļa sašaurinājums', icon: '⚠️', shape: 'triangle_red', keywords: ['narrow road', 'road narrows'], spokenGuidance: 'Warning sign ahead: Narrow road. Keep to the inner sidewalk.' },
+      { id: 'warn_road_narrows_both', code: '118a', category: 'Warning', name: 'Road narrows (both sides)', latvianName: 'Ceļa sašaurinājums no abām pusēm', icon: '⚠️', shape: 'triangle_red', keywords: ['narrows both sides'], spokenGuidance: 'Warning sign ahead: Road narrows on both sides.' },
+      { id: 'warn_uneven_road', code: '115', category: 'Warning', name: 'Uneven road', latvianName: 'Nelīdzens ceļš', icon: '⚠️', shape: 'triangle_red', keywords: ['uneven road', 'bumps', 'Uneven surface'], spokenGuidance: 'Warning sign ahead: Uneven surface. Watch your footing.' },
+      { id: 'warn_slippery_road', code: '116', category: 'Warning', name: 'Slippery road', latvianName: 'Slidens ceļš', icon: '⚠️', shape: 'triangle_red', keywords: ['slippery road', 'slippery', 'ice'], spokenGuidance: 'Warning sign ahead: Slippery surface. Take shorter steps.' },
+      { id: 'warn_falling_rocks', code: '119', category: 'Warning', name: 'Falling rocks', latvianName: 'Akmeņu nogruvums', icon: '⚠️', shape: 'triangle_red', keywords: ['falling rocks', 'debris'], spokenGuidance: 'Warning sign ahead: Falling rocks or debris hazard.' },
+      { id: 'warn_pedestrians', code: '121', category: 'Warning', name: 'Pedestrians', latvianName: 'Gājēju pāreja (brīdinājums)', icon: '🚸', shape: 'triangle_red', keywords: ['pedestrians warning', 'pedestrian ahead'], spokenGuidance: 'Warning sign ahead: Pedestrian crossing zone approaching.' },
+      { id: 'warn_children', code: '122', category: 'Warning', name: 'Children', latvianName: 'Bērni', icon: '🚸', shape: 'triangle_red', keywords: ['children', 'school zone', 'kids'], spokenGuidance: 'Warning sign ahead: Children and school zone.' },
+      { id: 'warn_cyclists', code: '123', category: 'Warning', name: 'Cyclists', latvianName: 'Velosipēdisti', icon: '🚲', shape: 'triangle_red', keywords: ['cyclists', 'bicycle crossing'], spokenGuidance: 'Warning sign ahead: Cyclists crossing path.' },
+      { id: 'warn_crossroads', code: '105', category: 'Warning', name: 'Crossroads', latvianName: ' Vienādas nozīmes ceļu krustojums', icon: '⚠️', shape: 'triangle_red', keywords: ['crossroads', 'intersection warning'], spokenGuidance: 'Warning sign ahead: Uncontrolled crossroads intersection.' },
+      { id: 'warn_roundabout', code: '106', category: 'Warning', name: 'Roundabout', latvianName: 'Lokveida krustojums', icon: '🔄', shape: 'triangle_red', keywords: ['roundabout warning'], spokenGuidance: 'Warning sign ahead: Roundabout intersection.' },
+      { id: 'warn_tramway', code: '107', category: 'Warning', name: 'Tramway', latvianName: 'Tramvaja līnijas šķērsošana', icon: '🚋', shape: 'triangle_red', keywords: ['tramway', 'tram crossing', 'tram tracks'], spokenGuidance: 'Warning sign ahead: Riga tramway tracks crossing. Listen for trams.' },
+      { id: 'warn_level_crossing_barrier', code: '101', category: 'Warning', name: 'Level crossing with barrier', latvianName: 'Dzelzceļa pārbrauktuve ar barjeru', icon: '🚧', shape: 'triangle_red', keywords: ['level crossing with barrier', 'railway barrier'], spokenGuidance: 'Warning sign ahead: Railway level crossing with barrier.' },
+      { id: 'warn_level_crossing_no_barrier', code: '102', category: 'Warning', name: 'Level crossing without barrier', latvianName: 'Dzelzceļa pārbrauktuve bez barjeras', icon: '🚂', shape: 'triangle_red', keywords: ['level crossing without barrier', 'train warning'], spokenGuidance: 'Critical warning sign: Unprotected railway level crossing ahead. Stop and listen.' },
+
+      // 2. PROHIBITION SIGNS (Aizlieguma zīmes)
+      { id: 'prohib_no_entry', code: '301', category: 'Prohibition', name: 'No entry', latvianName: 'Iebraukt aizliegts', icon: '⛔', shape: 'circle_red_solid', keywords: ['no entry', 'do not enter'], spokenGuidance: 'Prohibition sign ahead: No entry (One-way traffic exit).' },
+      { id: 'prohib_no_vehicles', code: '302', category: 'Prohibition', name: 'No vehicles', latvianName: 'Braukt aizliegts', icon: '🚫', shape: 'circle_red', keywords: ['no vehicles', 'closed to vehicles'], spokenGuidance: 'Prohibition sign ahead: No vehicles allowed. Pedestrian-safe zone.' },
+      { id: 'prohib_no_motor_vehicles', code: '303', category: 'Prohibition', name: 'No motor vehicles', latvianName: 'Mehāniskajiem transportlīdzekļiem braukt aizliegts', icon: '🚫', shape: 'circle_red', keywords: ['no motor vehicles', 'no cars'], spokenGuidance: 'Prohibition sign ahead: No motor vehicles.' },
+      { id: 'prohib_no_motorcycles', code: '304', category: 'Prohibition', name: 'No motorcycles', latvianName: 'Motocikliem braukt aizliegts', icon: '🚫', shape: 'circle_red', keywords: ['no motorcycles'], spokenGuidance: 'Prohibition sign ahead: No motorcycles.' },
+      { id: 'prohib_no_lorries', code: '306', category: 'Prohibition', name: 'No lorries', latvianName: 'Kravas automobiļiem braukt aizliegts', icon: '🚫', shape: 'circle_red', keywords: ['no lorries', 'no trucks'], spokenGuidance: 'Prohibition sign ahead: No heavy trucks.' },
+      { id: 'prohib_no_buses', code: '307', category: 'Prohibition', name: 'No buses', latvianName: 'Autobusiem braukt aizliegts', icon: '🚫', shape: 'circle_red', keywords: ['no buses'], spokenGuidance: 'Prohibition sign ahead: No buses.' },
+      { id: 'prohib_no_bicycles', code: '305', category: 'Prohibition', name: 'No bicycles', latvianName: 'Velosipēdiem braukt aizliegts', icon: '🚳', shape: 'circle_red', keywords: ['no bicycles', 'no bikes'], spokenGuidance: 'Prohibition sign ahead: No bicycles allowed.' },
+      { id: 'prohib_no_pedestrians', code: '309', category: 'Prohibition', name: 'No pedestrians', latvianName: 'Gājējiem iet aizliegts', icon: '🚷', shape: 'circle_red', keywords: ['no pedestrians', 'pedestrians prohibited'], spokenGuidance: 'STOP! Prohibition sign ahead: No pedestrians allowed on this path. Use opposite sidewalk.' },
+      { id: 'prohib_no_right_turn', code: '315', category: 'Prohibition', name: 'No right turn', latvianName: 'Nogriezties pa labi aizliegts', icon: '🚫', shape: 'circle_red', keywords: ['no right turn'], spokenGuidance: 'Prohibition sign ahead: No right turn for vehicles.' },
+      { id: 'prohib_no_left_turn', code: '316', category: 'Prohibition', name: 'No left turn', latvianName: 'Nogriezties pa kreisi aizliegts', icon: '🚫', shape: 'circle_red', keywords: ['no left turn'], spokenGuidance: 'Prohibition sign ahead: No left turn for vehicles.' },
+      { id: 'prohib_no_u_turn', code: '317', category: 'Prohibition', name: 'No U-turn', latvianName: 'Apgriezties pretējā virzienā aizliegts', icon: '🚫', shape: 'circle_red', keywords: ['no u-turn'], spokenGuidance: 'Prohibition sign ahead: No U-turn.' },
+      { id: 'prohib_no_overtaking', code: '318', category: 'Prohibition', name: 'No overtaking', latvianName: 'Apdzīt aizliegts', icon: '🚫', shape: 'circle_red', keywords: ['no overtaking'], spokenGuidance: 'Prohibition sign ahead: No overtaking.' },
+      { id: 'prohib_no_overtaking_lorries', code: '320', category: 'Prohibition', name: 'No overtaking (lorries)', latvianName: 'Kravas automobiļiem apdzīt aizliegts', icon: '🚫', shape: 'circle_red', keywords: ['no overtaking lorries'], spokenGuidance: 'Prohibition sign ahead: No overtaking by trucks.' },
+      { id: 'prohib_max_speed_50', code: '323', category: 'Prohibition', name: 'Maximum speed (50 km/h)', latvianName: 'Maksimālā ātruma ierobežojums (50 km/h)', icon: '🔞', shape: 'circle_red', keywords: ['maximum speed 50', 'speed limit 50', '50'], spokenGuidance: 'Speed limit sign: Maximum vehicle speed 50 kilometers per hour.' },
+      { id: 'prohib_max_height_4m', code: '312', category: 'Prohibition', name: 'Maximum height (4.0m)', latvianName: 'Augstuma ierobežojums 4.0m', icon: '🚫', shape: 'circle_red', keywords: ['4.0m', 'maximum height'], spokenGuidance: 'Prohibition sign: Maximum clearance height 4.0 meters.' },
+      { id: 'prohib_max_width_2_5m', code: '313', category: 'Prohibition', name: 'Maximum width (2.5m)', latvianName: 'Platuma ierobežojums 2.5m', icon: '🚫', shape: 'circle_red', keywords: ['2.5m', 'maximum width'], spokenGuidance: 'Prohibition sign: Maximum passage width 2.5 meters.' },
+      { id: 'prohib_max_axle_load_6t', code: '311', category: 'Prohibition', name: 'Maximum axle load (6t)', latvianName: 'Ass slodzes ierobežojums 6t', icon: '🚫', shape: 'circle_red', keywords: ['6t', 'axle load'], spokenGuidance: 'Prohibition sign: Maximum axle load 6 tons.' },
+      { id: 'prohib_no_stopping', code: '326', category: 'Prohibition', name: 'No stopping', latvianName: 'Apstāties aizliegts', icon: '🚫', shape: 'circle_red_blue', keywords: ['no stopping'], spokenGuidance: 'Prohibition sign: No vehicle stopping along curb.' },
+      { id: 'prohib_no_parking', code: '327', category: 'Prohibition', name: 'No parking', latvianName: 'Stāvēt aizliegts', icon: '🚫', shape: 'circle_red_blue', keywords: ['no parking'], spokenGuidance: 'Prohibition sign: No parking along curb.' },
+
+      // 3. MANDATORY SIGNS (Norādījuma zīmes)
+      { id: 'mand_proceed_straight', code: '401', category: 'Mandatory', name: 'Proceed straight', latvianName: 'Braukt taisni', icon: '⬆️', shape: 'circle_blue', keywords: ['proceed straight', 'straight only'], spokenGuidance: 'Mandatory sign ahead: Proceed straight.' },
+      { id: 'mand_turn_right', code: '402', category: 'Mandatory', name: 'Turn right', latvianName: 'Braukt pa labi', icon: '➡️', shape: 'circle_blue', keywords: ['turn right sign'], spokenGuidance: 'Mandatory sign ahead: Turn right.' },
+      { id: 'mand_turn_left', code: '403', category: 'Mandatory', name: 'Turn left', latvianName: 'Braukt pa kreisi', icon: '⬅️', shape: 'circle_blue', keywords: ['turn left sign'], spokenGuidance: 'Mandatory sign ahead: Turn left.' },
+      { id: 'mand_straight_or_right', code: '404', category: 'Mandatory', name: 'Proceed straight or right', latvianName: 'Braukt taisni vai pa labi', icon: '↗️', shape: 'circle_blue', keywords: ['straight or right'], spokenGuidance: 'Mandatory sign ahead: Proceed straight or right.' },
+      { id: 'mand_straight_or_left', code: '405', category: 'Mandatory', name: 'Proceed straight or left', latvianName: 'Braukt taisni vai pa kreisi', icon: '↖️', shape: 'circle_blue', keywords: ['straight or left'], spokenGuidance: 'Mandatory sign ahead: Proceed straight or left.' },
+      { id: 'mand_keep_right', code: '407', category: 'Mandatory', name: 'Keep right', latvianName: ' šķērsli apbraukt pa labo pusi', icon: '↘️', shape: 'circle_blue', keywords: ['keep right'], spokenGuidance: 'Mandatory sign ahead: Keep right of traffic island.' },
+      { id: 'mand_keep_left', code: '408', category: 'Mandatory', name: 'Keep left', latvianName: 'Šķērsli apbraukt pa kreiso pusi', icon: '↙️', shape: 'circle_blue', keywords: ['keep left'], spokenGuidance: 'Mandatory sign ahead: Keep left of traffic island.' },
+      { id: 'mand_roundabout', code: '409', category: 'Mandatory', name: 'Roundabout (Mandatory)', latvianName: 'Lokveida krustojums', icon: '🔄', shape: 'circle_blue', keywords: ['roundabout mandatory'], spokenGuidance: 'Mandatory sign ahead: Roundabout traffic circulation.' },
+      { id: 'mand_min_speed_50', code: '417', category: 'Mandatory', name: 'Minimum speed (50)', latvianName: 'Minimālā ātruma ierobežojums 50', icon: '🔵', shape: 'circle_blue', keywords: ['minimum speed 50'], spokenGuidance: 'Mandatory sign ahead: Minimum speed 50.' },
+      { id: 'mand_pedestrian_path', code: '414', category: 'Mandatory', name: 'Pedestrian path', latvianName: 'Gājēju ceļš', icon: '🚶', shape: 'circle_blue', keywords: ['pedestrian path', 'footpath', 'walkway sign'], spokenGuidance: 'Mandatory blue sign ahead: Dedicated Pedestrian Path. Safe walking corridor.' },
+      { id: 'mand_cycle_path', code: '413', category: 'Mandatory', name: 'Cycle path', latvianName: 'Velosipēdu ceļš', icon: '🚲', shape: 'circle_blue', keywords: ['cycle path', 'bike lane'], spokenGuidance: 'Caution: Cycle path sign ahead. Watch for bicycles in this lane.' },
+      { id: 'mand_shared_ped_cycle', code: '415', category: 'Mandatory', name: 'Shared pedestrian and cycle path', latvianName: 'Kopīgs gājēju un velosipēdu ceļš', icon: '🚶', shape: 'circle_blue', keywords: ['shared pedestrian and cycle', 'shared path'], spokenGuidance: 'Mandatory blue sign ahead: Shared pedestrian and cycle path. Keep right.' },
+      { id: 'mand_snow_chains', code: '420', category: 'Mandatory', name: 'Snow chains compulsory', latvianName: 'Pretslīdes ķēdes', icon: '❄️', shape: 'circle_blue', keywords: ['snow chains'], spokenGuidance: 'Mandatory sign: Snow chains compulsory — icy road conditions.' },
+      { id: 'mand_sound_horn', code: '421', category: 'Mandatory', name: 'Sound horn', latvianName: 'Skaņas signāls', icon: '📯', shape: 'circle_blue', keywords: ['sound horn'], spokenGuidance: 'Mandatory sign: Sound horn zone.' },
+      { id: 'mand_end_min_speed', code: '418', category: 'Mandatory', name: 'End of mandatory speed', latvianName: 'Minimālā ātruma ierobežojuma beigas', icon: '🔵', shape: 'circle_blue', keywords: ['end of mandatory speed'], spokenGuidance: 'Sign ahead: End of mandatory minimum speed.' },
+      { id: 'mand_end_no_overtaking', code: '319', category: 'Mandatory', name: 'End of no overtaking', latvianName: 'Apdzīšanas aizlieguma beigas', icon: '⚪', shape: 'circle_white', keywords: ['end of no overtaking'], spokenGuidance: 'Sign ahead: End of no overtaking zone.' },
+      { id: 'mand_end_no_overtaking_lorries', code: '321', category: 'Mandatory', name: 'End of no overtaking (lorries)', latvianName: 'Kravas automobiļu apdzīšanas aizlieguma beigas', icon: '⚪', shape: 'circle_white', keywords: ['end of no overtaking lorries'], spokenGuidance: 'Sign ahead: End of truck no-overtaking zone.' },
+
+      // 4. INFORMATION SIGNS (Informācijas zīmes)
+      { id: 'info_priority_road', code: '201', category: 'Information', name: 'Priority road', latvianName: 'Galvenais ceļš', icon: '🔶', shape: 'diamond_yellow', keywords: ['priority road', 'main road'], spokenGuidance: 'Information sign: Priority main road.' },
+      { id: 'info_end_priority_road', code: '202', category: 'Information', name: 'End of priority road', latvianName: 'Galvenā ceļa beigas', icon: '🔶', shape: 'diamond_yellow', keywords: ['end of priority road'], spokenGuidance: 'Information sign: End of priority road.' },
+      { id: 'info_give_way', code: '206', category: 'Information', name: 'Give way', latvianName: 'Dodiet ceļu', icon: '🔻', shape: 'triangle_inverted', keywords: ['give way', 'yield'], spokenGuidance: 'Information sign ahead: Give way / Yield intersection.' },
+      { id: 'info_stop', code: '207', category: 'Information', name: 'Stop Sign', latvianName: 'Neapstājoties tālāk braukt aizliegts (STOP)', icon: '🛑', shape: 'octagon_red', keywords: ['stop sign', 'stop'], spokenGuidance: 'STOP sign detected ahead at intersection. Pause at curb and check traffic.' },
+      { id: 'info_pedestrian_crossing', code: '535', category: 'Information', name: 'Pedestrian crossing Sign', latvianName: 'Gājēju pāreja', icon: '🚸', shape: 'square_blue', keywords: ['pedestrian crossing', 'crosswalk sign', 'zebra sign'], spokenGuidance: 'Information sign ahead: Pedestrian crossing (Gājēju pāreja). Align with zebra stripes to cross.' },
+      { id: 'info_underpass', code: '537', category: 'Information', name: 'Underpass', latvianName: 'Apakšzemes gājēju pāreja', icon: '🪜', shape: 'square_blue', keywords: ['underpass', 'pedestrian tunnel', 'stairs down'], spokenGuidance: 'Information sign ahead: Pedestrian underpass tunnel with stairs downward.' },
+      { id: 'info_overpass', code: '538', category: 'Information', name: 'Overpass', latvianName: 'Virsotnes gājēju pāreja', icon: '🪜', shape: 'square_blue', keywords: ['overpass', 'pedestrian bridge', 'stairs up'], spokenGuidance: 'Information sign ahead: Pedestrian overpass bridge with stairs upward.' },
+      { id: 'info_dead_end', code: '529', category: 'Information', name: 'Dead end', latvianName: 'Strupceļš', icon: '🪧', shape: 'square_blue', keywords: ['dead end', 'cul-de-sac'], spokenGuidance: 'Information sign ahead: Dead end street.' },
+      { id: 'info_one_way_street', code: '501', category: 'Information', name: 'One-way street', latvianName: 'Vienvirziena ceļš', icon: '⬆️', shape: 'square_blue', keywords: ['one-way street', 'one way'], spokenGuidance: 'Information sign ahead: One-way street.' },
+      { id: 'info_parking', code: '539', category: 'Information', name: 'Parking (P)', latvianName: 'Stāvvieta (P)', icon: '🅿️', shape: 'square_blue', keywords: ['parking', 'p sign'], spokenGuidance: 'Information sign ahead: Vehicle parking lot (P). Watch for reversing cars.' },
+      { id: 'info_parking_zone', code: '523', category: 'Information', name: 'Parking zone (ZONA P)', latvianName: 'Stāvvietu zona (ZONA P)', icon: '🅿️', shape: 'rect_white', keywords: ['zona p', 'parking zone'], spokenGuidance: 'Information sign ahead: Parking zone (ZONA P).' },
+      { id: 'info_bus_stop', code: '541', category: 'Information', name: 'Bus stop', latvianName: 'Autobusa pietura', icon: '🚏', shape: 'square_blue', keywords: ['bus stop', 'autobusa pietura'], spokenGuidance: 'Transit sign ahead: Riga Bus Stop (Autobusa pietura).' },
+      { id: 'info_tram_stop', code: '542', category: 'Information', name: 'Tram stop', latvianName: 'Tramvaja pietura', icon: '🚋', shape: 'square_blue', keywords: ['tram stop', 'tramvaja pietura'], spokenGuidance: 'Transit sign ahead: Riga Tram Stop (Tramvaja pietura).' },
+      { id: 'info_taxi_rank', code: '543', category: 'Information', name: 'Taxi rank (TAXI)', latvianName: 'Vieglā taksometra stāvvieta (TAXI)', icon: '🚕', shape: 'square_blue', keywords: ['taxi', 'taxi rank'], spokenGuidance: 'Transit sign ahead: Taxi rank (TAXI).' },
+      { id: 'info_hospital', code: '602', category: 'Information', name: 'Hospital', latvianName: 'Slimnīca (H)', icon: '🏥', shape: 'square_blue', keywords: ['hospital'], spokenGuidance: 'Information sign ahead: Hospital medical facility.' },
+      { id: 'info_first_aid', code: '601', category: 'Information', name: 'First aid post', latvianName: 'Pirmās medicīniskās palīdzības punkts', icon: '➕', shape: 'square_blue', keywords: ['first aid'], spokenGuidance: 'Information sign ahead: First aid medical post.' },
+      { id: 'info_police', code: '614', category: 'Information', name: 'Police (POLICIJA)', latvianName: 'Policija (POLICIJA)', icon: '🚓', shape: 'square_blue', keywords: ['policija', 'police'], spokenGuidance: 'Information sign ahead: Latvian Police station (POLICIJA).' },
+      { id: 'info_service_station', code: '603', category: 'Information', name: 'Service station', latvianName: 'Degvielas uzpildes stacija', icon: '⛽', shape: 'square_blue', keywords: ['service station', 'fuel'], spokenGuidance: 'Information sign ahead: Fuel service station. Watch for vehicles crossing sidewalk.' },
+      { id: 'info_ev_charging', code: '603a', category: 'Information', name: 'Electric vehicle charging', latvianName: 'Elektromobiļu uzlādes stacija', icon: '🔌', shape: 'square_blue', keywords: ['electric vehicle charging', 'ev charging'], spokenGuidance: 'Information sign ahead: Electric vehicle charging station. Watch for charging cables.' },
+
+      // 5. DIRECTION SIGNS (Ceļa zīmes – norādes)
+      { id: 'dir_riga', code: '555-R', category: 'Direction', name: 'Direction: ↑ RĪGA', latvianName: 'Virziena rādītājs: ↑ RĪGA', icon: '🪧', shape: 'rect_blue', keywords: ['riga', 'rīga'], spokenGuidance: 'Direction board ahead: Straight toward RĪGA.' },
+      { id: 'dir_jurmala', code: '555-J', category: 'Direction', name: 'Direction: ← JŪRMALA', latvianName: 'Virziena rādītājs: ← JŪRMALA', icon: '🪧', shape: 'rect_blue', keywords: ['jurmala', 'jūrmala'], spokenGuidance: 'Direction board ahead: Left toward JŪRMALA.' },
+      { id: 'dir_daugavpils', code: '555-D', category: 'Direction', name: 'Direction: DAUGAVPILS →', latvianName: 'Virziena rādītājs: DAUGAVPILS →', icon: '🪧', shape: 'rect_blue', keywords: ['daugavpils'], spokenGuidance: 'Direction board ahead: Right toward DAUGAVPILS.' },
+      { id: 'dir_e22', code: '562-E22', category: 'Direction', name: 'European route E22', latvianName: 'Eiropas autoceļš E22', icon: '🛣️', shape: 'rect_green', keywords: ['e22', 'european route'], spokenGuidance: 'Route number sign: European Highway E22.' },
+      { id: 'dir_a2', code: '561-A2', category: 'Direction', name: 'National route A2', latvianName: 'Galvenais autoceļš A2', icon: '🛣️', shape: 'rect_red', keywords: ['a2', 'national route'], spokenGuidance: 'Route number sign: Latvian National Main Road A2.' },
+      { id: 'dir_p4', code: '561-P4', category: 'Direction', name: 'Regional route P4', latvianName: 'Reģionālais autoceļš P4', icon: '🛣️', shape: 'rect_blue', keywords: ['p4', 'regional route'], spokenGuidance: 'Route number sign: Latvian Regional Road P4.' },
+      { id: 'dir_centrs', code: '556-C', category: 'Direction', name: 'Direction: Centrs →', latvianName: 'Centrs →', icon: '🪧', shape: 'rect_white', keywords: ['centrs', 'city centre'], spokenGuidance: 'Local direction sign ahead: Riga City Centre (Centrs) to the right.' },
+      { id: 'dir_lidosta', code: '556-L', category: 'Direction', name: 'Direction: ← Lidosta', latvianName: '← Lidosta (Airport)', icon: '✈️', shape: 'rect_white', keywords: ['lidosta', 'airport'], spokenGuidance: 'Local direction sign ahead: Riga Airport (Lidosta) to the left.' },
+      { id: 'dir_osta', code: '556-O', category: 'Direction', name: 'Direction: Osta', latvianName: 'Osta (Port)', icon: '⚓', shape: 'rect_white', keywords: ['osta', 'port'], spokenGuidance: 'Local direction sign ahead: Riga Port (Osta).' },
+      { id: 'dir_vecriga', code: '558-V', category: 'Direction', name: 'Tourist Sign: Vecrīga →', latvianName: 'Vecrīga → (Old Town)', icon: '🏛️', shape: 'rect_brown', keywords: ['vecriga', 'vecrīga', 'old town'], spokenGuidance: 'Tourist direction sign ahead: Vecrīga (Riga Old Town) to the right.' },
+      { id: 'dir_muzejs', code: '558-M', category: 'Direction', name: 'Tourist Sign: Muzejs →', latvianName: 'Muzejs → (Museum)', icon: '🏛️', shape: 'rect_brown', keywords: ['muzejs', 'museum'], spokenGuidance: 'Tourist direction sign ahead: Museum (Muzejs) to the right.' },
+
+      // 6. TEMPORARY SIGNS (Pagaidu ceļa zīmes)
+      { id: 'temp_road_works', code: '117', category: 'Temporary', name: 'Road works (Ceļa darbi)', latvianName: 'Ceļa darbi', icon: '🚧', shape: 'triangle_yellow', keywords: ['road works', 'construction', 'cela darbi'], spokenGuidance: 'Caution! Temporary yellow sign ahead: Road works construction zone. Watch for barriers and trenches.' },
+      { id: 'temp_traffic_lights', code: '108-T', category: 'Temporary', name: 'Temporary traffic lights', latvianName: 'Gaismas luksofors (pagaidu)', icon: '🚦', shape: 'triangle_yellow', keywords: ['temporary traffic lights'], spokenGuidance: 'Temporary yellow sign ahead: Portable traffic lights at road works.' },
+      { id: 'temp_uneven_road', code: '115-T', category: 'Temporary', name: 'Uneven road (Temporary)', latvianName: 'Nelīdzens ceļš (pagaidu)', icon: '⚠️', shape: 'triangle_yellow', keywords: ['temporary uneven road'], spokenGuidance: 'Temporary yellow sign ahead: Uneven excavated pavement. Step carefully.' },
+      { id: 'temp_speed_30', code: '323-30T', category: 'Temporary', name: 'Temporary speed limit (30 km/h)', latvianName: 'Pagaidu ātruma ierobežojums 30', icon: '🚧', shape: 'circle_yellow_red', keywords: ['30', 'temporary speed limit 30'], spokenGuidance: 'Temporary sign ahead: Construction speed limit 30 kilometers per hour.' },
+      { id: 'temp_end_speed_30', code: '324-30T', category: 'Temporary', name: 'End of temporary speed limit (30)', latvianName: 'Pagaidu ātruma ierobežojuma beigas 30', icon: '🚧', shape: 'circle_yellow', keywords: ['end of temporary speed limit'], spokenGuidance: 'Temporary sign ahead: End of 30 speed limit zone.' },
+      { id: 'temp_lane_closure_right', code: '515-R', category: 'Temporary', name: 'Lane closure (right)', latvianName: 'Joslas slēgšana pa labi', icon: '🚧', shape: 'rect_yellow', keywords: ['lane closure right'], spokenGuidance: 'Temporary yellow sign ahead: Right lane closed.' },
+      { id: 'temp_lane_closure_left', code: '515-L', category: 'Temporary', name: 'Lane closure (left)', latvianName: 'Joslas slēgšana pa kreisi', icon: '🚧', shape: 'rect_yellow', keywords: ['lane closure left'], spokenGuidance: 'Temporary yellow sign ahead: Left lane closed.' },
+      { id: 'temp_detour_right', code: '559-R', category: 'Temporary', name: 'Detour (right)', latvianName: 'Apbraukšanas virziens pa labi', icon: '↪️', shape: 'rect_yellow', keywords: ['detour right'], spokenGuidance: 'Temporary yellow sign ahead: Detour to the right.' },
+      { id: 'temp_detour_left', code: '559-L', category: 'Temporary', name: 'Detour (left)', latvianName: 'Apbraukšanas virziens pa kreisi', icon: '↩️', shape: 'rect_yellow', keywords: ['detour left'], spokenGuidance: 'Temporary yellow sign ahead: Detour to the left.' },
+
+      // 7. ADDITIONAL PLATES (Papildzīmes)
+      { id: 'plate_distance_100m', code: '801', category: 'Additional Plate', name: 'Distance plate (100 m)', latvianName: 'Attālums līdz objektam (100 m)', icon: '🪧', shape: 'plate_white', keywords: ['100 m', 'distance plate'], spokenGuidance: 'Additional plate: 100 meters to sign zone.' },
+      { id: 'plate_extent_300m', code: '802', category: 'Additional Plate', name: 'Extent of restriction (↑ 300 m ↑)', latvianName: 'Darbības zona (↑ 300 m ↑)', icon: '🪧', shape: 'plate_white', keywords: ['300 m', 'extent of restriction'], spokenGuidance: 'Additional plate: Zone extends for 300 meters.' },
+      { id: 'plate_winter_period', code: '840', category: 'Additional Plate', name: 'During winter period', latvianName: 'Ziemas periodā', icon: '❄️', shape: 'plate_white', keywords: ['winter period', 'snowflake'], spokenGuidance: 'Additional plate: Applies during winter icy conditions.' },
+      { id: 'plate_road_works', code: '841', category: 'Additional Plate', name: 'Applies to road works', latvianName: 'Ceļa darbu laikā', icon: '🚧', shape: 'plate_white', keywords: ['applies to road works'], spokenGuidance: 'Additional plate: Active during road construction works.' },
+      { id: 'plate_motor_vehicles', code: '822', category: 'Additional Plate', name: 'Applies to motor vehicles', latvianName: 'Transportlīdzekļa veids (vieglie auto)', icon: '🚗', shape: 'plate_white', keywords: ['applies to motor vehicles'], spokenGuidance: 'Additional plate: Applies to passenger motor vehicles.' },
+      { id: 'plate_bicycles', code: '826', category: 'Additional Plate', name: 'Applies to bicycles', latvianName: 'Transportlīdzekļa veids (velosipēdi)', icon: '🚲', shape: 'plate_white', keywords: ['applies to bicycles'], spokenGuidance: 'Additional plate: Applies to bicycles.' },
+      { id: 'plate_disabled', code: '830', category: 'Additional Plate', name: 'Applies to disabled persons', latvianName: 'Invalīdiem', icon: '♿', shape: 'plate_white', keywords: ['disabled', 'accessible', 'wheelchair'], spokenGuidance: 'Accessibility plate: Reserved for persons with disabilities.' },
+
+      // 8. URBAN SIDEWALK TREE OBSTACLES
+      { id: 'env_sidewalk_tree', code: 'ENV-TREE', category: 'Environment', name: 'Tree', latvianName: 'Koks (Ietves koks)', icon: '🌳', shape: 'natural_canopy', keywords: ['tree', 'trees', 'koks', 'trunk', 'branches', 'foliage'], spokenGuidance: 'Caution: Tree ahead on sidewalk. Watch for tree trunk, root grate, and low-hanging branches.' }
+    ];
+
+    if (typeof window !== 'undefined') {
+      window.rigaRoadSignsCatalog = rigaRoadSignsCatalog;
+    }
+
+    function matchRigaRoadSignClient(rawText) {
+      if (!rawText) return null;
+      const cleaned = String(rawText).toLowerCase().trim();
+      for (const sign of rigaRoadSignsCatalog) {
+        if (sign.name.toLowerCase() === cleaned || sign.latvianName.toLowerCase() === cleaned) return sign;
+        for (const kw of sign.keywords) {
+          if (cleaned.includes(kw.toLowerCase())) return sign;
+        }
+      }
+      return null;
+    }
+
 
     function computeBoundingBoxIoU(boxA, boxB) {
       const xA = Math.max(boxA.x, boxB.x);
@@ -2447,16 +2592,24 @@
 
     // ==================== REAL-TIME MULTIMODAL VISION PERCEPTION ====================
     function getObjectIcon(label) {
+      const l = (label || '').toLowerCase();
+      const matchedSign = typeof matchRigaRoadSignClient === 'function' ? matchRigaRoadSignClient(l) : null;
+      if (matchedSign && matchedSign.icon) return matchedSign.icon;
       const icons = {
         'chair': '🪑', 'person': '👤', 'car': '🚗', 'bicycle': '🚲',
         'bus': '🚌', 'truck': '🚛', 'motorcycle': '🏍️',
         'dog': '🐕', 'cat': '🐈', 'bottle': '🍾', 'cup': '☕',
         'couch': '🛋️', 'table': '🪑', 'tv': '📺', 'laptop': '💻',
         'cell phone': '📱', 'door': '🚪', 'stairs': '🪜', 'backpack': '🎒',
-        'traffic light': '🚦', 'stop sign': '🛑', 'bench': '🪵', 'tree': '🌳',
+        'traffic light': '🚦', 'stop sign': '🛑', 'bench': '🪵',
+        'tree': '🌳', 'tree trunk': '🌳', 'potted plant': '🌳',
+        'road sign': '🪧', 'warning sign': '⚠️', 'prohibition sign': '🚫',
+        'mandatory sign': '🔵', 'information sign': 'ℹ️', 'direction sign': '🪧',
+        'temporary sign': '🚧', 'additional plate': '🪧',
+        'pedestrian crossing sign': '🚸', 'bus stop sign': '🚏', 'tram stop sign': '🚋', 'road works sign': '🚧',
         'crossing path': '🚸', 'crosswalk': '🚸', 'zebra crossing': '🚸', 'pedestrian crossing': '🚸'
       };
-      return icons[(label || '').toLowerCase()] || '👁️';
+      return icons[l] || '👁️';
     }
 
     async function triggerDescribeAround() {
@@ -3369,6 +3522,243 @@
       return null;
     }
 
+    function detectSignsAndTreesInFrame(video, cW, cH, rawDetections) {
+      const extraDetections = [];
+      try {
+        // 1. Upgrade COCO-SSD classes (potted plant -> Tree, stop sign -> Riga Stop Sign)
+        (rawDetections || []).forEach(d => {
+          if (d.rawClass === 'potted plant') {
+            d.label = 'Tree';
+            d.rawClass = 'tree';
+            d.icon = '🌳';
+            d.isTree = true;
+            d.spokenGuidance = 'Caution: Tree ahead on sidewalk. Watch for tree trunk and low branches.';
+          } else if (d.rawClass === 'stop sign') {
+            d.label = 'Stop Sign (STOP)';
+            d.icon = '🛑';
+            d.isRoadSign = true;
+            d.signCategory = 'Information';
+            d.spokenGuidance = 'STOP sign detected ahead at intersection. Pause at curb and check traffic.';
+          }
+        });
+
+        // 2. Real-Time Pixel-Level Tree Canopy/Trunk & European Road Sign Detector on live camera frame
+        if (video && video.readyState >= 2 && (video.videoWidth || 0) > 0) {
+          if (!crosswalkScanCanvas) {
+            crosswalkScanCanvas = document.createElement('canvas');
+            crosswalkScanCanvas.width = 80;
+            crosswalkScanCanvas.height = 60;
+            crosswalkScanCtx = crosswalkScanCanvas.getContext('2d', { willReadFrequently: true });
+          }
+          const sW = 80;
+          const sH = 60;
+          crosswalkScanCtx.drawImage(video, 0, 0, sW, sH);
+          const frameData = crosswalkScanCtx.getImageData(0, 0, sW, sH).data;
+
+          // --- 2A. Arboreal Canopy & Trunk Detector (🌳 Tree) ---
+          const hasCocoTree = (rawDetections || []).some(d => d.isTree || d.rawClass === 'tree');
+          if (!hasCocoTree) {
+            let foliageCount = 0;
+            let tMinX = sW, tMaxX = 0, tMinY = sH, tMaxY = 0;
+            let textureTransitions = 0;
+
+            for (let y = 4; y <= 40; y++) {
+              let prevFoliage = false;
+              for (let x = 4; x <= 76; x++) {
+                const idx = (y * sW + x) * 4;
+                const r = frameData[idx];
+                const g = frameData[idx + 1];
+                const b = frameData[idx + 2];
+                const sat = Math.max(r, g, b) - Math.min(r, g, b);
+                // Natural foliage green or autumn leaf canopy
+                const isFoliage = (g > r + 9 && g > b + 12 && g > 44 && g < 215 && sat > 16);
+                if (isFoliage) {
+                  foliageCount++;
+                  if (!prevFoliage) textureTransitions++;
+                  prevFoliage = true;
+                  if (x < tMinX) tMinX = x;
+                  if (x > tMaxX) tMaxX = x;
+                  if (y < tMinY) tMinY = y;
+                  if (y > tMaxY) tMaxY = y;
+                } else {
+                  prevFoliage = false;
+                }
+              }
+            }
+
+            const spanX = tMaxX - tMinX;
+            const spanY = tMaxY - tMinY;
+            if (foliageCount >= 28 && textureTransitions >= 8 && spanX >= 7 && spanY >= 7) {
+              // Extend bounding box downward to include tree trunk to sidewalk contact
+              const trunkBottomY = Math.min(sH - 4, Math.round(tMaxY + spanY * 0.65));
+              const boxX = Math.max(8, (tMinX / sW) * cW);
+              const boxY = Math.max(8, (tMinY / sH) * cH);
+              const boxW = Math.max(cW * 0.18, Math.min(cW * 0.58, (spanX / sW) * cW));
+              const boxH = Math.max(cH * 0.24, Math.min(cH * 0.68, ((trunkBottomY - tMinY) / sH) * cH));
+              const centerX = boxX + boxW / 2;
+              const estDist = Math.max(0.8, Math.min(6.0, parseFloat(((cH * 0.85) / Math.max(40, boxH)).toFixed(1))));
+
+              extraDetections.push({
+                label: 'Tree',
+                rawClass: 'tree',
+                icon: '🌳',
+                x: boxX,
+                y: boxY,
+                w: boxW,
+                h: boxH,
+                conf: Math.min(0.96, 0.82 + foliageCount * 0.0012),
+                distance: estDist,
+                lane: centerX < cW * 0.33 ? 'left' : (centerX > cW * 0.67 ? 'right' : 'center'),
+                isTree: true,
+                spokenGuidance: 'Caution: Tree ahead on sidewalk. Watch for tree trunk and low-hanging branches.'
+              });
+            }
+          }
+
+          // --- 2B. European / Riga Road Sign Chromatic & Geometric Detector (🪧 Road Sign) ---
+          let redSignPixels = 0, redMinX = sW, redMaxX = 0, redMinY = sH, redMaxY = 0;
+          let blueSignPixels = 0, blueMinX = sW, blueMaxX = 0, blueMinY = sH, blueMaxY = 0;
+          let yellowSignPixels = 0, yelMinX = sW, yelMaxX = 0, yelMinY = sH, yelMaxY = 0;
+          let whiteCorePixels = 0;
+
+          for (let y = 4; y <= 42; y++) {
+            for (let x = 6; x <= 74; x++) {
+              const idx = (y * sW + x) * 4;
+              const r = frameData[idx];
+              const g = frameData[idx + 1];
+              const b = frameData[idx + 2];
+              const sat = Math.max(r, g, b) - Math.min(r, g, b);
+
+              if (r > 175 && g > 175 && b > 175 && sat < 35) {
+                whiteCorePixels++;
+              }
+              // Red-bordered Warning / Prohibition / Stop signs
+              if (r > 150 && r > g + 45 && r > b + 45 && sat > 55) {
+                redSignPixels++;
+                if (x < redMinX) redMinX = x;
+                if (x > redMaxX) redMaxX = x;
+                if (y < redMinY) redMinY = y;
+                if (y > redMaxY) redMaxY = y;
+              }
+              // Blue Mandatory / Information signs (Pedestrian crossing, Pedestrian path, Bus/Tram stop)
+              if (b > 140 && b > r + 40 && b > g + 18 && sat > 48) {
+                blueSignPixels++;
+                if (x < blueMinX) blueMinX = x;
+                if (x > blueMaxX) blueMaxX = x;
+                if (y < blueMinY) blueMinY = y;
+                if (y > blueMaxY) blueMaxY = y;
+              }
+              // Temporary Yellow Road Works signs
+              if (r > 175 && g > 140 && b < 75 && Math.abs(r - g) < 42 && sat > 85) {
+                yellowSignPixels++;
+                if (x < yelMinX) yelMinX = x;
+                if (x > yelMaxX) yelMaxX = x;
+                if (y < yelMinY) yelMinY = y;
+                if (y > yelMaxY) yelMaxY = y;
+              }
+            }
+          }
+
+          // Check if OCR signboard detector already identified a specific Riga sign
+          const ocrMatchedSign = (lastDetectedSignboards && lastDetectedSignboards.length > 0)
+            ? (lastDetectedSignboards[0].rigaCatalogMatch || matchRigaRoadSignClient(lastDetectedSignboards[0].text))
+            : null;
+
+          let detectedSignMeta = null;
+          let sMinX = 0, sMaxX = 0, sMinY = 0, sMaxY = 0;
+
+          if (redSignPixels >= 10 && whiteCorePixels >= 8 && (redMaxX - redMinX) >= 4 && (redMaxY - redMinY) >= 4 && (redMaxX - redMinX) <= 36) {
+            sMinX = redMinX; sMaxX = redMaxX; sMinY = redMinY; sMaxY = redMaxY;
+            // Distinguish triangle (Warning) vs circle (Prohibition) by top-row width vs bottom-row width
+            const midY = Math.floor((redMinY + redMaxY) / 2);
+            let topSpan = 0, botSpan = 0;
+            for (let y = redMinY; y <= redMaxY; y++) {
+              let rowL = sW, rowR = 0;
+              for (let x = redMinX; x <= redMaxX; x++) {
+                const idx = (y * sW + x) * 4;
+                if (frameData[idx] > 145 && frameData[idx] > frameData[idx + 1] + 40) {
+                  if (x < rowL) rowL = x;
+                  if (x > rowR) rowR = x;
+                }
+              }
+              if (rowR >= rowL) {
+                if (y <= midY) topSpan = Math.max(topSpan, rowR - rowL);
+                else botSpan = Math.max(botSpan, rowR - rowL);
+              }
+            }
+            if (ocrMatchedSign) {
+              detectedSignMeta = ocrMatchedSign;
+            } else if (topSpan > 0 && botSpan > 0 && topSpan < botSpan * 0.72) {
+              detectedSignMeta = {
+                name: 'Warning Sign (Pedestrians / Hazard)',
+                category: 'Warning',
+                icon: '⚠️',
+                spokenGuidance: 'Warning road sign ahead. Proceed with caution.'
+              };
+            } else {
+              detectedSignMeta = {
+                name: 'Prohibition / Stop Sign',
+                category: 'Prohibition',
+                icon: '🚫',
+                spokenGuidance: 'Prohibition or Stop road sign ahead. Check intersection rules.'
+              };
+            }
+          } else if (blueSignPixels >= 14 && whiteCorePixels >= 6 && (blueMaxX - blueMinX) >= 4 && (blueMaxY - blueMinY) >= 4 && (blueMaxX - blueMinX) <= 36) {
+            sMinX = blueMinX; sMaxX = blueMaxX; sMinY = blueMinY; sMaxY = blueMaxY;
+            detectedSignMeta = ocrMatchedSign || {
+              name: 'Pedestrian Crossing / Path Sign',
+              category: 'Information',
+              icon: '🚸',
+              spokenGuidance: 'Information sign ahead: Pedestrian crossing or dedicated pedestrian path.'
+            };
+          } else if (yellowSignPixels >= 14 && (yelMaxX - yelMinX) >= 4 && (yelMaxY - yelMinY) >= 4 && (yelMaxX - yelMinX) <= 36) {
+            sMinX = yelMinX; sMaxX = yelMaxX; sMinY = yelMinY; sMaxY = yelMaxY;
+            detectedSignMeta = ocrMatchedSign || {
+              name: 'Road Works Sign (Ceļa darbi)',
+              category: 'Temporary',
+              icon: '🚧',
+              spokenGuidance: 'Temporary yellow road works sign ahead. Watch for construction barriers.'
+            };
+          } else if (ocrMatchedSign) {
+            sMinX = 28; sMaxX = 52; sMinY = 10; sMaxY = 26;
+            detectedSignMeta = ocrMatchedSign;
+          }
+
+          if (detectedSignMeta) {
+            const rawBoxX = (sMinX / sW) * cW;
+            const rawBoxY = (sMinY / sH) * cH;
+            const rawBoxW = ((sMaxX - sMinX) / sW) * cW;
+            const rawBoxH = ((sMaxY - sMinY) / sH) * cH;
+            const boxW = Math.max(cW * 0.18, Math.min(cW * 0.42, rawBoxW * 1.25));
+            const boxH = Math.max(cH * 0.12, Math.min(cH * 0.32, rawBoxH * 1.25));
+            const boxX = Math.max(8, Math.min(cW - boxW - 8, rawBoxX));
+            const boxY = Math.max(12, Math.min(cH * 0.58, rawBoxY));
+            const centerX = boxX + boxW / 2;
+            const estDist = Math.max(1.0, Math.min(6.5, parseFloat(((cH * 0.42) / Math.max(28, boxH)).toFixed(1))));
+
+            extraDetections.push({
+              label: detectedSignMeta.name,
+              rawClass: 'road sign',
+              icon: detectedSignMeta.icon || '🪧',
+              x: boxX,
+              y: boxY,
+              w: boxW,
+              h: boxH,
+              conf: 0.93,
+              distance: estDist,
+              lane: centerX < cW * 0.33 ? 'left' : (centerX > cW * 0.67 ? 'right' : 'center'),
+              isRoadSign: true,
+              signCategory: detectedSignMeta.category || 'Information',
+              spokenGuidance: detectedSignMeta.spokenGuidance || `Road sign ahead: ${detectedSignMeta.name}.`
+            });
+          }
+        }
+      } catch (err) {
+        console.warn('[YOLO Sign & Tree Detector] Notice:', err);
+      }
+      return extraDetections;
+    }
+
     async function runYoloPerceptionCycle() {
       if (activeRoute !== 'activeNavigation' && activeRoute !== 'crosswalkSafety') return;
       simWalkFrame++;
@@ -3385,7 +3775,7 @@
       let activeObjects = [];
       const now = Date.now();
 
-      // Real Camera + COCO-SSD Neural Object Detection + Zebra Crossing Path Detector
+      // Real Camera + COCO-SSD Neural Object Detection + Zebra Crossing Path + Road Signs & Tree Detector
       if (isRealCameraActive && video && video.readyState >= 2 && !isDetectingFrame) {
         isDetectingFrame = true;
         try {
@@ -3442,6 +3832,12 @@
           const crossingObj = detectCrossingPathInFrame(video, cW, cH, rawDetections);
           if (crossingObj) {
             rawDetections.push(crossingObj);
+          }
+
+          // Execute dedicated Riga Road Signs & Sidewalk Tree Detector on live camera frame
+          const signAndTreeObjs = detectSignsAndTreesInFrame(video, cW, cH, rawDetections);
+          if (signAndTreeObjs && signAndTreeObjs.length > 0) {
+            signAndTreeObjs.forEach(item => rawDetections.push(item));
           }
 
           // Temporal Exponential Moving Average (EMA) smoothing using IoU tracking
@@ -3502,6 +3898,14 @@
           neonColor = '#00E5FF'; // Electric safety cyan for pedestrian crossing path
           tintFill = 'rgba(0, 229, 255, 0.16)';
           badgeSectorBg = '#0284C7';
+        } else if (obj.isRoadSign || obj.rawClass === 'road sign') {
+          neonColor = '#FACC15'; // High-contrast traffic sign gold
+          tintFill = 'rgba(250, 204, 21, 0.16)';
+          badgeSectorBg = '#CA8A04';
+        } else if (obj.isTree || obj.rawClass === 'tree') {
+          neonColor = obj.distance < 1.8 ? '#FF1E44' : (obj.distance < 2.8 ? '#FFB703' : '#84CC16');
+          tintFill = obj.distance < 1.8 ? 'rgba(255, 30, 68, 0.18)' : 'rgba(132, 204, 22, 0.16)';
+          badgeSectorBg = '#65A30D';
         } else if (obj.distance < 1.5) {
           neonColor = '#FF1E44'; // Ultra-vivid laser crimson
           tintFill = 'rgba(255, 30, 68, 0.18)';
@@ -3659,6 +4063,8 @@
       let minRightDist = 5.0;
       let closestCenter = null;
       let detectedCrossing = null;
+      let detectedRoadSign = null;
+      let detectedTree = null;
       const solidObstacles = [];
 
       activeObjects.forEach(obj => {
@@ -3667,6 +4073,17 @@
             detectedCrossing = obj;
           }
           return; // Crossing path is a walkable corridor, not a solid blocking obstacle
+        }
+        if (obj.isRoadSign || obj.rawClass === 'road sign') {
+          if (!detectedRoadSign || obj.distance < detectedRoadSign.distance) {
+            detectedRoadSign = obj;
+          }
+          return; // Elevated road sign board provides guidance
+        }
+        if (obj.isTree || obj.rawClass === 'tree') {
+          if (!detectedTree || obj.distance < detectedTree.distance) {
+            detectedTree = obj;
+          }
         }
         solidObstacles.push(obj);
         if (obj.lane === 'left') {
@@ -3710,6 +4127,19 @@
           borderClass = 'border-cyan-400';
           guidanceSpoken = `Crossing path detected ahead, ${detectedCrossing.distance.toFixed(1)} meters. Path is clear to align and cross.`;
         }
+      } else if (detectedRoadSign && minCenterDist >= 1.8) {
+        directionStatus = `SIGN DETECTED: ${detectedRoadSign.label.toUpperCase()} (${detectedRoadSign.distance.toFixed(1)}m)`;
+        directionArrow = detectedRoadSign.icon || '🪧';
+        statusClass = 'text-yellow-300 font-extrabold';
+        borderClass = 'border-yellow-400';
+        guidanceSpoken = detectedRoadSign.spokenGuidance || `Road sign ahead at ${detectedRoadSign.distance.toFixed(1)} meters: ${detectedRoadSign.label}.`;
+      } else if (detectedTree && detectedTree.distance < 2.4 && minCenterDist >= 0.8) {
+        const veerSide = detectedTree.lane === 'left' ? 'RIGHT' : 'LEFT';
+        directionStatus = `TREE AHEAD (${detectedTree.distance.toFixed(1)}m ON ${detectedTree.lane.toUpperCase()}) • KEEP ${veerSide}`;
+        directionArrow = '🌳';
+        statusClass = 'text-lime-300 font-bold';
+        borderClass = 'border-lime-400';
+        guidanceSpoken = `Caution: Tree ahead at ${detectedTree.distance.toFixed(1)} meters on your ${detectedTree.lane}. Watch for tree trunk and low branches. Keep ${veerSide.toLowerCase()}.`;
       } else if (minCenterDist >= 2.2) {
         directionStatus = 'WALK STRAIGHT • PATH CLEAR';
         directionArrow = '⬆️';
@@ -3765,7 +4195,7 @@
       if (depthEl) {
         depthEl.innerText = detectedCrossing
           ? (detectedCrossing.distance.toFixed(1) + 'm 🚸')
-          : (solidObstacles.length > 0 ? (minCenterDist.toFixed(1) + 'm') : 'Clear (>3m)');
+          : (detectedRoadSign ? (detectedRoadSign.distance.toFixed(1) + 'm 🪧') : (solidObstacles.length > 0 ? (minCenterDist.toFixed(1) + 'm') : 'Clear (>3m)'));
       }
       if (lanesEl) {
         lanesEl.innerText = activeObjects.length > 0 
@@ -3792,6 +4222,12 @@
         } else if (detectedCrossing && (!closestCenter || closestCenter.distance >= 1.5)) {
           badge.className = "w-full mt-2 py-1.5 px-3 rounded-xl bg-cyan-50 border border-cyan-300 text-cyan-900 text-[11px] font-bold flex items-center justify-between";
           pathText.innerText = `🚸 Crossing Path Detected (${detectedCrossing.distance.toFixed(1)}m) • Safe to Align`;
+        } else if (detectedRoadSign && (!closestCenter || closestCenter.distance >= 1.5)) {
+          badge.className = "w-full mt-2 py-1.5 px-3 rounded-xl bg-yellow-50 border border-yellow-300 text-yellow-900 text-[11px] font-bold flex items-center justify-between";
+          pathText.innerText = `${detectedRoadSign.icon || '🪧'} ${detectedRoadSign.label} (${detectedRoadSign.distance.toFixed(1)}m)`;
+        } else if (detectedTree && detectedTree.distance < 2.5) {
+          badge.className = "w-full mt-2 py-1.5 px-3 rounded-xl bg-lime-100 border border-lime-300 text-lime-900 text-[11px] font-bold flex items-center justify-between";
+          pathText.innerText = `🌳 Tree on Sidewalk (${detectedTree.distance.toFixed(1)}m ${detectedTree.lane})`;
         } else if (closestCenter && closestCenter.distance < 1.5) {
           badge.className = "w-full mt-2 py-1.5 px-3 rounded-xl bg-red-100 border border-red-300 text-red-900 text-[11px] font-semibold flex items-center justify-between";
           pathText.innerText = `Hazard: ${closestCenter.label} (${closestCenter.distance.toFixed(1)}m)`;
@@ -3982,8 +4418,15 @@
       }
 
       if (detected.signs && detected.signs.length > 0) {
-        const primarySign = detected.signs[0];
-        const signLabel = `${primarySign.text} • ${primarySign.type === 'street_sign' ? 'Street Sign' : 'Building Board'}`;
+        lastDetectedSignboards = detected.signs.map(s => {
+          const m = s.rigaCatalogMatch || matchRigaRoadSignClient(s.text);
+          return { ...s, rigaCatalogMatch: m || null };
+        });
+        const primarySign = lastDetectedSignboards[0];
+        const matchedCatalog = primarySign.rigaCatalogMatch;
+        const signLabel = matchedCatalog
+          ? `${matchedCatalog.icon} ${matchedCatalog.name} (${matchedCatalog.category} Sign)`
+          : `${primarySign.text} • ${primarySign.type === 'street_sign' ? 'Street Sign' : 'Building Board'}`;
 
         if (bannerText) {
           bannerText.innerText = signLabel;
@@ -3995,13 +4438,17 @@
 
         // Render floating signboard badges on HUD overlay
         if (overlay) {
-          overlay.innerHTML = detected.signs.map(s => `
+          overlay.innerHTML = lastDetectedSignboards.map(s => {
+            const cat = s.rigaCatalogMatch;
+            const icon = cat ? cat.icon : (s.type === 'street_sign' ? '🪧' : (s.type === 'transit_sign' ? '🚏' : '🏢'));
+            return `
             <div class="px-3 py-1.5 rounded-2xl bg-purple-950/85 backdrop-blur-md border border-purple-400 text-white text-xs font-bold shadow-lg flex items-center space-x-2 animate-bounce pointer-events-auto">
-              <span>${s.type === 'street_sign' ? '🪧' : (s.type === 'transit_sign' ? '🚏' : '🏢')}</span>
-              <span>${s.text}</span>
+              <span>${icon}</span>
+              <span>${cat ? cat.name : s.text}</span>
               <span class="text-[10px] text-purple-200 bg-purple-800/80 px-1.5 py-0.5 rounded-full">${Math.round((s.confidence || 0.95) * 100)}%</span>
             </div>
-          `).join('');
+          `;
+          }).join('');
         }
 
         const now = Date.now();
@@ -4009,10 +4456,12 @@
           lastSpokenSignTime = now;
           lastSpokenSignText = primarySign.text;
           triggerHaptic([60, 40]);
-          speakText(detected.summary || primarySign.spoken_announcement || `Detected signboard: ${primarySign.text}.`);
+          const spoken = (matchedCatalog && matchedCatalog.spokenGuidance) || detected.summary || primarySign.spoken_announcement || `Detected signboard: ${primarySign.text}.`;
+          speakText(spoken);
           announceToScreenReader(`Signboard detected: ${primarySign.text}`);
         }
       } else {
+        lastDetectedSignboards = [];
         if (bannerText) bannerText.innerText = "Scanning for street signs...";
         if (overlay) overlay.innerHTML = "";
       }
@@ -4173,8 +4622,15 @@
       if (/^(describe|describe what('s| is) around me|describe around me|what do you see|what('s| is) around|look around|see around)$/i.test(cleaned)) {
         return { intent: "click_button", target_button: "describe_around", action: "click_button", spoken_response: "Scanning surroundings with camera.", confidence: 0.99 };
       }
-      if (/^(read signs|read signboards?|detect signs?|what does the sign say|look for signs?|sign boards?)$/i.test(cleaned)) {
-        return { intent: "click_button", target_button: "detect_signs", action: "click_button", spoken_response: "Reading visible signboards and street signs.", confidence: 0.98 };
+      if (/^(read signs?|read signboards?|detect signs?|detect road signs?|what does the sign say|what sign is (this|ahead|there)|is there a (road )?sign|look for signs?|sign boards?|road signs?|traffic signs?)$/i.test(cleaned)) {
+        return { intent: "click_button", target_button: "detect_signs", action: "click_button", spoken_response: "Scanning for Riga road signs, traffic boards, and street signs.", confidence: 0.99 };
+      }
+      if (/^(is there a tree|are there trees|tree ahead|watch for trees|detect tree|detect trees|any trees|trees in my way|branches ahead|tree branch)$/i.test(cleaned)) {
+        const treeObj = lastLiveDetections.find(o => o.isTree || o.rawClass === 'tree' || o.label.toLowerCase().includes('tree'));
+        const spoken = treeObj
+          ? `Tree detected ${treeObj.distance.toFixed(1)} meters ahead on your ${treeObj.lane}. Watch for tree trunk and low branches.`
+          : "Scanning sidewalk ahead for tree trunks, root grates, and low-hanging branches.";
+        return { intent: "tree_query", action: "tree_query", spoken_response: spoken, confidence: 0.99 };
       }
       if (/^(repeat|say again|what was that|repeat instruction|repeat location|repeat warning)$/i.test(cleaned)) {
         return { intent: "click_button", target_button: "repeat", action: "click_button", spoken_response: "Repeating last instruction.", confidence: 0.99 };
@@ -5060,6 +5516,16 @@
         showUniversalVoiceHUD('Crossing Path Detection', text, false);
         speakText(text);
         triggerHaptic([60, 40, 60]);
+        return;
+      }
+      if (result.intent === 'tree_query' || result.action === 'tree_query') {
+        const treeObj = lastLiveDetections.find(o => o.isTree || o.rawClass === 'tree' || o.label.toLowerCase().includes('tree'));
+        const text = treeObj
+          ? `Tree detected ${treeObj.distance.toFixed(1)} meters ahead on your ${treeObj.lane}. Watch for tree trunk and low-hanging branches.`
+          : (result.spoken_response || 'Scanning sidewalk ahead for tree trunks, root grates, and low-hanging branches.');
+        showUniversalVoiceHUD('Sidewalk Tree Detection', text, false);
+        speakText(text);
+        triggerHaptic([60, 40]);
         return;
       }
       if (result.intent === 'stairs_query' || result.action === 'stairs_query') {
