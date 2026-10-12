@@ -2,7 +2,7 @@ const aiService = require("../services/ai/aiService");
 
 exports.parseVoiceIntent = async (req, res) => {
   try {
-    const { transcript } = req.body || {};
+    const { transcript, liveContext, imageBase64 } = req.body || {};
     if (!transcript) {
       return res.status(400).json({
         status: "error",
@@ -10,7 +10,7 @@ exports.parseVoiceIntent = async (req, res) => {
       });
     }
 
-    const intentResult = await aiService.parseVoiceCommand({ transcript });
+    const intentResult = await aiService.parseVoiceCommand({ transcript, liveContext, imageBase64 });
     return res.json({
       status: "success",
       data: intentResult

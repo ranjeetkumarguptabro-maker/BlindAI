@@ -178,13 +178,72 @@ async function runDirectTests() {
       label: '33. Dual-Move Choice 2: Underpass ("Use tunnel going down")',
       input: 'use tunnel going down',
       expectedIntent: 'dual_move_select'
+    },
+    {
+      label: '34. Traffic Light Signal Color Query ("What color is the traffic light?")',
+      input: 'what color is the traffic light',
+      expectedIntent: 'traffic_light_query',
+      liveContext: {
+        trafficLightSignal: 'RED',
+        groundState: 'Flat',
+        objects: [{ label: 'Traffic Light (RED)', rawClass: 'traffic light', trafficLightColor: 'RED', distance: 4.2, lane: 'center', widthM: 0.35, heightM: 0.85 }]
+      }
+    },
+    {
+      label: '35. Ground Surface Flatness/Tilt Query ("Is the ground flat or uneven?")',
+      input: 'is the ground flat or uneven',
+      expectedIntent: 'ground_surface_query',
+      liveContext: {
+        groundState: 'Tilted',
+        objects: []
+      }
+    },
+    {
+      label: '36. Object Distance & Width/Height Size Query ("How big and wide is the obstacle?")',
+      input: 'how big and wide is the obstacle',
+      expectedIntent: 'object_dimensions_query',
+      liveContext: {
+        groundState: 'Flat',
+        objects: [{ label: 'Tree', rawClass: 'tree', distance: 2.4, lane: 'right', widthM: 0.9, heightM: 2.8 }]
+      }
+    },
+    {
+      label: '37. Pedestrian Motion Direction Query ("Are people walking toward me or crossing?")',
+      input: 'are people walking toward me or crossing',
+      expectedIntent: 'pedestrian_motion_query',
+      liveContext: {
+        groundState: 'Flat',
+        objects: [{ label: '🚶⬆️ Person Approaching', rawClass: 'person', isPerson: true, personMotion: 'walking_toward', distance: 2.1, lane: 'center', widthM: 0.5, heightM: 1.7 }]
+      }
+    },
+    {
+      label: '38. Utility Pole / Bollard Detection Query ("Is there a pole ahead?")',
+      input: 'is there a pole ahead',
+      expectedIntent: 'pole_query',
+      liveContext: {
+        groundState: 'Flat',
+        objects: [{ label: '💈 Pole', rawClass: 'pole', isPole: true, distance: 1.8, lane: 'left', widthM: 0.2, heightM: 2.2 }]
+      }
+    },
+    {
+      label: '39. Live-Context Surroundings Question ("What is in front of me right now?")',
+      input: 'what is in front of me right now',
+      expectedIntent: 'describe_environment',
+      liveContext: {
+        groundState: 'Flat',
+        trafficLightSignal: 'GREEN',
+        objects: [
+          { label: '🚶↔️ Person Crossing Path', rawClass: 'person', isPerson: true, personMotion: 'crossing_path', distance: 2.6, lane: 'center', widthM: 0.5, heightM: 1.7 },
+          { label: 'Traffic Light (GREEN)', rawClass: 'traffic light', isTrafficLight: true, trafficLightColor: 'GREEN', distance: 5.0, lane: 'center', widthM: 0.35, heightM: 0.85 }
+        ]
+      }
     }
   ];
 
   let passed = 0;
   for (const tc of testCases) {
     try {
-      const data = await aiService.parseVoiceCommand({ transcript: tc.input });
+      const data = await aiService.parseVoiceCommand({ transcript: tc.input, liveContext: tc.liveContext || null });
       if (!data) {
         console.error(`❌ [FAIL] ${tc.label}: No data returned`);
         continue;

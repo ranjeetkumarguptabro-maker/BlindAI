@@ -65,16 +65,23 @@ class GeminiProvider extends AIProviderInterface {
     const systemPrompt = `You are the safety perception engine for Blind AI, an app for visually impaired pedestrians.
 Your task is to give a short, high-contrast, speech-friendly description of what is ahead.
 Rules:
-1. Prioritize immediate obstacles, ground hazards (curbs, drop-offs, stairs), and path clearance first.
-2. Mention navigation landmarks (doors, sidewalks, crosswalks).
-3. Keep descriptions under 2 sentences (under 35 words).
-4. Do not use visual fluff (e.g. "beautiful sunny day"). Be precise and actionable.`;
+1. Prioritize immediate obstacles, ground hazards (flat, tilted, or uneven ground, curbs, drop-offs, stairs, poles), pedestrian movement (walking toward user, moving away, crossing path, or standing), and traffic light signals (Red, Yellow, Green) first.
+2. Mention object distances in meters and approximate width and height when relevant.
+3. Keep descriptions under 3 sentences (under 50 words).
+4. Do not use visual fluff. Be precise and actionable.`;
 
     const contents = [];
     const parts = [];
+    const liveObjs = Array.isArray(userContext?.objects) ? userContext.objects : [];
+    const groundInfo = userContext?.groundState ? `Ground surface: ${userContext.groundState.status} (${userContext.groundState.detail || "level"}).` : "Ground surface: Flat.";
+    const signalInfo = userContext?.trafficLightSignal?.detected
+      ? `Traffic light signal: ${userContext.trafficLightSignal.color} at ${userContext.trafficLightSignal.distance || 3.0}m.`
+      : "";
+    const objSummary = liveObjs.length > 0
+      ? "Live neural detections: " + liveObjs.map(o => `${o.label} at ${o.distance}m (${o.lane}, approx ${o.widthM || 0.6}m wide by ${o.heightM || 1.5}m tall)`).join("; ") + "."
+      : "No immediate obstacles detected by YOLO in the forward corridor.";
 
     if (imageBase64) {
-      // Clean base64 if it has data URL prefix
       const cleanBase64 = imageBase64.replace(/^data:image\/\w+;base64,/, "");
       parts.push({
         inlineData: {
@@ -83,12 +90,12 @@ Rules:
         }
       });
       parts.push({
-        text: "Analyze this real-time forward-facing camera view for a blind person walking forward. Describe path clearance, surrounding obstacles, and visible signage."
+        text: `Analyze this real-time forward-facing camera view for a blind person walking forward. Context: ${objSummary} ${groundInfo} ${signalInfo} Describe path clearance, objects with distances and approximate sizes, pedestrian movements, traffic light signals, and ground surface condition.`
       });
     } else {
       const locDesc = userContext?.street ? `on ${userContext.street}` : "on current walking path";
       parts.push({
-        text: `The user asks "Describe what's around me". Context: Walking ${locDesc}. Describe path clearance and surrounding environment.`
+        text: `The user asks "Describe what's around me". Context: Walking ${locDesc}. ${objSummary} ${groundInfo} ${signalInfo} Describe path clearance and surrounding environment.`
       });
     }
 
@@ -96,19 +103,26 @@ Rules:
 
     try {
       const description = await this._callGemini(contents, systemPrompt);
-      const hasHazard = /obstacle|hazard|danger|careful|curb|step|stairs|car|vehicle|barrier/i.test(description);
+      const hasHazard = /obstacle|hazard|danger|careful|curb|step|stairs|car|vehicle|barrier|red|hole|uneven|pole/i.test(description);
       return {
         description,
         hasHazard,
         processingProvider: this.name
       };
     } catch (err) {
-      console.warn(`[GeminiProvider] Network/API call note: ${err.message}. Using safety perception standard.`);
+      console.warn(`[GeminiProvider] Network/API call note: ${err.message}. Using live sensor fusion synthesis.`);
       const st = userContext?.street ? `on ${userContext.street}` : "ahead";
+      let dynamicDesc = `Walking ${st}. ${groundInfo}`;
+      if (signalInfo) dynamicDesc += ` ${signalInfo}`;
+      if (liveObjs.length > 0) {
+        dynamicDesc += ` Detected: ` + liveObjs.slice(0, 4).map(o => `${o.label} ${o.distance}m ${o.lane === 'center' ? 'ahead' : 'on ' + o.lane} (${o.widthM || 0.6}m W × ${o.heightM || 1.5}m H)`).join(", ") + ".";
+      } else {
+        dynamicDesc += ` Pedestrian pathway is clear directly ahead for over 4 meters.`;
+      }
       return {
-        description: `Pedestrian pathway clear directly ${st}. Point camera forward for real-time vision detection.`,
-        hasHazard: false,
-        processingProvider: `${this.name} (Local fallback)`
+        description: dynamicDesc,
+        hasHazard: liveObjs.some(o => (o.distance || 5) < 2.2),
+        processingProvider: `${this.name} (Live Sensor Fusion)`
       };
     }
   }
@@ -148,16 +162,16 @@ Orientation: Which direction they face, nearest entrance, and what is on their l
   }
 
   /**
-   * Parses natural language spoken command using Gemini AI with fallback semantic engine
+   * Parses natural language spoken command using Gemini AI with live camera/GPS context and fallback semantic engine
    */
-  async parseVoiceCommand({ transcript }) {
+  async parseVoiceCommand({ transcript, liveContext, imageBase64 }) {
     const rawTranscript = (transcript || "").trim();
     if (!rawTranscript) {
       return {
         intent: "clarification_needed",
         destination: null,
-        clarification_prompt: "I'm listening. Where would you like to go?",
-        spoken_response: "Where would you like to go?",
+        clarification_prompt: "I'm listening. Ask me anything about your surroundings or tell me where you would like to go.",
+        spoken_response: "I'm listening. Ask about your surroundings or tell me where to go.",
         confidence: 0.9
       };
     }
@@ -166,15 +180,20 @@ Orientation: Which direction they face, nearest entrance, and what is on their l
       `- ${l.canonicalName} (aliases: ${l.aliases.join(", ")})`
     ).join("\n");
 
-    const systemPrompt = `You are the natural language voice navigation engine for Blind AI, an app for visually impaired pedestrians.
-Your task is to understand any spoken command from the user and accurately extract their navigation intent and destination.
+    const contextSummary = liveContext ? JSON.stringify(liveContext) : "No extra telemetry provided.";
+
+    const systemPrompt = `You are the multimodal voice assistant and navigation engine for Blind AI, an app for visually impaired pedestrians.
+Your task is to understand ANY spoken question or command from the user, analyze the live camera detections, ground surface state (flat, tilted, uneven), pedestrian trajectories (walking toward, moving away, crossing path, standing), traffic light signals (red, yellow, green), object distances and widths/heights, and GPS navigation state, and return an accurate, natural answer.
 
 Available application locations:
 ${locationCatalogSummary}
 
+Live Sensor & Camera Context:
+${contextSummary}
+
 Classify the command into this exact JSON schema:
 {
-  "intent": "start_navigation" | "where_am_i" | "describe_environment" | "stop" | "repeat" | "clarification_needed" | "unknown",
+  "intent": "start_navigation" | "where_am_i" | "describe_environment" | "traffic_light_query" | "ground_surface_query" | "pedestrian_motion_query" | "object_dimensions_query" | "guidance_query" | "obstacle_query" | "stop" | "repeat" | "clarification_needed" | "visual_qa",
   "destination_query": string or null,
   "matched_canonical_name": string or null,
   "clarification_prompt": string or null,
@@ -183,18 +202,23 @@ Classify the command into this exact JSON schema:
 }
 
 Rules:
-1. "start_navigation": When the user wants to go somewhere (e.g. "Take me to the library", "Open the main building", "I want to go to the sports center", "Navigate to RTU", "Walk to Swedbank", "Find the bus stop", "Let's go to Old Town").
-   - If the destination matches any known location or its aliases/synonyms, set "matched_canonical_name" to that known location's canonical name.
-   - If the user specifies any other arbitrary location (e.g., "Old Town", "Central Market", "Dom Square"), extract it into "destination_query" and set "matched_canonical_name": null.
-2. If the user uses a vague reference or asks to go somewhere without a specific name (e.g., "navigate", "take me there", "go somewhere", "take me", "somewhere", "there"), set "intent": "start_navigation", "destination_query": "nearby destination", "spoken_response": "Detecting current location. Routing to nearest destination."
-3. "clarification_needed": Only if the voice input is completely indecipherable or blank.
-4. "where_am_i": For location queries ("Where am I?", "What is my location?").
-5. "describe_environment": For perception queries ("Describe what's around me", "What do you see?", "What's in front of me?").
-6. "stop": For stopping or canceling ("Stop route", "Cancel navigation", "End").
-7. "repeat": For repeating instructions ("Repeat", "Say again").
+1. Never repeat a canned demo response. Always answer using the user's actual question and the Live Sensor & Camera Context (and attached camera image if present).
+2. If the user asks about objects, distances, widths/heights, pedestrians (walking toward, moving away, crossing, standing), traffic lights (red, yellow, green), stairs, poles, trees, road signs, or whether the ground is flat, tilted, or uneven, provide the exact live answer in "spoken_response".
+3. If the user asks for directions or wants to navigate to a place, set "intent": "start_navigation" and extract "destination_query" or "matched_canonical_name".
 Output ONLY raw JSON.`;
 
-    const contents = [{ parts: [{ text: `User voice input: "${rawTranscript}"` }] }];
+    const parts = [];
+    if (imageBase64) {
+      const cleanBase64 = imageBase64.replace(/^data:image\/\w+;base64,/, "");
+      parts.push({
+        inlineData: {
+          mimeType: "image/jpeg",
+          data: cleanBase64
+        }
+      });
+    }
+    parts.push({ text: `User voice input: "${rawTranscript}"\nLive Context: ${contextSummary}` });
+    const contents = [{ parts }];
 
     try {
       const rawText = await this._callGemini(contents, systemPrompt);
@@ -214,20 +238,20 @@ Output ONLY raw JSON.`;
         }
 
         return {
-          intent: parsed.intent || "start_navigation",
+          intent: parsed.intent || "visual_qa",
           destination: finalDestination,
-          trigger_auto_gps: true,
+          trigger_auto_gps: parsed.intent === "start_navigation",
           clarification_prompt: parsed.clarification_prompt || null,
-          spoken_response: parsed.spoken_response || (finalDestination ? `Routing to ${finalDestination.canonicalName}.` : "Detecting location and routing."),
+          spoken_response: parsed.spoken_response || (finalDestination ? `Routing to ${finalDestination.canonicalName}.` : "Pathway analyzed."),
           confidence: parsed.confidence || 0.95,
           provider: this.name
         };
       }
     } catch (err) {
-      console.warn(`[GeminiProvider] Network/API call note: ${err.message}. Using high-fidelity semantic intent engine.`);
+      console.warn(`[GeminiProvider] Network/API call note: ${err.message}. Using context-aware semantic intent engine.`);
     }
 
-    return this._parseSemanticFallback(rawTranscript);
+    return this._parseSemanticFallback(rawTranscript, liveContext);
   }
 
   /**
@@ -319,32 +343,52 @@ Rules:
     };
   }
 
-  _parseSemanticFallback(rawTranscript) {
+  _parseSemanticFallback(rawTranscript, liveContext = null) {
     const cleaned = (rawTranscript || "").toLowerCase().replace(/[\?\!\.,;:]/g, "").trim();
+    const ctxObjs = Array.isArray(liveContext?.objects) ? liveContext.objects : [];
+    const ctxGround = liveContext?.groundState || null;
+    const ctxSignal = liveContext?.trafficLightSignal || null;
+    const ctxGps = liveContext?.gps || null;
+    const ctxNav = liveContext?.navigation || null;
 
     // 1. Where am I intent
     if (/^(where am i|where i am|what is my location|my location|current location|where are we|what's my location)$/i.test(cleaned)) {
+      const gpsMsg = ctxGps?.street
+        ? `You are on ${ctxGps.street}, ${ctxGps.city || ""}, facing ${ctxGps.headingCardinal || "ahead"}.`
+        : "Checking your current location and orientation.";
       return {
         intent: "where_am_i",
         target_button: "where_am_i",
         button_id: "where_am_i",
         action: "click_button",
         destination: null,
-        spoken_response: "Checking your current location and orientation.",
+        spoken_response: gpsMsg,
         confidence: 0.99,
         provider: `${this.name} (Semantic Fallback)`
       };
     }
 
     // 2. Describe surroundings intent
-    if (/^(describe|describe what('s| is) around me|describe around me|what do you see|what('s| is) around|what('s| is) in front|look around|see around)$/i.test(cleaned)) {
+    if (/^(describe|describe what('s| is) around me|describe around me|what do you see|what('s| is) around|what('s| is) in front|what('s| is) in front of me|look around|see around)$/i.test(cleaned) ||
+        /\b(describe .*around|what('s| is) (around|in front of) me|what do you see|tell me about my surroundings|surroundings)\b/i.test(cleaned)) {
+      let descMsg = "Scanning camera view to describe surroundings.";
+      const gStatusStr = typeof ctxGround === "string" ? ctxGround : ctxGround?.status;
+      const sigColorStr = typeof ctxSignal === "string" ? ctxSignal : (ctxSignal?.detected ? ctxSignal.color : null);
+      if (ctxObjs.length > 0 || gStatusStr || sigColorStr) {
+        const objParts = ctxObjs.slice(0, 4).map(o =>
+          `${o.label} at ${o.distance}m ${o.lane === "center" ? "ahead" : "on your " + o.lane} (${o.widthM || 0.6}m wide by ${o.heightM || 1.5}m tall)`
+        );
+        const groundPart = gStatusStr ? ` Ground is ${gStatusStr.toLowerCase()}.` : "";
+        const sigPart = sigColorStr ? ` Traffic light ahead is ${sigColorStr}.` : "";
+        descMsg = (objParts.length > 0 ? `I see ${objParts.join(", ")}.` : "Pathway ahead is clear.") + groundPart + sigPart;
+      }
       return {
         intent: "describe_environment",
         target_button: "describe_around",
         button_id: "describe_around",
         action: "click_button",
         destination: null,
-        spoken_response: "Scanning camera view to describe surroundings.",
+        spoken_response: descMsg,
         confidence: 0.99,
         provider: `${this.name} (Semantic Fallback)`
       };
@@ -403,11 +447,15 @@ Rules:
     }
 
     // 5c. Guidance Query
-    if (/^(where do i go|where to go|where should i go|which way|which direction|where to walk|guide me|navigate me)$/i.test(cleaned)) {
+    if (/^(where do i go|where to go|where should i go|which way|which direction|where to walk|guide me|navigate me|what is my next turn|next turn)$/i.test(cleaned)) {
+      let guideMsg = "Walk straight ahead. Pathway is clear.";
+      if (ctxNav?.currentWaypoint) {
+        guideMsg = `${ctxNav.currentWaypoint}. ${ctxNav.remainingMeters ? ctxNav.remainingMeters + " meters remaining." : ""}`.trim();
+      }
       return {
         intent: "guidance_query",
         action: "guidance_query",
-        spoken_response: "Walk straight ahead. Pathway is clear.",
+        spoken_response: guideMsg,
         confidence: 0.99,
         provider: `${this.name} (Semantic Voice Match)`
       };
@@ -415,12 +463,99 @@ Rules:
 
     // 5d. Obstacle Query
     if (/^(is there anything in my way|is the path clear|is there an obstacle|what('s| is) in my way|what('s| is) ahead|any obstacles)$/i.test(cleaned)) {
+      let obsMsg = "Pathway is completely clear ahead for over 4 meters.";
+      if (ctxObjs.length > 0) {
+        obsMsg = "Detected ahead: " + ctxObjs.map(o => `${o.label} at ${o.distance} meters (${o.widthM || 0.6}m wide by ${o.heightM || 1.5}m tall, ${o.lane})`).join(", ") + ".";
+      }
       return {
         intent: "obstacle_query",
         action: "obstacle_query",
-        spoken_response: "Pathway is completely clear ahead for over 4 meters.",
+        spoken_response: obsMsg,
         confidence: 0.99,
         provider: `${this.name} (Semantic Voice Match)`
+      };
+    }
+
+    // 5d-2. Traffic Light & Signal Color Query
+    if (/^(traffic light|traffic lights|what color is the( traffic)? light|is the( traffic)? light red or green|is the light green|is the light red|check traffic light|traffic signal|what is the traffic signal|pedestrian signal)$/i.test(cleaned) ||
+        /\b(traffic light|traffic signal|light red|light green|signal color)\b/i.test(cleaned)) {
+      let sigMsg = "Scanning intersection ahead for traffic light signals.";
+      const tlObj = ctxObjs.find(o => o.isTrafficLight || (o.rawClass && o.rawClass.includes("traffic light")));
+      const sigColorStr = typeof ctxSignal === "string" ? ctxSignal : (ctxSignal?.detected ? ctxSignal.color : null);
+      if (tlObj) {
+        sigMsg = `${tlObj.label} detected ${tlObj.distance} meters ahead (${tlObj.widthM || 0.4}m wide by ${tlObj.heightM || 0.9}m tall).`;
+      } else if (sigColorStr) {
+        sigMsg = `Traffic light signal ahead is ${sigColorStr}.`;
+      }
+      return {
+        intent: "traffic_light_query",
+        action: "traffic_light_query",
+        spoken_response: sigMsg,
+        confidence: 0.99,
+        provider: `${this.name} (Traffic Signal Match)`
+      };
+    }
+
+    // 5d-3. Ground Surface State Query (Flat, Tilted, Uneven)
+    if (/^(is the ground flat|is the ground tilted|is the ground uneven|is the ground flat tilted or uneven|ground condition|ground surface|is there a slope|how is the ground|surface condition|is the sidewalk flat)$/i.test(cleaned) ||
+        /\b(ground flat|ground tilted|ground uneven|surface flat|surface uneven|ground slope)\b/i.test(cleaned)) {
+      const gStatus = (typeof ctxGround === "string" ? ctxGround : ctxGround?.status) || "Flat";
+      const gDetail = (typeof ctxGround === "object" && ctxGround?.detail) ? ctxGround.detail : `Ground surface ahead is ${gStatus.toLowerCase()}.`;
+      return {
+        intent: "ground_surface_query",
+        action: "ground_surface_query",
+        spoken_response: `Ground status is ${gStatus}. ${gDetail}`,
+        confidence: 0.99,
+        provider: `${this.name} (Ground Surface Depth & IMU Match)`
+      };
+    }
+
+    // 5d-4. Object Width, Height & Distance / Size Query
+    if (/^(how big is (it|the obstacle|the object)|what size is (it|the obstacle)|width and height|how wide and tall|how wide is it|how tall is it|object dimensions|object size)$/i.test(cleaned) ||
+        /\b(width and height|how wide|how tall|how big|what size|object dimensions|object size|approximate width|approximate height)\b/i.test(cleaned)) {
+      let dimMsg = "No immediate obstacle in the center corridor to measure.";
+      if (ctxObjs.length > 0) {
+        const primary = ctxObjs[0];
+        dimMsg = `${primary.label} is ${primary.distance} meters ${primary.lane === "center" ? "ahead" : "on your " + primary.lane}, approximately ${primary.widthM || 0.6} meters wide and ${primary.heightM || 1.5} meters tall.`;
+      }
+      return {
+        intent: "object_dimensions_query",
+        action: "object_dimensions_query",
+        spoken_response: dimMsg,
+        confidence: 0.99,
+        provider: `${this.name} (Metric Depth & Dimension Match)`
+      };
+    }
+
+    // 5d-5. Pedestrian Trajectory Query (Walking Toward, Moving Away, Crossing Path)
+    if (/^(are people walking toward me|is anyone walking toward me|are people moving away|is someone crossing my path|which way are people walking|what are the people doing|pedestrian movement|pedestrian direction)$/i.test(cleaned) ||
+        /\b(walking toward me|moving away|crossing my path|walking towards me)\b/i.test(cleaned)) {
+      const pList = ctxObjs.filter(o => o.isPerson || (o.rawClass && o.rawClass.includes("person")));
+      let pedMsg = "Scanning path ahead for pedestrian movement directions (walking toward you, moving away, crossing path, or standing).";
+      if (pList.length > 0) {
+        pedMsg = pList.map(p => `${p.label} at ${p.distance}m (${p.lane}, ${p.widthM || 0.55}m W × ${p.heightM || 1.7}m H)`).join("; ") + ".";
+      }
+      return {
+        intent: "pedestrian_motion_query",
+        action: "pedestrian_motion_query",
+        spoken_response: pedMsg,
+        confidence: 0.99,
+        provider: `${this.name} (Pedestrian Trajectory Match)`
+      };
+    }
+
+    // 5d-6. Pole / Bollard Detection Query
+    if (/\b(is there a pole|are there poles|any poles|watch for poles|pole ahead|poles ahead|bollard|lamp post)\b/i.test(cleaned)) {
+      const poleObj = ctxObjs.find(o => o.isPole || (o.rawClass && o.rawClass.includes("pole")));
+      const poleMsg = poleObj
+        ? `Pole detected ${poleObj.distance} meters ahead on your ${poleObj.lane} (${poleObj.widthM || 0.2}m wide by ${poleObj.heightM || 2.2}m tall).`
+        : "Scanning sidewalk ahead for poles, posts, and bollards.";
+      return {
+        intent: "pole_query",
+        action: "pole_query",
+        spoken_response: poleMsg,
+        confidence: 0.99,
+        provider: `${this.name} (Pole Obstacle Match)`
       };
     }
 

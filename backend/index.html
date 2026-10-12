@@ -335,6 +335,12 @@
         <span id="speech-status-label">Voice: On</span>
       </button>
 
+      <!-- Global Persistent Microphone Button (Talk to AI Anytime) -->
+      <button type="button" onclick="triggerVoiceAssistant()" id="top-bar-mic-btn" aria-label="Talk to Blind AI voice assistant anytime" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold shadow-sm transition active:scale-95">
+        <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/></svg>
+        <span>Ask AI Mic</span>
+      </button>
+
       <!-- Real-Time Physical Movement Tracker (No Fake Simulation) -->
       <div id="real-movement-pill" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 text-white text-xs font-medium shadow-sm border border-slate-700" title="Live Pedometer & GPS Physical Distance Tracker">
         <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" aria-hidden="true"></span>
@@ -442,7 +448,7 @@
 
             <!-- Bottom Mic Button -->
             <div class="mobile-safe-footer flex justify-center mt-3">
-              <button onclick="triggerVoiceAssistant()" aria-label="Start voice listening assistant" class="w-16 h-16 rounded-full bg-black text-white flex items-center justify-center shadow-lg hover:bg-neutral-800 transition active:scale-95 shrink-0">
+              <button onclick="triggerVoiceAssistant()" id="home-mic-btn" aria-label="Start voice listening assistant" class="w-16 h-16 rounded-full bg-black text-white flex items-center justify-center shadow-lg hover:bg-neutral-800 transition active:scale-95 shrink-0">
                 <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/></svg>
               </button>
             </div>
@@ -459,58 +465,61 @@
             </div>
 
             <div class="flex flex-col items-center justify-center my-auto">
-              <div class="relative flex items-center justify-center w-48 h-48 mb-6 shrink-0" aria-hidden="true">
-                <div class="absolute w-56 h-56 rounded-full orb-glow ripple-ring-1"></div>
-                <div class="absolute w-44 h-44 rounded-full orb-glow ripple-ring-2"></div>
+              <button type="button" onclick="triggerVoiceAssistant()" aria-label="Tap orb to speak to Gemini AI" class="relative flex items-center justify-center w-44 h-44 mb-4 shrink-0 cursor-pointer rounded-full focus:outline-none">
+                <div class="absolute w-52 h-52 rounded-full orb-glow ripple-ring-1 pointer-events-none"></div>
+                <div class="absolute w-40 h-40 rounded-full orb-glow ripple-ring-2 pointer-events-none"></div>
                 <div class="w-32 h-32 rounded-full orb-3d relative z-10 flex items-center justify-center shrink-0">
                   <div class="w-12 h-12 rounded-full bg-white/20 blur-[2px]"></div>
                 </div>
-              </div>
+              </button>
               <h2 id="listening-title" class="text-2xl font-bold text-center text-slate-900 tracking-tight">
                 I'm listening...
               </h2>
-              <p id="live-transcript" aria-live="polite" class="text-sm text-slate-600 text-center mt-2 px-6 italic min-h-[3rem]">
-                “Take me to coffee shop”
+              <p id="live-transcript" aria-live="polite" class="text-sm text-slate-600 text-center mt-2 px-6 italic min-h-[2.5rem]">
+                “Ask about surroundings, traffic lights, people, or directions”
               </p>
-              <div class="mt-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-50 border border-orange-200 text-[11px] font-semibold text-orange-700 shrink-0">
+              <div class="mt-1 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-50 border border-orange-200 text-[11px] font-semibold text-orange-700 shrink-0">
                 <span class="w-2 h-2 rounded-full bg-orange-500 animate-pulse shrink-0"></span>
-                <span>Powered by Gemini AI</span>
+                <span>Web Speech API + Gemini Multimodal AI</span>
               </div>
             </div>
 
-            <div class="mobile-safe-footer flex flex-col gap-2.5">
+            <div class="mobile-safe-footer flex flex-col gap-2">
               <!-- Voice phrase simulation chips -->
-              <div class="flex flex-wrap justify-center gap-1.5" role="group" aria-label="Suggested voice phrases">
-                <button onclick="handleVoiceInput('What is in front of me?')" aria-label="Simulate: What is in front of me?" class="px-2.5 py-1 rounded-full bg-orange-50 border border-orange-200 text-[11px] font-semibold text-orange-900 shadow-sm hover:bg-orange-100 transition active:scale-95 shrink-0">
+              <div class="flex flex-wrap justify-center gap-1" role="group" aria-label="Suggested voice phrases">
+                <button onclick="handleVoiceInput('What is in front of me?')" aria-label="Ask: What is in front of me?" class="px-2 py-1 rounded-full bg-orange-50 border border-orange-200 text-[10px] font-semibold text-orange-900 shadow-xs hover:bg-orange-100 transition active:scale-95 shrink-0">
                   “What is in front of me?”
                 </button>
-                <button onclick="handleVoiceInput('Where am I?')" aria-label="Simulate: Where am I?" class="px-2.5 py-1 rounded-full bg-blue-50 border border-blue-200 text-[11px] font-semibold text-blue-900 shadow-sm hover:bg-blue-100 transition active:scale-95 shrink-0">
+                <button onclick="handleVoiceInput('Are people walking toward me?')" aria-label="Ask: Are people walking toward me?" class="px-2 py-1 rounded-full bg-sky-50 border border-sky-200 text-[10px] font-semibold text-sky-900 shadow-xs hover:bg-sky-100 transition active:scale-95 shrink-0">
+                  “Are people walking toward me?”
+                </button>
+                <button onclick="handleVoiceInput('What color is the traffic light?')" aria-label="Ask: What color is the traffic light?" class="px-2 py-1 rounded-full bg-rose-50 border border-rose-200 text-[10px] font-semibold text-rose-900 shadow-xs hover:bg-rose-100 transition active:scale-95 shrink-0">
+                  “What color is the traffic light?”
+                </button>
+                <button onclick="handleVoiceInput('Is the ground flat, tilted, or uneven?')" aria-label="Ask: Is the ground flat, tilted, or uneven?" class="px-2 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-[10px] font-semibold text-emerald-900 shadow-xs hover:bg-emerald-100 transition active:scale-95 shrink-0">
+                  “Is ground flat or uneven?”
+                </button>
+                <button onclick="handleVoiceInput('Where am I?')" aria-label="Ask: Where am I?" class="px-2 py-1 rounded-full bg-blue-50 border border-blue-200 text-[10px] font-semibold text-blue-900 shadow-xs hover:bg-blue-100 transition active:scale-95 shrink-0">
                   “Where am I?”
                 </button>
-                <button onclick="handleVoiceInput('Take me to coffee shop')" aria-label="Simulate: Take me to coffee shop" class="px-2.5 py-1 rounded-full bg-white border border-slate-200 text-[11px] font-medium text-slate-700 shadow-sm hover:bg-slate-50 transition active:scale-95 shrink-0">
+                <button onclick="handleVoiceInput('Take me to coffee shop')" aria-label="Ask: Take me to coffee shop" class="px-2 py-1 rounded-full bg-white border border-slate-200 text-[10px] font-medium text-slate-700 shadow-xs hover:bg-slate-50 transition active:scale-95 shrink-0">
                   “Take me to coffee shop”
-                </button>
-                <button onclick="handleVoiceInput('Take me to Central Park')" aria-label="Simulate: Take me to Central Park" class="px-2.5 py-1 rounded-full bg-white border border-slate-200 text-[11px] font-medium text-slate-700 shadow-sm hover:bg-slate-50 transition active:scale-95 shrink-0">
-                  “Take me to Central Park”
-                </button>
-                <button onclick="handleVoiceInput('Take me somewhere')" aria-label="Simulate: Take me somewhere (auto GPS search)" class="px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-[11px] font-medium text-emerald-800 shadow-sm hover:bg-emerald-100 transition active:scale-95 shrink-0" title="Auto GPS routing to nearest place">
-                  “Take me somewhere” (Auto GPS)
-                </button>
-                <button onclick="handleVoiceInput('Go there')" aria-label="Simulate: Go there (auto GPS search)" class="px-2.5 py-1 rounded-full bg-amber-50 border border-amber-200 text-[11px] font-medium text-amber-800 shadow-sm hover:bg-amber-100 transition active:scale-95 shrink-0" title="Auto GPS routing">
-                  “Go there”
                 </button>
               </div>
 
-              <!-- Test input for any natural-language destination or command -->
+              <!-- Test input for any natural-language question or destination -->
               <form onsubmit="event.preventDefault(); const inp = document.getElementById('voice-sim-input'); if (inp && inp.value.trim()) { handleVoiceInput(inp.value.trim()); inp.value = ''; }" class="flex items-center gap-1.5 px-1">
-                <label for="voice-sim-input" class="sr-only">Type any voice command or destination for Gemini AI</label>
-                <input type="text" id="voice-sim-input" placeholder="Type any destination (e.g. library, Old Town, Paris)..." class="flex-1 min-w-0 bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-amber-500 shadow-sm">
+                <label for="voice-sim-input" class="sr-only">Ask any question about your surroundings or type any destination for Gemini AI</label>
+                <input type="text" id="voice-sim-input" placeholder="Ask about surroundings or type destination..." class="flex-1 min-w-0 bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-amber-500 shadow-sm">
                 <button type="submit" class="px-3.5 py-2 rounded-xl bg-slate-900 text-white text-xs font-semibold hover:bg-black transition active:scale-95 shrink-0">
-                  Send
+                  Ask AI
                 </button>
               </form>
 
-              <div class="flex justify-center">
+              <div class="flex items-center justify-center gap-3">
+                <button onclick="triggerVoiceAssistant()" id="listening-mic-btn" aria-label="Activate microphone to speak" class="w-14 h-14 rounded-full bg-black text-white flex items-center justify-center shadow-lg hover:bg-neutral-800 transition active:scale-95 shrink-0">
+                  <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/></svg>
+                </button>
                 <button onclick="navigateTo('home')" aria-label="Cancel voice listening and return home" class="w-14 h-14 rounded-full bg-red-500 text-white flex items-center justify-center shadow-lg hover:bg-red-600 transition active:scale-95 shrink-0">
                   <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
@@ -594,7 +603,7 @@
 
             <!-- Bottom Mic Button -->
             <div class="mobile-safe-footer flex justify-center mt-2">
-              <button onclick="triggerVoiceAssistant()" aria-label="Start voice listening assistant" class="w-16 h-16 rounded-full bg-black text-white flex items-center justify-center shadow-lg hover:bg-neutral-800 transition active:scale-95 shrink-0">
+              <button onclick="triggerVoiceAssistant()" id="search-mic-btn" aria-label="Start voice listening assistant" class="w-16 h-16 rounded-full bg-black text-white flex items-center justify-center shadow-lg hover:bg-neutral-800 transition active:scale-95 shrink-0">
                 <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/></svg>
               </button>
             </div>
@@ -642,15 +651,20 @@
             </div>
 
             <!-- Route Actions -->
-            <div class="mobile-safe-footer flex flex-col space-y-2.5 pt-1">
-              <button onclick="startCurrentNavigation()" id="start-nav-btn" aria-label="Start walking navigation to selected destination" class="w-full py-4 rounded-2xl bg-black text-white font-bold text-base shadow-md hover:bg-neutral-800 transition active:scale-[0.99] flex items-center justify-center space-x-2">
+            <div class="mobile-safe-footer flex flex-col space-y-2 pt-1">
+              <button onclick="startCurrentNavigation()" id="start-nav-btn" aria-label="Start walking navigation to selected destination" class="w-full py-3.5 rounded-2xl bg-black text-white font-bold text-base shadow-md hover:bg-neutral-800 transition active:scale-[0.99] flex items-center justify-center space-x-2">
                 <span>Start navigation</span>
                 <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
               </button>
-              <button onclick="speakRouteOverview()" aria-label="Describe route overview and audible cues" class="w-full py-3 rounded-2xl bg-white border border-slate-200 text-slate-800 font-semibold text-sm shadow-sm hover:bg-slate-50 transition active:scale-[0.99] flex items-center justify-center space-x-2">
-                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/></svg>
-                <span>Describe route</span>
-              </button>
+              <div class="flex items-center space-x-2">
+                <button onclick="speakRouteOverview()" id="btn-describe-route" aria-label="Describe route overview and audible cues" class="flex-1 py-3 rounded-2xl bg-white border border-slate-200 text-slate-800 font-semibold text-sm shadow-sm hover:bg-slate-50 transition active:scale-[0.99] flex items-center justify-center space-x-2">
+                  <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/></svg>
+                  <span>Describe route</span>
+                </button>
+                <button onclick="triggerVoiceAssistant()" id="route-preview-mic-btn" aria-label="Activate microphone to ask about route or change destination" class="w-12 h-12 rounded-2xl bg-black text-white flex items-center justify-center shadow-md hover:bg-neutral-800 transition active:scale-95 shrink-0">
+                  <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/></svg>
+                </button>
+              </div>
             </div>
           </div>
 
@@ -675,32 +689,40 @@
             </div>
 
             <!-- Top Header (Z-20 Relative) -->
-            <div class="mobile-safe-header relative z-20 flex justify-between items-center pt-1 px-1">
-              <button onclick="stopNavigationRoute()" id="btn-nav-back" aria-label="Stop navigation and return to preview" class="w-11 h-11 rounded-full bg-black/60 backdrop-blur-md border border-white/30 flex items-center justify-center text-white hover:bg-black/80 shadow-md transition active:scale-95 shrink-0">
+            <div class="mobile-safe-header relative z-20 flex justify-between items-center pt-1 px-0.5">
+              <button onclick="stopNavigationRoute()" id="btn-nav-back" aria-label="Stop navigation and return to preview" class="w-10 h-10 rounded-full bg-black/60 backdrop-blur-md border border-white/30 flex items-center justify-center text-white hover:bg-black/80 shadow-md transition active:scale-95 shrink-0">
                 <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
               </button>
               
               <!-- Camera & YOLO Status Pill Badge -->
-              <div class="flex items-center gap-1.5 px-3 py-1.5 bg-black/75 backdrop-blur-md rounded-full text-white text-xs font-bold border border-white/20 shadow-md shrink-0">
-                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shrink-0" aria-hidden="true"></span>
+              <div class="flex items-center gap-1 px-2.5 py-1 bg-black/75 backdrop-blur-md rounded-full text-white text-[11px] font-bold border border-white/20 shadow-md shrink-0">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" aria-hidden="true"></span>
                 <span id="camera-status-pill">Back Camera • YOLO Active</span>
               </div>
 
-              <div class="flex items-center gap-1.5 shrink-0">
+              <div class="flex items-center gap-1 shrink-0">
+                <!-- Scan Road Signs & Traffic Light Button -->
+                <button type="button" onclick="triggerSignboardScan(false)" id="btn-detect-signs" aria-label="Scan road signs and traffic light signals now" class="w-9 h-9 rounded-full bg-black/60 backdrop-blur-md border border-white/30 flex items-center justify-center text-white hover:bg-black/80 shadow-md transition active:scale-95 text-sm shrink-0" title="Scan Road Signs & Signals">
+                  <span aria-hidden="true">🪧</span>
+                </button>
+                <!-- Describe Live Camera View Now Button -->
+                <button type="button" onclick="describeActiveCameraSceneNow()" id="btn-nav-describe-now" aria-label="Describe live camera surroundings now" class="w-9 h-9 rounded-full bg-black/60 backdrop-blur-md border border-white/30 flex items-center justify-center text-white hover:bg-black/80 shadow-md transition active:scale-95 text-sm shrink-0" title="Describe Camera Scene">
+                  <span aria-hidden="true">👁️</span>
+                </button>
                 <!-- Sunlight High Contrast Toggle -->
-                <button type="button" onclick="toggleHighContrastMode()" id="btn-contrast-mode" aria-label="Toggle sunlight high-contrast mode" class="w-11 h-11 rounded-full bg-black/60 backdrop-blur-md border border-white/30 flex items-center justify-center text-white hover:bg-black/80 shadow-md transition active:scale-95 text-base shrink-0" title="Sunlight High Contrast">
+                <button type="button" onclick="toggleHighContrastMode()" id="btn-contrast-mode" aria-label="Toggle sunlight high-contrast mode" class="w-9 h-9 rounded-full bg-black/60 backdrop-blur-md border border-white/30 flex items-center justify-center text-white hover:bg-black/80 shadow-md transition active:scale-95 text-sm shrink-0" title="Sunlight High Contrast">
                   <span id="contrast-mode-icon" aria-hidden="true">☀️</span>
                 </button>
                 <!-- Night Vision AR Filter Toggle -->
-                <button type="button" onclick="toggleNightVisionMode()" id="btn-night-vision" aria-label="Toggle night-vision low-light filter" class="w-11 h-11 rounded-full bg-black/60 backdrop-blur-md border border-white/30 flex items-center justify-center text-white hover:bg-black/80 shadow-md transition active:scale-95 text-base shrink-0" title="Night Vision Filter">
+                <button type="button" onclick="toggleNightVisionMode()" id="btn-night-vision" aria-label="Toggle night-vision low-light filter" class="w-9 h-9 rounded-full bg-black/60 backdrop-blur-md border border-white/30 flex items-center justify-center text-white hover:bg-black/80 shadow-md transition active:scale-95 text-sm shrink-0" title="Night Vision Filter">
                   <span id="nightvision-mode-icon" aria-hidden="true">🌙</span>
                 </button>
                 <!-- Camera / Simulation Toggle Button -->
-                <button type="button" onclick="toggleCameraFeed()" id="btn-toggle-camera" aria-label="Toggle between real rear camera and simulated walking stream" class="w-11 h-11 rounded-full bg-black/60 backdrop-blur-md border border-white/30 flex items-center justify-center text-white hover:bg-black/80 shadow-md transition active:scale-95 text-base shrink-0" title="Toggle camera feed mode">
+                <button type="button" onclick="toggleCameraFeed()" id="btn-toggle-camera" aria-label="Toggle between real rear camera and standby" class="w-9 h-9 rounded-full bg-black/60 backdrop-blur-md border border-white/30 flex items-center justify-center text-white hover:bg-black/80 shadow-md transition active:scale-95 text-sm shrink-0" title="Toggle camera feed mode">
                   <span id="camera-toggle-icon" aria-hidden="true">📷</span>
                 </button>
-                <button onclick="openSettingsModal()" id="btn-nav-settings" aria-label="Settings" aria-haspopup="dialog" class="w-11 h-11 rounded-full bg-black/60 backdrop-blur-md border border-white/30 flex items-center justify-center text-white hover:bg-black/80 shadow-md transition shrink-0">
-                  <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                <button onclick="openSettingsModal()" id="btn-nav-settings" aria-label="Settings" aria-haspopup="dialog" class="w-9 h-9 rounded-full bg-black/60 backdrop-blur-md border border-white/30 flex items-center justify-center text-white hover:bg-black/80 shadow-md transition shrink-0">
+                  <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                 </button>
               </div>
             </div>
@@ -770,15 +792,16 @@
                 </div>
               </div>
 
-              <!-- Dual-Move Path Tracker & Standing People / Depth Hole HUD -->
-              <div id="nav-dual-move-hud" class="w-full py-2 px-3 rounded-2xl bg-black/90 backdrop-blur-md border border-cyan-500/40 text-white shadow-xl flex flex-col space-y-1.5" role="region" aria-label="Dual-Move Path Choice and Standing People Tracker">
-                <div class="flex items-center justify-between">
+              <!-- Dual-Move Path Tracker & Ground / Pedestrian / Traffic Signal HUD -->
+              <div id="nav-dual-move-hud" class="w-full py-2 px-3 rounded-2xl bg-black/90 backdrop-blur-md border border-cyan-500/40 text-white shadow-xl flex flex-col space-y-1.5" role="region" aria-label="Dual-Move Path Choice, Ground Surface, Traffic Signal, and Pedestrian Tracker">
+                <div class="flex items-center justify-between gap-1 flex-wrap">
                   <span class="text-[9px] font-extrabold text-cyan-300 uppercase tracking-wider flex items-center gap-1">
-                    <span aria-hidden="true">🛣️</span> Dual-Move Path Tracker
+                    <span aria-hidden="true">🛣️</span> Path &amp; Ground
                   </span>
-                  <div class="flex items-center gap-1">
-                    <span id="nav-depth-hole-badge" class="px-1.5 py-0.5 rounded-full text-[9px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Ground: Level</span>
+                  <div class="flex items-center gap-1 flex-wrap">
+                    <span id="nav-depth-hole-badge" class="px-1.5 py-0.5 rounded-full text-[9px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Ground: Flat</span>
                     <span id="nav-people-around-badge" class="px-1.5 py-0.5 rounded-full text-[9px] font-mono font-bold bg-sky-500/20 text-sky-300 border border-sky-500/30">👥 0 People</span>
+                    <span id="nav-traffic-light-badge" class="px-1.5 py-0.5 rounded-full text-[9px] font-mono font-bold bg-slate-500/25 text-slate-200 border border-slate-400/30">🚦 No Signal</span>
                   </div>
                 </div>
                 <div class="grid grid-cols-2 gap-1.5">
@@ -798,12 +821,12 @@
                   </button>
                 </div>
                 <div id="nav-dual-move-status" class="text-[10px] font-semibold text-cyan-200 truncate">
-                  Active Move: Normal Walk to Bus Stop • Scanning people &amp; ground depth
+                  Active Move: Normal Walk to Bus Stop • Scanning people, ground &amp; signals
                 </div>
               </div>
             </div>
 
-            <!-- Bottom Hands-Free Voice Interaction Hub for Blind Pedestrians (No Button Clutter) -->
+            <!-- Bottom Hands-Free Voice Interaction Hub for Blind Pedestrians -->
             <div class="mobile-safe-footer relative z-20 flex flex-col items-center justify-center pt-2 pb-1">
               <!-- Large Tactile Voice Mic Button (Tap to talk or ask anything) -->
               <button onclick="triggerVoiceAssistant()" id="nav-floating-mic-btn" aria-label="Tap to speak. Ask anything, say Yes, No, Repeat, or Stop." class="w-20 h-20 rounded-full bg-black text-white border-4 border-orange-500 flex items-center justify-center shadow-2xl hover:scale-105 active:scale-95 transition focus:ring-4 focus:ring-orange-400/50 relative group shrink-0">
@@ -869,10 +892,16 @@
             </div>
 
             <!-- Bottom Action -->
-            <div class="mobile-safe-footer flex flex-col space-y-2 pt-2">
-              <button onclick="repeatRealLocation()" aria-label="Repeat current location, address, and orientation" class="w-full py-3.5 rounded-2xl bg-white border border-slate-200 text-slate-800 font-semibold text-sm shadow-sm hover:bg-slate-50 transition active:scale-[0.99] flex items-center justify-center space-x-2">
+            <div class="mobile-safe-footer flex items-center space-x-2 pt-2">
+              <button onclick="repeatRealLocation()" id="btn-repeat-location" aria-label="Repeat current location, address, and orientation" class="flex-1 py-3.5 rounded-2xl bg-white border border-slate-200 text-slate-800 font-semibold text-sm shadow-sm hover:bg-slate-50 transition active:scale-[0.99] flex items-center justify-center space-x-2">
                 <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-600 shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M13.5 4.06c0-1.336-1.616-2.005-2.56-1.06l-4.5 4.5H4.5A2.25 2.25 0 0 0 2.25 9.75v4.5A2.25 2.25 0 0 0 4.5 16.5h1.94l4.5 4.5c.944.945 2.56.276 2.56-1.06V4.06Z"/></svg>
                 <span>Repeat location</span>
+              </button>
+              <button onclick="refreshLiveGpsLocationNow()" id="whereami-refresh-gps-btn" aria-label="Refresh live GPS coordinates and street address" class="px-3.5 py-3.5 rounded-2xl bg-purple-50 border border-purple-200 text-purple-900 font-bold text-xs shadow-sm hover:bg-purple-100 transition active:scale-95 shrink-0">
+                📍 GPS
+              </button>
+              <button onclick="triggerVoiceAssistant()" id="whereami-mic-btn" aria-label="Activate microphone to ask where you are or where to go" class="w-12 h-12 rounded-2xl bg-black text-white flex items-center justify-center shadow-md hover:bg-neutral-800 transition active:scale-95 shrink-0">
+                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/></svg>
               </button>
             </div>
           </div>
@@ -904,6 +933,7 @@
               <!-- Camera Scene Card / Live Camera View -->
               <div id="describe-scene-container" class="w-full h-40 rounded-2xl overflow-hidden mb-3 border border-slate-200 shadow-sm shrink-0 relative bg-neutral-900">
                 <video id="describe-live-video" class="w-full h-full object-cover hidden" autoplay playsinline muted></video>
+                <canvas id="describe-yolo-canvas" class="absolute inset-0 w-full h-full pointer-events-none z-10"></canvas>
                 <div id="describe-camera-prompt" class="absolute inset-0 flex flex-col items-center justify-center text-center p-4 text-white/80">
                   <span class="text-2xl mb-1 shrink-0">📷</span>
                   <p class="text-xs font-semibold text-white">Rear Camera Feed</p>
@@ -932,11 +962,21 @@
               </ul>
             </div>
 
-            <!-- Bottom Repeat Pill Button -->
-            <div class="mobile-safe-footer flex justify-center pt-3">
-              <button onclick="repeatSceneDescription()" aria-label="Repeat visual scene description" class="px-7 py-3 rounded-full bg-white border border-slate-200 text-slate-900 font-bold text-sm shadow-md hover:bg-slate-50 transition active:scale-95 flex items-center space-x-2 shrink-0">
-                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-slate-800 shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M13.5 4.06c0-1.336-1.616-2.005-2.56-1.06l-4.5 4.5H4.5A2.25 2.25 0 0 0 2.25 9.75v4.5A2.25 2.25 0 0 0 4.5 16.5h1.94l4.5 4.5c.944.945 2.56.276 2.56-1.06V4.06ZM18.584 5.106a.75.75 0 0 1 1.06 0c3.808 3.807 3.808 9.98 0 13.788a.75.75 0 0 1-1.06-1.06 8.25 8.25 0 0 0 0-11.668.75.75 0 0 1 0-1.06Z"/></svg>
+            <!-- Bottom Functional Camera & Voice Action Bar -->
+            <div class="mobile-safe-footer flex items-center justify-between gap-2 pt-3">
+              <button onclick="triggerDescribeAround()" id="btn-rescan-scene" aria-label="Re-scan live camera scene with Gemini and YOLO" class="flex-1 py-3 px-3 rounded-2xl bg-blue-600 text-white font-bold text-xs shadow-md hover:bg-blue-700 transition active:scale-95 flex items-center justify-center space-x-1.5">
+                <span aria-hidden="true">📷</span>
+                <span>Re-Scan</span>
+              </button>
+              <button onclick="repeatSceneDescription()" id="btn-repeat-scene" aria-label="Repeat visual scene description" class="flex-1 py-3 px-3 rounded-2xl bg-white border border-slate-200 text-slate-900 font-bold text-xs shadow-sm hover:bg-slate-50 transition active:scale-95 flex items-center justify-center space-x-1.5">
+                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-800 shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M13.5 4.06c0-1.336-1.616-2.005-2.56-1.06l-4.5 4.5H4.5A2.25 2.25 0 0 0 2.25 9.75v4.5A2.25 2.25 0 0 0 4.5 16.5h1.94l4.5 4.5c.944.945 2.56.276 2.56-1.06V4.06Z"/></svg>
                 <span>Repeat</span>
+              </button>
+              <button onclick="triggerSignboardScan(false)" id="btn-describe-signs" aria-label="Scan road signs and text in camera view" class="py-3 px-3 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 font-bold text-xs shadow-sm hover:bg-amber-100 transition active:scale-95 shrink-0">
+                🪧 Signs
+              </button>
+              <button onclick="triggerVoiceAssistant()" id="describe-mic-btn" aria-label="Activate microphone to ask Gemini AI about what the camera sees" class="w-12 h-12 rounded-2xl bg-black text-white flex items-center justify-center shadow-md hover:bg-neutral-800 transition active:scale-95 shrink-0">
+                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/></svg>
               </button>
             </div>
           </div>
@@ -990,20 +1030,28 @@
               </div>
             </div>
 
-            <!-- Hands-Free Voice Response Hub for Obstacle Screen (No Buttons To Search For) -->
-            <div class="mobile-safe-footer flex flex-col items-center justify-center pt-2 pb-1">
-              <button onclick="triggerVoiceAssistant()" id="obstacle-voice-mic-btn" aria-label="Tap microphone to speak or say Yes, No, or Repeat" class="w-20 h-20 rounded-full bg-black text-white border-4 border-red-500 flex items-center justify-center shadow-2xl hover:scale-105 active:scale-95 transition focus:ring-4 focus:ring-red-400/50 relative group shrink-0">
-                <span class="absolute -inset-1 rounded-full bg-red-500/30 animate-ping group-hover:opacity-100 opacity-60"></span>
-                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-red-400 relative z-10 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/></svg>
-              </button>
-              <p class="text-xs text-slate-800 font-bold text-center mt-2">
-                Speak <span class="text-red-600 font-black">"Yes"</span> / <span class="text-red-600 font-black">"Okay"</span> to resume, or ask where to step
+            <!-- Hands-Free Voice & Touch Response Hub for Obstacle Screen -->
+            <div class="mobile-safe-footer flex flex-col items-center justify-center gap-2 pt-1 pb-1">
+              <div class="flex items-center justify-center gap-3 w-full">
+                <button onclick="acknowledgeObstacle()" id="btn-i-understand" aria-label="Acknowledge obstacle and resume route" class="flex-1 py-3.5 px-3 rounded-2xl bg-neutral-900 text-white font-bold text-xs shadow-md hover:bg-black transition active:scale-95">
+                  I Understand — Resume
+                </button>
+                <button onclick="triggerVoiceAssistant()" id="obstacle-voice-mic-btn" aria-label="Tap microphone to speak or say Yes, No, or Repeat" class="w-16 h-16 rounded-full bg-black text-white border-4 border-red-500 flex items-center justify-center shadow-2xl hover:scale-105 active:scale-95 transition focus:ring-4 focus:ring-red-400/50 relative group shrink-0">
+                  <span class="absolute -inset-1 rounded-full bg-red-500/30 animate-ping group-hover:opacity-100 opacity-60"></span>
+                  <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-red-400 relative z-10 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/></svg>
+                </button>
+                <button onclick="repeatObstacleWarning()" id="btn-repeat-obstacle" aria-label="Repeat obstacle distance and dimensions warning" class="py-3.5 px-3 rounded-2xl bg-white border border-slate-200 text-slate-800 font-bold text-xs shadow-sm hover:bg-slate-50 transition active:scale-95 shrink-0">
+                  🔊 Repeat
+                </button>
+              </div>
+              <p class="text-[11px] text-slate-800 font-bold text-center">
+                Speak <span class="text-red-600 font-black">"Yes"</span> / <span class="text-red-600 font-black">"Okay"</span> to resume, or ask about the obstacle
               </p>
             </div>
           </div>
 
-          <!-- ==================== SCREEN 9: APPROACHING CROSSWALK (Quiet Mode) ==================== -->
-          <div id="screen-crosswalkSafety" role="region" aria-label="Screen 9: Approaching Crosswalk Quiet Mode" class="screen-container flex-1 flex flex-col justify-between p-5 pb-6 hidden">
+          <!-- ==================== SCREEN 9: APPROACHING CROSSWALK (Quiet Mode + Traffic Light Signal) ==================== -->
+          <div id="screen-crosswalkSafety" role="region" aria-label="Screen 9: Approaching Crosswalk Quiet Mode and Traffic Light Signal" class="screen-container flex-1 flex flex-col justify-between p-5 pb-6 hidden">
             <!-- Header -->
             <div class="mobile-safe-header flex justify-between items-center pt-2 px-1">
               <button onclick="navigateTo('activeNavigation')" aria-label="Back to active navigation" class="w-11 h-11 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-700 hover:bg-slate-50 shadow-sm transition active:scale-95 shrink-0">
@@ -1022,7 +1070,7 @@
               </div>
               <div class="flex flex-col min-w-0 flex-1">
                 <h2 class="text-xl font-bold text-black leading-tight truncate">Approaching crosswalk.</h2>
-                <p class="text-sm text-slate-900 mt-0.5 truncate">Listen for traffic.</p>
+                <p id="crosswalk-banner-sub" class="text-sm text-slate-900 mt-0.5 truncate">Checking traffic light signal &amp; traffic sound.</p>
               </div>
             </div>
 
@@ -1032,33 +1080,43 @@
               <div id="crosswalk-bg-fallback" class="absolute inset-0 bg-gradient-to-b from-slate-900 via-neutral-900 to-black"></div>
               <canvas id="crosswalk-yolo-canvas" class="absolute inset-0 w-full h-full pointer-events-none z-[5]"></canvas>
 
-              <!-- Accessible Floating Quiet Mode & Acoustic Traffic Analyzer Card -->
-              <div class="w-full relative z-10 bg-white/95 backdrop-blur-md rounded-3xl p-4 border border-slate-100 shadow-lg flex flex-col items-center justify-center text-center">
+              <!-- Accessible Floating Quiet Mode, Traffic Light Signal & Acoustic Traffic Analyzer Card -->
+              <div class="w-full relative z-10 bg-white/95 backdrop-blur-md rounded-3xl p-3.5 border border-slate-100 shadow-lg flex flex-col items-center justify-center text-center">
+                <!-- Live Traffic Light Signal Pill -->
+                <div id="crosswalk-traffic-signal-pill" class="px-3 py-1 rounded-full text-xs font-extrabold bg-slate-100 text-slate-800 border border-slate-300 mb-2">
+                  🚦 Traffic Light: Scanning intersection...
+                </div>
+
                 <!-- Acoustic Spectrum Waveform Visualizer Canvas -->
-                <canvas id="crosswalk-acoustic-canvas" width="280" height="46" class="w-full h-11 rounded-xl bg-black/85 border border-amber-500/30 mb-2"></canvas>
+                <canvas id="crosswalk-acoustic-canvas" width="280" height="44" class="w-full h-10 rounded-xl bg-black/85 border border-amber-500/30 mb-1.5"></canvas>
 
                 <!-- Traffic Quietness Gauge -->
-                <div class="flex items-center justify-between w-full px-1 mb-1.5 text-xs">
+                <div class="flex items-center justify-between w-full px-1 mb-1 text-xs">
                   <span class="text-slate-500 font-bold uppercase text-[10px]">Acoustic Frequency (50-280Hz)</span>
                   <span id="crosswalk-quietness-score" class="font-mono font-black text-emerald-600">82% Quietness</span>
                 </div>
 
-                <div id="crosswalk-safety-pill" class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 mb-2">
+                <div id="crosswalk-safety-pill" class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 mb-1.5">
                   Safe Crossing Window Detected
                 </div>
 
-                <p class="text-sm font-medium text-slate-800">
+                <p class="text-xs font-medium text-slate-800">
                   I will be quiet while you cross.
                 </p>
-                <span class="text-xs text-slate-500 mt-0.5" aria-hidden="true">(Tap button below when across to resume)</span>
               </div>
             </div>
 
-            <!-- Bottom Action -->
-            <div class="mobile-safe-footer pt-1">
-              <button onclick="confirmCrossed()" aria-label="Confirm crosswalk completed and resume navigation route" class="w-full py-3.5 rounded-full bg-neutral-900 text-white font-bold text-sm shadow-md hover:bg-black transition active:scale-95 flex items-center justify-center space-x-2">
-                <span>Crosswalk Completed — Resume Route</span>
+            <!-- Bottom Action with Signal Check, Resume & Microphone -->
+            <div class="mobile-safe-footer flex items-center space-x-2 pt-1">
+              <button onclick="checkCrosswalkSignalAndTrafficNow()" id="btn-crosswalk-check-signal" aria-label="Check traffic light signal and crossing safety now" class="py-3.5 px-3 rounded-2xl bg-amber-100 border border-amber-300 text-amber-950 font-bold text-xs shadow-sm hover:bg-amber-200 transition active:scale-95 shrink-0">
+                🚦 Signal
+              </button>
+              <button onclick="confirmCrossed()" id="btn-crosswalk-confirm" aria-label="Confirm crosswalk completed and resume navigation route" class="flex-1 py-3.5 px-3 rounded-2xl bg-neutral-900 text-white font-bold text-xs shadow-md hover:bg-black transition active:scale-95 flex items-center justify-center space-x-1.5">
+                <span>Crossed — Resume</span>
                 <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-white shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+              </button>
+              <button onclick="triggerVoiceAssistant()" id="crosswalk-mic-btn" aria-label="Activate microphone to ask about traffic light or crossing" class="w-12 h-12 rounded-2xl bg-black text-white flex items-center justify-center shadow-md hover:bg-neutral-800 transition active:scale-95 shrink-0">
+                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/></svg>
               </button>
             </div>
           </div>
@@ -1747,9 +1805,31 @@
     let lastLiveDetections = [];
     let trackedSmoothedObjects = [];
     let lastSceneDescription = "";
+    let userManuallyAdjustedLidarBench = false;
+
+    let currentGroundSurfaceState = {
+      status: 'Flat', // 'Flat' | 'Tilted' | 'Uneven'
+      slopeDeg: 0.0,
+      roughnessScore: 0.0,
+      detail: 'Ground surface ahead is flat and level.'
+    };
+
+    let currentTrafficLightSignal = {
+      detected: false,
+      color: 'NONE', // 'RED' | 'YELLOW' | 'GREEN' | 'NONE'
+      distance: null,
+      lane: 'center',
+      confidence: 0,
+      guidance: 'No traffic light signal currently in camera view.'
+    };
+
+    let deviceTiltBeta = 70;
+    let deviceTiltGamma = 0;
+    let recentAccelJitter = 0;
 
     const metricObjectHeights = {
       'person': 1.70, 'person standing': 1.70, 'person walking': 1.70,
+      'person approaching': 1.70, 'person moving away': 1.70, 'person crossing path': 1.70,
       'bicycle': 1.05, 'car': 1.50, 'motorcycle': 1.15,
       'bus': 3.20, 'truck': 2.80, 'traffic light': 0.90, 'stop sign': 0.75,
       'fire hydrant': 0.75, 'bench': 0.85, 'dog': 0.55, 'cat': 0.30,
@@ -1767,6 +1847,35 @@
       'crossing path': 0.65, 'crosswalk': 0.65, 'zebra crossing': 0.65, 'pedestrian crossing': 0.65,
       'default': 1.40
     };
+
+    const metricObjectWidths = {
+      'person': 0.55, 'person standing': 0.55, 'person walking': 0.55,
+      'person approaching': 0.55, 'person moving away': 0.55, 'person crossing path': 0.60,
+      'bicycle': 0.65, 'car': 1.85, 'motorcycle': 0.80,
+      'bus': 2.55, 'truck': 2.50, 'traffic light': 0.35, 'stop sign': 0.75,
+      'fire hydrant': 0.40, 'bench': 1.50, 'dog': 0.45, 'cat': 0.25,
+      'chair': 0.55, 'couch': 1.90, 'potted plant': 0.85,
+      'dining table': 1.20, 'door': 0.90, 'stairs': 1.60, 'pole': 0.22,
+      'tree': 1.10, 'tree trunk': 0.45,
+      'depth hole': 0.80, 'depth hole / drop-off': 0.80,
+      'tunnel going down': 2.40, 'underpass tunnel': 2.40,
+      'road sign': 0.65, 'crossing path': 2.80, 'crosswalk': 2.80,
+      'default': 0.70
+    };
+
+    function computeObjectMetricDimensions(obj) {
+      if (!obj) return obj;
+      const key = (obj.rawClass || obj.label || 'default').toLowerCase();
+      const nomH = metricObjectHeights[key] || metricObjectHeights['default'];
+      const nomW = metricObjectWidths[key] || metricObjectWidths['default'];
+      const boxRatio = (obj.w && obj.h && obj.h > 8) ? (obj.w / obj.h) : (nomW / nomH);
+      const estH = obj.heightM || parseFloat(nomH.toFixed(1));
+      const rawW = (nomW * 0.6) + (estH * boxRatio * 0.4);
+      const estW = obj.widthM || parseFloat(Math.max(0.2, Math.min(4.5, rawW)).toFixed(1));
+      obj.widthM = estW;
+      obj.heightM = estH;
+      return obj;
+    }
 
     let lastDetectedSignboards = [];
 
@@ -2182,6 +2291,7 @@
           if (!acc || acc.x === null || acc.y === null || acc.z === null) return;
           const mag = Math.sqrt(acc.x * acc.x + acc.y * acc.y + acc.z * acc.z);
           const delta = Math.abs(mag - lastPedometerAccelMag);
+          recentAccelJitter = parseFloat((recentAccelJitter * 0.8 + delta * 0.2).toFixed(2));
           lastPedometerAccelMag = mag;
           const now = Date.now();
           // Real step detection: acceleration peak > 11.8 m/s^2 or dynamic delta > 2.6 m/s^2, debounced by 320ms
@@ -2305,15 +2415,25 @@
       if (e.webkitCompassHeading !== undefined) {
         compass = e.webkitCompassHeading;
       } else if (e.alpha !== null) {
-        compass = 360 - e.alpha;
+        compass = (360 - e.alpha) % 360;
+      }
+      if (e.beta !== null && !isNaN(e.beta)) {
+        deviceTiltBeta = parseFloat(e.beta.toFixed(1));
+      }
+      if (e.gamma !== null && !isNaN(e.gamma)) {
+        deviceTiltGamma = parseFloat(e.gamma.toFixed(1));
       }
       if (compass !== null && !isNaN(compass)) {
+        currentCompassHeading = compass;
         userGps.heading = Math.round(compass);
         userGps.headingCardinal = getHeadingCardinal(userGps.heading);
         const compassBadge = document.getElementById('whereami-compass-badge');
         const orientText = document.getElementById('whereami-orientation-text');
         if (compassBadge) compassBadge.innerText = userGps.headingCardinal;
         if (orientText) orientText.innerText = `Facing ${userGps.headingCardinal} (${userGps.heading}°) • ±${userGps.accuracy}m accuracy`;
+      }
+      if (typeof activeDirectionalWatch !== 'undefined' && activeDirectionalWatch && !activeDirectionalWatch.fulfilled) {
+        checkPhoneTurnedResponse(e, compass);
       }
     }
 
@@ -2369,8 +2489,34 @@
       const street = userGps.street || "Your location";
       const city = userGps.city || "your area";
       const heading = userGps.headingCardinal || "East";
-      const speech = `You are on ${street}, in ${city}. Coordinates are ${userGps.lat.toFixed(4)} North, ${userGps.lon.toFixed(4)} East. You are facing ${heading}.`;
+      const groundInfo = currentGroundSurfaceState ? ` Ground surface is ${currentGroundSurfaceState.status.toLowerCase()}.` : '';
+      const speech = `You are on ${street}, in ${city}. Coordinates are ${userGps.lat.toFixed(4)} North, ${userGps.lon.toFixed(4)} East. You are facing ${heading}.${groundInfo}`;
       speakText(speech);
+    }
+
+    async function refreshLiveGpsLocationNow() {
+      triggerHaptic([50, 40]);
+      announceToScreenReader("Refreshing live GPS coordinates and street address.");
+      if ('geolocation' in navigator) {
+        navigator.geolocation.getCurrentPosition(
+          async (pos) => {
+            handleGpsSuccess(pos);
+            await reverseGeocodeUser(userGps.lat, userGps.lon);
+            initWhereAmILeafletMap();
+            repeatRealLocation();
+          },
+          async () => {
+            await reverseGeocodeUser(userGps.lat, userGps.lon);
+            initWhereAmILeafletMap();
+            repeatRealLocation();
+          },
+          { enableHighAccuracy: true, timeout: 5000 }
+        );
+      } else {
+        await reverseGeocodeUser(userGps.lat, userGps.lon);
+        initWhereAmILeafletMap();
+        repeatRealLocation();
+      }
     }
 
     // ==================== GEODETIC & ROUTE CALCULATION ====================
@@ -2630,13 +2776,20 @@
       const l = (label || '').toLowerCase();
       const matchedSign = typeof matchRigaRoadSignClient === 'function' ? matchRigaRoadSignClient(l) : null;
       if (matchedSign && matchedSign.icon) return matchedSign.icon;
+      if (l.includes('traffic light')) {
+        if (l.includes('red')) return '🔴';
+        if (l.includes('yellow') || l.includes('amber')) return '🟡';
+        if (l.includes('green')) return '🟢';
+        return '🚦';
+      }
       const icons = {
         'chair': '🪑', 'person': '👤', 'person standing': '🧍', 'person walking': '🚶',
+        'person approaching': '🚶⬆️', 'person moving away': '🚶⬇️', 'person crossing path': '🚶↔️',
         'car': '🚗', 'bicycle': '🚲',
         'bus': '🚌', 'truck': '🚛', 'motorcycle': '🏍️',
         'dog': '🐕', 'cat': '🐈', 'bottle': '🍾', 'cup': '☕',
         'couch': '🛋️', 'table': '🪑', 'tv': '📺', 'laptop': '💻',
-        'cell phone': '📱', 'door': '🚪', 'stairs': '🪜', 'backpack': '🎒',
+        'cell phone': '📱', 'door': '🚪', 'stairs': '🪜', 'pole': '💈', 'backpack': '🎒',
         'traffic light': '🚦', 'stop sign': '🛑', 'bench': '🪵',
         'tree': '🌳', 'tree trunk': '🌳', 'potted plant': '🌳',
         'depth hole': '🕳️', 'depth hole / drop-off': '🕳️',
@@ -2650,15 +2803,73 @@
       return icons[l] || '👁️';
     }
 
+    function buildLiveSurroundingsSummary() {
+      const streetStr = userGps.street ? `on ${userGps.street}` : 'on your current path';
+      const groundStatus = currentGroundSurfaceState ? currentGroundSurfaceState.status : 'Flat';
+      const groundDetail = currentGroundSurfaceState ? currentGroundSurfaceState.detail : 'Ground surface ahead is flat and level.';
+      const parts = [];
+
+      if (lastLiveDetections && lastLiveDetections.length > 0) {
+        const objDescs = lastLiveDetections.slice(0, 5).map(o => {
+          computeObjectMetricDimensions(o);
+          const posPhrase = o.lane === 'center' ? 'directly ahead' : `on your ${o.lane}`;
+          const dimPhrase = (o.widthM && o.heightM) ? ` (approx ${o.widthM}m wide by ${o.heightM}m tall)` : '';
+          if (o.pedestrianMotion === 'walking_toward') {
+            return `pedestrian walking toward you ${o.distance.toFixed(1)} meters ${posPhrase}${dimPhrase}`;
+          }
+          if (o.pedestrianMotion === 'moving_away') {
+            return `pedestrian moving away ${o.distance.toFixed(1)} meters ${posPhrase}${dimPhrase}`;
+          }
+          if (o.pedestrianMotion === 'crossing_path') {
+            return `pedestrian crossing your path ${o.distance.toFixed(1)} meters ${posPhrase}${dimPhrase}`;
+          }
+          if (o.isPersonStanding || o.pedestrianMotion === 'standing') {
+            return `person standing still ${o.distance.toFixed(1)} meters ${posPhrase}${dimPhrase}`;
+          }
+          if (o.signalColor && o.signalColor !== 'NONE') {
+            return `traffic light showing ${o.signalColor} at ${o.distance.toFixed(1)} meters ${posPhrase}`;
+          }
+          return `${o.label} at ${o.distance.toFixed(1)} meters ${posPhrase}${dimPhrase}`;
+        });
+        parts.push(`I see ${objDescs.join('; ')}.`);
+      } else {
+        parts.push(`Pathway ${streetStr} is clear directly ahead with no immediate obstacles.`);
+      }
+
+      if (currentTrafficLightSignal && currentTrafficLightSignal.detected && currentTrafficLightSignal.color !== 'NONE') {
+        parts.push(`Traffic light ahead is ${currentTrafficLightSignal.color}.`);
+      }
+
+      parts.push(`Ground condition is ${groundStatus.toLowerCase()}.`);
+      return parts.join(' ');
+    }
+
+    async function describeActiveCameraSceneNow() {
+      triggerHaptic([60, 40]);
+      // Run an immediate perception cycle if on activeNavigation or crosswalkSafety
+      if (activeRoute === 'activeNavigation' || activeRoute === 'crosswalkSafety') {
+        try { await runYoloPerceptionCycle(); } catch(e){}
+      }
+      const summary = buildLiveSurroundingsSummary();
+      lastSceneDescription = summary;
+      showUniversalVoiceHUD('Live Scene Analysis', summary, false);
+      speakText(summary);
+    }
+
     async function triggerDescribeAround() {
       const video = document.getElementById('describe-live-video');
       const img = document.getElementById('describe-scene-img');
       const liveBadge = document.getElementById('describe-live-badge');
       const spinner = document.getElementById('describe-scanning-spinner');
+      const descCanvas = document.getElementById('describe-yolo-canvas');
 
       if (spinner) spinner.classList.remove('hidden');
 
-      // Use active back camera stream if available, or try opening stream
+      // Open back camera if not yet active
+      if (!liveCameraStream) {
+        try { await startAlwaysOpenBackCamera(); } catch(e){}
+      }
+
       if (liveCameraStream && video) {
         video.srcObject = liveCameraStream;
         video.classList.remove('hidden');
@@ -2676,17 +2887,84 @@
         snapshotBase64 = snap.toDataURL('image/jpeg', 0.75);
       }
 
-      // First run browser COCO-SSD neural detection if available (0.28 minScore for outdoor pedestrian recall)
+      // Run browser COCO-SSD + specialized detectors (trees, signs, stairs, poles, traffic lights, depth holes, pedestrian motion)
       let browserDetections = [];
-      if (cocoSsdModel && video && video.readyState >= 2) {
+      const cW = (descCanvas && descCanvas.clientWidth) ? descCanvas.clientWidth : 300;
+      const cH = (descCanvas && descCanvas.clientHeight) ? descCanvas.clientHeight : 140;
+
+      if (video && video.readyState >= 2 && video.videoWidth > 0) {
         try {
-          const preds = await cocoSsdModel.detect(video, 20, 0.28);
-          browserDetections = preds.map(p => ({
-            label: p.class.charAt(0).toUpperCase() + p.class.slice(1),
-            confidence: Math.round(p.score * 100),
-            lane: p.bbox[0] + p.bbox[2] / 2 < video.videoWidth * 0.36 ? 'on your left' : (p.bbox[0] + p.bbox[2] / 2 > video.videoWidth * 0.64 ? 'on your right' : 'directly ahead')
-          }));
-        } catch(e){}
+          const vW = video.videoWidth || 640;
+          const vH = video.videoHeight || 480;
+          const scale = Math.max(cW / vW, cH / vH);
+          const offsetX = (cW - vW * scale) / 2;
+          const offsetY = (cH - vH * scale) / 2;
+          const focalLengthPx = vH * 1.08;
+
+          const preds = cocoSsdModel ? await cocoSsdModel.detect(video, 20, 0.28) : [];
+          browserDetections = preds.map(p => {
+            const boxX = p.bbox[0] * scale + offsetX;
+            const boxY = p.bbox[1] * scale + offsetY;
+            const boxW = p.bbox[2] * scale;
+            const boxH = p.bbox[3] * scale;
+            const centerX = boxX + boxW / 2;
+            const rawBoxH = Math.max(12, p.bbox[3]);
+            const nominalHeight = metricObjectHeights[p.class.toLowerCase()] || metricObjectHeights['default'];
+            const calculatedDist = (focalLengthPx * nominalHeight) / rawBoxH;
+            const estimatedDist = Math.max(0.35, Math.min(10.0, parseFloat(calculatedDist.toFixed(1))));
+            const lane = centerX < cW * 0.35 ? 'left' : (centerX > cW * 0.65 ? 'right' : 'center');
+            const det = {
+              label: p.class.charAt(0).toUpperCase() + p.class.slice(1),
+              rawClass: p.class.toLowerCase(),
+              icon: getObjectIcon(p.class),
+              x: boxX, y: boxY, w: boxW, h: boxH,
+              conf: p.score,
+              confidence: Math.round(p.score * 100),
+              distance: estimatedDist,
+              lane: lane
+            };
+            return computeObjectMetricDimensions(det);
+          });
+
+          classifyPeopleAndStandingStatus(browserDetections, cW, cH, Date.now());
+          const crossingObj = detectCrossingPathInFrame(video, cW, cH, browserDetections);
+          if (crossingObj) browserDetections.push(computeObjectMetricDimensions(crossingObj));
+          const signTreeObjs = detectSignsAndTreesInFrame(video, cW, cH, browserDetections);
+          signTreeObjs.forEach(item => browserDetections.push(computeObjectMetricDimensions(item)));
+          const holeTunnelObjs = detectDepthHoleAndTunnelInFrame(video, cW, cH, browserDetections);
+          holeTunnelObjs.forEach(item => browserDetections.push(computeObjectMetricDimensions(item)));
+          if (typeof detectTrafficLightsStairsPolesAndGroundInFrame === 'function') {
+            const extraInfraObjs = detectTrafficLightsStairsPolesAndGroundInFrame(video, cW, cH, browserDetections);
+            extraInfraObjs.forEach(item => browserDetections.push(computeObjectMetricDimensions(item)));
+          }
+          lastLiveDetections = browserDetections;
+        } catch(e) {
+          console.warn('[Describe] Live frame analysis notice:', e);
+        }
+      } else if (lastLiveDetections && lastLiveDetections.length > 0) {
+        browserDetections = lastLiveDetections.map(d => computeObjectMetricDimensions({ ...d, confidence: Math.round((d.conf || 0.92) * 100) }));
+      }
+
+      // Render bounding boxes with distance & width x height onto Screen 7 canvas
+      if (descCanvas) {
+        descCanvas.width = cW;
+        descCanvas.height = cH;
+        const dCtx = descCanvas.getContext('2d');
+        dCtx.clearRect(0, 0, cW, cH);
+        browserDetections.forEach(obj => {
+          dCtx.strokeStyle = obj.distance < 1.6 ? '#FF1E44' : '#00F59B';
+          dCtx.lineWidth = 2.5;
+          dCtx.strokeRect(obj.x || 20, obj.y || 20, obj.w || 80, obj.h || 60);
+          const tag = `${obj.icon || '👁️'} ${obj.label} ${obj.distance.toFixed(1)}m (${obj.widthM}×${obj.heightM}m)`;
+          dCtx.font = 'bold 10px system-ui, sans-serif';
+          const tw = dCtx.measureText(tag).width + 10;
+          const tx = Math.max(4, Math.min(cW - tw - 4, obj.x || 20));
+          const ty = Math.max(14, (obj.y || 20) - 4);
+          dCtx.fillStyle = 'rgba(15, 23, 42, 0.9)';
+          dCtx.fillRect(tx, ty - 12, tw, 15);
+          dCtx.fillStyle = '#FFFFFF';
+          dCtx.fillText(tag, tx + 5, ty - 1);
+        });
       }
 
       // Call backend Gemini Multimodal Perception API
@@ -2701,7 +2979,9 @@
               street: userGps.street,
               city: userGps.city,
               heading: userGps.headingCardinal,
-              coords: { lat: userGps.lat, lon: userGps.lon }
+              coords: { lat: userGps.lat, lon: userGps.lon },
+              groundState: currentGroundSurfaceState,
+              trafficLightSignal: currentTrafficLightSignal
             }
           })
         });
@@ -2717,37 +2997,54 @@
 
       if (spinner) spinner.classList.add('hidden');
 
-      // Synthesize detected items
+      // Synthesize detected items with distance, width x height, pedestrian motion, traffic light, and ground state
       let displayItems = [];
       let spokenSummary = "";
+      const groundStatus = currentGroundSurfaceState ? currentGroundSurfaceState.status : 'Flat';
+      const groundDetail = currentGroundSurfaceState ? currentGroundSurfaceState.detail : 'Ground surface ahead is flat and level.';
 
       if (browserDetections.length > 0) {
-        displayItems = browserDetections.map(d => ({
-          icon: getObjectIcon(d.label),
-          text: `${d.label} detected ${d.lane} (${d.confidence}% confidence).`
-        }));
-        displayItems.unshift({
-          icon: '✓',
-          text: `Real-time camera feed active on ${userGps.street || 'sidewalk'}.`
+        displayItems = browserDetections.map(d => {
+          const posStr = d.lane === 'center' ? 'directly ahead' : `on your ${d.lane}`;
+          const dimStr = `${d.widthM || 0.6}m W × ${d.heightM || 1.5}m H`;
+          return {
+            icon: getObjectIcon(d.label),
+            text: `${d.label} ${posStr} • ${d.distance.toFixed(1)}m away (${dimStr})`
+          };
         });
-        spokenSummary = `I see ` + browserDetections.map(d => `${d.label} ${d.lane}`).join(', ') + `.`;
-      } else if (backendData && backendData.objects_detected) {
-        displayItems = backendData.objects_detected.map(o => ({
-          icon: getObjectIcon(o.label),
-          text: `${o.label} ${o.lane || 'ahead'}, approximately ${o.distance_meters || 2}m.`
-        }));
-        displayItems.unshift({
-          icon: '✓',
-          text: backendData.scene_summary || `Sidewalk condition is clear.`
+        displayItems.push({
+          icon: groundStatus === 'Flat' ? '📐' : '⚠️',
+          text: `Ground Surface: ${groundStatus} — ${groundDetail}`
         });
-        spokenSummary = backendData.spoken_description || backendData.scene_summary || "Clear pathway ahead.";
+        if (currentTrafficLightSignal && currentTrafficLightSignal.detected && currentTrafficLightSignal.color !== 'NONE') {
+          displayItems.unshift({
+            icon: getObjectIcon(`traffic light ${currentTrafficLightSignal.color}`),
+            text: `Traffic Light Signal: ${currentTrafficLightSignal.color} (${currentTrafficLightSignal.guidance})`
+          });
+        }
+        spokenSummary = buildLiveSurroundingsSummary();
+      } else if (backendData && backendData.objects_detected && backendData.objects_detected.length > 0) {
+        displayItems = backendData.objects_detected.map(o => {
+          const nomW = metricObjectWidths[(o.label || '').toLowerCase()] || 0.7;
+          const nomH = metricObjectHeights[(o.label || '').toLowerCase()] || 1.4;
+          return {
+            icon: getObjectIcon(o.label),
+            text: `${o.label} ${o.lane || 'ahead'} • ${o.distance_meters || 2.0}m away (${nomW}m W × ${nomH}m H)`
+          };
+        });
+        displayItems.push({
+          icon: groundStatus === 'Flat' ? '📐' : '⚠️',
+          text: `Ground Surface: ${groundStatus} — ${groundDetail}`
+        });
+        spokenSummary = `${backendData.spoken_description || backendData.scene_summary || 'Scene analyzed.'} Ground surface is ${groundStatus.toLowerCase()}.`;
       } else {
         displayItems = [
-          { icon: '✓', text: `Sidewalk on ${userGps.street || 'current path'} is clear.` },
-          { icon: '🚶', text: `Path continues straight for approximately 40 meters.` },
-          { icon: '👁️', text: `Continuous YOLO object detection active.` }
+          { icon: '✓', text: `Sidewalk on ${userGps.street || 'current path'} is clear directly ahead (>4.0m).` },
+          { icon: groundStatus === 'Flat' ? '📐' : '⚠️', text: `Ground Surface: ${groundStatus} — ${groundDetail}` },
+          { icon: '🚦', text: currentTrafficLightSignal && currentTrafficLightSignal.detected ? `Traffic Signal: ${currentTrafficLightSignal.color}` : 'Traffic Signals: None in immediate view.' },
+          { icon: '👁️', text: `Active Detectors: Trees, People (Toward/Away/Crossing), Cars, Lights, Signs, Stairs & Poles.` }
         ];
-        spokenSummary = `Sidewalk on ${userGps.street || 'your path'} is clear directly ahead. No immediate obstacles in your path.`;
+        spokenSummary = buildLiveSurroundingsSummary();
       }
 
       lastSceneDescription = spokenSummary;
@@ -2774,13 +3071,22 @@
     let lidarDepthHeatmapActive = false;
 
     function getLidarSceneDescription() {
-      if (currentLidarDistance <= 3.5) {
+      if (lastLiveDetections && lastLiveDetections.length > 0) {
+        return buildLiveSurroundingsSummary();
+      }
+      if (lastSceneDescription && !userManuallyAdjustedLidarBench) {
+        return lastSceneDescription;
+      }
+      if (userManuallyAdjustedLidarBench && currentLidarDistance <= 3.5) {
         const rounded = Math.round(currentLidarDistance);
         const distWord = rounded <= 1 ? "one meter" : `${rounded} meters`;
         const sideWord = currentLidarLane === 'center' ? 'directly ahead' : (currentLidarLane === 'left' ? 'ahead on your left' : 'ahead on your right');
-        return `There is a ${currentLidarObject.toLowerCase()} approximately ${distWord} ${sideWord}.`;
+        const nomW = metricObjectWidths[(currentLidarObject || '').toLowerCase()] || 0.6;
+        const nomH = metricObjectHeights[(currentLidarObject || '').toLowerCase()] || 1.2;
+        const groundStatus = currentGroundSurfaceState ? currentGroundSurfaceState.status.toLowerCase() : 'flat';
+        return `There is a ${currentLidarObject.toLowerCase()} approximately ${distWord} ${sideWord} (${nomW} meters wide by ${nomH} meters tall). Ground surface is ${groundStatus}.`;
       }
-      return "Pedestrian pathway clear directly ahead. Sidewalk continues for 41 meters. No immediate obstacles detected in your lane.";
+      return buildLiveSurroundingsSummary();
     }
 
     function evaluateLidarDanger(dist, lane, label) {
@@ -2967,7 +3273,9 @@
 
       const cardSub = document.getElementById('obstacle-card-sub');
       if (cardSub) {
-        cardSub.innerText = `${currentLidarLane === 'center' ? 'Directly ahead' : 'On ' + currentLidarLane}, ${currentLidarDistance.toFixed(1)}m.`;
+        const nomW = metricObjectWidths[(currentLidarObject || '').toLowerCase()] || 0.6;
+        const nomH = metricObjectHeights[(currentLidarObject || '').toLowerCase()] || 1.2;
+        cardSub.innerText = `${currentLidarLane === 'center' ? 'Directly ahead' : 'On ' + currentLidarLane}, ${currentLidarDistance.toFixed(1)}m (${nomW}m W × ${nomH}m H).`;
       }
 
       const cardDistBadge = document.getElementById('obstacle-card-dist-badge');
@@ -3003,18 +3311,22 @@
     }
 
     function testLidarScenario(distance, objectLabel, lane, dangerName) {
+      userManuallyAdjustedLidarBench = true;
       updateLidarState(distance, objectLabel, lane, true);
     }
 
     function handleLidarSlider(val) {
+      userManuallyAdjustedLidarBench = true;
       updateLidarState(val, currentLidarObject, currentLidarLane, false);
     }
 
     function handleLidarObjectChange(val) {
+      userManuallyAdjustedLidarBench = true;
       updateLidarState(currentLidarDistance, val, currentLidarLane, false);
     }
 
     function handleLidarLaneChange(val) {
+      userManuallyAdjustedLidarBench = true;
       updateLidarState(currentLidarDistance, currentLidarObject, val, false);
     }
 
@@ -3887,6 +4199,7 @@
       (rawDetections || []).forEach(d => {
         if (d.rawClass !== 'person') return;
         d.isPerson = true;
+        computeObjectMetricDimensions(d);
         const cx = d.x + d.w / 2;
         const cy = d.y + d.h / 2;
 
@@ -3902,36 +4215,91 @@
         }
 
         if (matchedTrack) {
-          const totalShiftPx = Math.hypot(cx - matchedTrack.anchorCx, cy - matchedTrack.anchorCy);
-          const distShiftM = Math.abs(d.distance - matchedTrack.anchorDist);
+          const dx = cx - matchedTrack.anchorCx;
+          const dy = cy - matchedTrack.anchorCy;
+          const totalShiftPx = Math.hypot(dx, dy);
+          const dDist = d.distance - matchedTrack.anchorDist; // negative = approaching user, positive = moving away
+          const distShiftM = Math.abs(dDist);
+          const boxScaleRatio = d.h / Math.max(12, matchedTrack.anchorH || d.h);
+
           matchedTrack.cx = cx;
           matchedTrack.cy = cy;
           matchedTrack.lastDist = d.distance;
           matchedTrack.lastSeen = now;
           matchedTrack.framesSeen = (matchedTrack.framesSeen || 1) + 1;
 
-          // If person has barely moved across frames (< 6.5% screen width and < 0.45m depth change), they are STANDING STILL in one place
-          const isStationary = (totalShiftPx < cW * 0.065 && distShiftM < 0.45);
-          if (isStationary) {
-            d.isPersonStanding = true;
-            d.label = 'Person Standing';
-            d.rawClass = 'person standing';
-            d.icon = '🧍';
-          } else {
+          // 1. Pedestrian Crossing Path (significant lateral movement across forward corridor)
+          if (Math.abs(dx) >= cW * 0.075 && Math.abs(dx) > Math.abs(dy) * 1.1) {
             d.isPersonStanding = false;
-            d.label = 'Person Walking';
-            d.rawClass = 'person walking';
-            d.icon = '🚶';
-            // Reset anchor to current position for continuous motion comparison
+            d.isPersonCrossing = true;
+            d.pedestrianMotion = 'crossing_path';
+            d.personMotion = 'crossing_path';
+            d.label = 'Person Crossing Path';
+            d.rawClass = 'person crossing path';
+            d.icon = '🚶↔️';
+            d.spokenGuidance = `Caution: Pedestrian crossing your path ahead at ${d.distance.toFixed(1)} meters.`;
             matchedTrack.anchorCx = cx;
             matchedTrack.anchorCy = cy;
             matchedTrack.anchorDist = d.distance;
+            matchedTrack.anchorH = d.h;
+          }
+          // 2. Pedestrian Walking Toward User (distance shrinking or bounding box expanding)
+          else if (dDist <= -0.25 || boxScaleRatio >= 1.09) {
+            d.isPersonStanding = false;
+            d.isPersonApproaching = true;
+            d.pedestrianMotion = 'walking_toward';
+            d.personMotion = 'walking_toward';
+            d.label = 'Person Approaching';
+            d.rawClass = 'person approaching';
+            d.icon = '🚶⬆️';
+            d.spokenGuidance = `Caution: Pedestrian walking toward you at ${d.distance.toFixed(1)} meters on your ${d.lane}.`;
+            matchedTrack.anchorCx = cx;
+            matchedTrack.anchorCy = cy;
+            matchedTrack.anchorDist = d.distance;
+            matchedTrack.anchorH = d.h;
+          }
+          // 3. Pedestrian Moving Away (distance increasing or bounding box shrinking)
+          else if (dDist >= 0.25 || boxScaleRatio <= 0.91) {
+            d.isPersonStanding = false;
+            d.isPersonMovingAway = true;
+            d.pedestrianMotion = 'moving_away';
+            d.personMotion = 'moving_away';
+            d.label = 'Person Moving Away';
+            d.rawClass = 'person moving away';
+            d.icon = '🚶⬇️';
+            d.spokenGuidance = `Pedestrian moving away ahead at ${d.distance.toFixed(1)} meters.`;
+            matchedTrack.anchorCx = cx;
+            matchedTrack.anchorCy = cy;
+            matchedTrack.anchorDist = d.distance;
+            matchedTrack.anchorH = d.h;
+          }
+          // 4. Stationary Person Standing Still in One Place
+          else if (totalShiftPx < cW * 0.065 && distShiftM < 0.25) {
+            d.isPersonStanding = true;
+            d.pedestrianMotion = 'standing';
+            d.personMotion = 'standing';
+            d.label = 'Person Standing';
+            d.rawClass = 'person standing';
+            d.icon = '🧍';
+            d.spokenGuidance = `Caution: A person is standing still ${d.distance.toFixed(1)} meters ${d.lane === 'center' ? 'ahead in your path' : 'on your ' + d.lane}.`;
+          } else {
+            d.isPersonStanding = false;
+            d.pedestrianMotion = 'walking';
+            d.personMotion = 'walking';
+            d.label = 'Person Walking';
+            d.rawClass = 'person walking';
+            d.icon = '🚶';
+            matchedTrack.anchorCx = cx;
+            matchedTrack.anchorCy = cy;
+            matchedTrack.anchorDist = d.distance;
+            matchedTrack.anchorH = d.h;
           }
         } else {
           personMotionHistory.push({
             anchorCx: cx,
             anchorCy: cy,
             anchorDist: d.distance,
+            anchorH: d.h,
             cx: cx,
             cy: cy,
             lastDist: d.distance,
@@ -3941,11 +4309,15 @@
           // If a person is detected close in the user's forward corridor on frame 1, immediately flag as Person Standing so user doesn't bump into them
           if (d.distance <= 2.8) {
             d.isPersonStanding = true;
+            d.pedestrianMotion = 'standing';
+            d.personMotion = 'standing';
             d.label = 'Person Standing';
             d.rawClass = 'person standing';
             d.icon = '🧍';
           } else {
             d.isPersonStanding = false;
+            d.pedestrianMotion = 'standing';
+            d.personMotion = 'standing';
             d.label = 'Person';
             d.icon = '👤';
           }
@@ -4023,7 +4395,7 @@
             const holeDist = parseFloat((2.8 - normBottom * 1.9).toFixed(1));
             const holeLane = centerX < cW * 0.35 ? 'left' : (centerX > cW * 0.65 ? 'right' : 'center');
 
-            groundAndTunnelObjs.push({
+            groundAndTunnelObjs.push(computeObjectMetricDimensions({
               label: 'Depth Hole / Drop-off',
               rawClass: 'depth hole',
               icon: '🕳️',
@@ -4033,10 +4405,12 @@
               h: boxH,
               conf: 0.94,
               distance: holeDist,
+              widthM: 0.8,
+              heightM: 0.4,
               lane: holeLane,
               isDepthHole: true,
               spokenGuidance: `Danger: Ground depth hole or drop-off detected ${holeDist.toFixed(1)} meters ahead in ${holeLane} path! Step around carefully.`
-            });
+            }));
           }
         }
 
@@ -4080,7 +4454,7 @@
         const isVisualTunnelPortal = (portalMean < 64 && sideWallMean > portalMean + 36 && stairRiserEdges >= 4);
 
         if (hasUnderpassSign || isVisualTunnelPortal) {
-          groundAndTunnelObjs.push({
+          groundAndTunnelObjs.push(computeObjectMetricDimensions({
             label: 'Tunnel Going Down',
             rawClass: 'tunnel going down',
             icon: '🚇',
@@ -4090,15 +4464,295 @@
             h: cH * 0.44,
             conf: 0.93,
             distance: 2.4,
+            widthM: 2.4,
+            heightM: 2.2,
             lane: 'center',
             isTunnelDown: true,
             spokenGuidance: 'Two moves ahead: Move 1 is normal surface walk to Bus Stop. Move 2 is tunnel going down into the underpass.'
-          });
+          }));
         }
       } catch (err) {
         console.warn('[YOLO Depth Hole & Tunnel Detector] Notice:', err);
       }
       return groundAndTunnelObjs;
+    }
+
+    function detectTrafficLightsStairsPolesAndGroundInFrame(video, cW, cH, rawDetections) {
+      const extraObjs = [];
+      try {
+        if (!video || video.readyState < 2 || !(video.videoWidth > 0)) {
+          return extraObjs;
+        }
+        if (!crosswalkScanCanvas) {
+          crosswalkScanCanvas = document.createElement('canvas');
+          crosswalkScanCanvas.width = 80;
+          crosswalkScanCanvas.height = 60;
+          crosswalkScanCtx = crosswalkScanCanvas.getContext('2d', { willReadFrequently: true });
+        }
+        const sW = 80;
+        const sH = 60;
+        crosswalkScanCtx.drawImage(video, 0, 0, sW, sH);
+        const frameData = crosswalkScanCtx.getImageData(0, 0, sW, sH).data;
+
+        const lum = new Float32Array(sW * sH);
+        for (let i = 0; i < sW * sH; i++) {
+          const idx = i * 4;
+          lum[i] = 0.299 * frameData[idx] + 0.587 * frameData[idx + 1] + 0.114 * frameData[idx + 2];
+        }
+
+        // --- 1. Traffic Light Detection & Signal Color Identification (🔴 RED / 🟡 YELLOW / 🟢 GREEN) ---
+        let cocoTrafficLight = (rawDetections || []).find(d => d.rawClass === 'traffic light');
+        let tlSignalColor = 'NONE';
+        let tlDist = cocoTrafficLight ? cocoTrafficLight.distance : null;
+        let tlLane = cocoTrafficLight ? cocoTrafficLight.lane : 'center';
+
+        const analyzeBoxForSignalColor = (minX, maxX, minY, maxY) => {
+          let redScore = 0, yellowScore = 0, greenScore = 0;
+          const spanH = Math.max(3, maxY - minY);
+          for (let y = minY; y <= maxY; y++) {
+            const relY = (y - minY) / spanH;
+            for (let x = minX; x <= maxX; x++) {
+              const idx = (y * sW + x) * 4;
+              const r = frameData[idx];
+              const g = frameData[idx + 1];
+              const b = frameData[idx + 2];
+              // Bright Red emitter (prefer upper half of signal head)
+              if (r > 170 && r > g + 55 && r > b + 55 && relY <= 0.65) {
+                redScore += (relY < 0.42 ? 2.0 : 1.0);
+              }
+              // Bright Amber / Yellow emitter (prefer middle of signal head)
+              if (r > 175 && g > 135 && b < 85 && Math.abs(r - g) < 55 && relY >= 0.22 && relY <= 0.78) {
+                yellowScore += 1.6;
+              }
+              // Bright Green / Cyan pedestrian walk emitter (prefer lower half of signal head)
+              if (g > 155 && g > r + 35 && g >= b - 20 && relY >= 0.35) {
+                greenScore += (relY > 0.55 ? 2.0 : 1.0);
+              }
+            }
+          }
+          if (redScore >= 3 && redScore >= yellowScore && redScore >= greenScore) return 'RED';
+          if (greenScore >= 3 && greenScore > redScore && greenScore >= yellowScore) return 'GREEN';
+          if (yellowScore >= 3 && yellowScore > redScore && yellowScore > greenScore) return 'YELLOW';
+          return 'NONE';
+        };
+
+        if (cocoTrafficLight) {
+          const bMinX = Math.max(1, Math.min(sW - 2, Math.floor((cocoTrafficLight.x / cW) * sW)));
+          const bMaxX = Math.max(bMinX + 2, Math.min(sW - 1, Math.ceil(((cocoTrafficLight.x + cocoTrafficLight.w) / cW) * sW)));
+          const bMinY = Math.max(1, Math.min(sH - 2, Math.floor((cocoTrafficLight.y / cH) * sH)));
+          const bMaxY = Math.max(bMinY + 3, Math.min(sH - 1, Math.ceil(((cocoTrafficLight.y + cocoTrafficLight.h) / cH) * sH)));
+          tlSignalColor = analyzeBoxForSignalColor(bMinX, bMaxX, bMinY, bMaxY);
+          if (tlSignalColor === 'NONE') tlSignalColor = 'RED'; // Default conservative safety signal if housing detected
+          cocoTrafficLight.isTrafficLight = true;
+          cocoTrafficLight.signalColor = tlSignalColor;
+          cocoTrafficLight.label = `Traffic Light (${tlSignalColor})`;
+          cocoTrafficLight.icon = tlSignalColor === 'RED' ? '🔴' : (tlSignalColor === 'YELLOW' ? '🟡' : '🟢');
+          cocoTrafficLight.spokenGuidance = tlSignalColor === 'RED'
+            ? `Red traffic light detected at ${cocoTrafficLight.distance.toFixed(1)} meters. Stop at curb and wait.`
+            : (tlSignalColor === 'GREEN'
+                ? `Green traffic light detected at ${cocoTrafficLight.distance.toFixed(1)} meters. Check for turning vehicles before crossing.`
+                : `Yellow traffic light at ${cocoTrafficLight.distance.toFixed(1)} meters. Prepare to stop at curb.`);
+        } else {
+          // Pixel-level scan in upper intersection region (y: 4..28, x: 12..68) for dark signal housing + glowing emitter
+          let bestColor = 'NONE';
+          let bestX = -1, bestY = -1;
+          for (let y = 5; y <= 26; y += 2) {
+            for (let x = 14; x <= 66; x += 2) {
+              // Check for dark housing surround
+              const housingLum = lum[y * sW + x];
+              if (housingLum < 62) {
+                const col = analyzeBoxForSignalColor(Math.max(2, x - 3), Math.min(sW - 2, x + 3), Math.max(2, y - 4), Math.min(sH - 2, y + 6));
+                if (col !== 'NONE') {
+                  bestColor = col;
+                  bestX = x;
+                  bestY = y;
+                  break;
+                }
+              }
+            }
+            if (bestColor !== 'NONE') break;
+          }
+          if (bestColor !== 'NONE' && bestX > 0) {
+            tlSignalColor = bestColor;
+            const boxW = cW * 0.14;
+            const boxH = cH * 0.18;
+            const boxX = Math.max(8, Math.min(cW - boxW - 8, (bestX / sW) * cW - boxW / 2));
+            const boxY = Math.max(8, Math.min(cH * 0.45, (bestY / sH) * cH - boxH / 3));
+            tlDist = 3.2;
+            tlLane = (boxX + boxW / 2) < cW * 0.35 ? 'left' : ((boxX + boxW / 2) > cW * 0.65 ? 'right' : 'center');
+            extraObjs.push(computeObjectMetricDimensions({
+              label: `Traffic Light (${tlSignalColor})`,
+              rawClass: 'traffic light',
+              icon: tlSignalColor === 'RED' ? '🔴' : (tlSignalColor === 'YELLOW' ? '🟡' : '🟢'),
+              x: boxX, y: boxY, w: boxW, h: boxH,
+              conf: 0.91,
+              distance: tlDist,
+              widthM: 0.35,
+              heightM: 0.90,
+              lane: tlLane,
+              isTrafficLight: true,
+              signalColor: tlSignalColor,
+              spokenGuidance: tlSignalColor === 'RED'
+                ? `Red traffic light ahead (${tlDist}m). Wait on curb.`
+                : (tlSignalColor === 'GREEN'
+                    ? `Green traffic light ahead (${tlDist}m). Verify traffic is stopped before crossing.`
+                    : `Yellow traffic light ahead (${tlDist}m). Do not start crossing.`)
+            }));
+          }
+        }
+
+        if (tlSignalColor !== 'NONE') {
+          currentTrafficLightSignal = {
+            detected: true,
+            color: tlSignalColor,
+            distance: tlDist || 3.0,
+            lane: tlLane,
+            confidence: 0.94,
+            guidance: tlSignalColor === 'RED'
+              ? 'STOP — Red signal active'
+              : (tlSignalColor === 'GREEN' ? 'WALK — Green signal active (check turning cars)' : 'WAIT — Yellow signal changing')
+          };
+        } else {
+          currentTrafficLightSignal = {
+            detected: false,
+            color: 'NONE',
+            distance: null,
+            lane: 'center',
+            confidence: 0,
+            guidance: 'No traffic light signal currently in camera view.'
+          };
+        }
+
+        // --- 2. Stairs Detector (🪜 Stairs) ---
+        const hasStairsAlready = (rawDetections || []).some(d => d.rawClass === 'stairs' || d.isStairs || d.isTunnelDown);
+        if (!hasStairsAlready) {
+          let stepRiserRows = 0;
+          let stMinY = sH, stMaxY = 0;
+          for (let y = 28; y <= 52; y++) {
+            let horizEdges = 0;
+            for (let x = 22; x <= 58; x++) {
+              const diffV = Math.abs(lum[y * sW + x] - lum[(y - 1) * sW + x]);
+              const diffH = Math.abs(lum[y * sW + x] - lum[y * sW + (x - 1)]);
+              if (diffV > 24 && diffH < 12) horizEdges++;
+            }
+            if (horizEdges >= 18) {
+              stepRiserRows++;
+              if (y < stMinY) stMinY = y;
+              if (y > stMaxY) stMaxY = y;
+            }
+          }
+          if (stepRiserRows >= 4 && (stMaxY - stMinY) >= 6) {
+            const boxW = cW * 0.52;
+            const boxH = Math.max(cH * 0.18, ((stMaxY - stMinY + 4) / sH) * cH);
+            const boxX = (cW - boxW) / 2;
+            const boxY = Math.max(cH * 0.42, (stMinY / sH) * cH);
+            const stairsDist = parseFloat(Math.max(1.1, Math.min(3.8, 3.4 - ((stMaxY - 28) / 24) * 2.0)).toFixed(1));
+            extraObjs.push(computeObjectMetricDimensions({
+              label: 'Stairs',
+              rawClass: 'stairs',
+              icon: '🪜',
+              x: boxX, y: boxY, w: boxW, h: boxH,
+              conf: 0.92,
+              distance: stairsDist,
+              widthM: 1.6,
+              heightM: 1.5,
+              lane: 'center',
+              isStairs: true,
+              spokenGuidance: `Caution: Stairs detected ${stairsDist.toFixed(1)} meters directly ahead (approx 1.6m wide by 1.5m high). Use handrail.`
+            }));
+          }
+        }
+
+        // --- 3. Pole / Utility Post Detector (💈 Pole) ---
+        const hasPoleAlready = (rawDetections || []).some(d => d.rawClass === 'pole' || d.isPole);
+        if (!hasPoleAlready) {
+          let bestPoleX = -1;
+          let bestPoleScore = 0;
+          for (let x = 14; x <= 66; x++) {
+            let vertEdgeRows = 0;
+            for (let y = 12; y <= 48; y++) {
+              const centerLum = lum[y * sW + x];
+              const leftLum = lum[y * sW + Math.max(0, x - 3)];
+              const rightLum = lum[y * sW + Math.min(sW - 1, x + 3)];
+              // Narrow vertical post: distinct from both left and right background by >28 luminance units
+              if (Math.abs(centerLum - leftLum) > 28 && Math.abs(centerLum - rightLum) > 28 && Math.abs(leftLum - rightLum) < 22) {
+                vertEdgeRows++;
+              }
+            }
+            if (vertEdgeRows >= 24 && vertEdgeRows > bestPoleScore) {
+              bestPoleScore = vertEdgeRows;
+              bestPoleX = x;
+            }
+          }
+          if (bestPoleX > 0) {
+            const boxW = Math.max(28, cW * 0.10);
+            const boxH = cH * 0.56;
+            const boxX = Math.max(6, Math.min(cW - boxW - 6, (bestPoleX / sW) * cW - boxW / 2));
+            const boxY = cH * 0.18;
+            const poleLane = (boxX + boxW / 2) < cW * 0.35 ? 'left' : ((boxX + boxW / 2) > cW * 0.65 ? 'right' : 'center');
+            const poleDist = 2.1;
+            extraObjs.push(computeObjectMetricDimensions({
+              label: 'Pole',
+              rawClass: 'pole',
+              icon: '💈',
+              x: boxX, y: boxY, w: boxW, h: boxH,
+              conf: 0.90,
+              distance: poleDist,
+              widthM: 0.2,
+              heightM: 2.2,
+              lane: poleLane,
+              isPole: true,
+              spokenGuidance: `Caution: Vertical pole detected ${poleDist.toFixed(1)} meters ahead on your ${poleLane} (0.2m wide by 2.2m tall).`
+            }));
+          }
+        }
+
+        // --- 4. Ground Surface State Estimation (Flat, Tilted, or Uneven) ---
+        let groundGradSum = 0;
+        let groundSamples = 0;
+        let leftGroundLum = 0, rightGroundLum = 0;
+        for (let y = 38; y <= 55; y++) {
+          for (let x = 16; x <= 64; x++) {
+            const gx = Math.abs(lum[y * sW + x] - lum[y * sW + (x - 1)]);
+            const gy = Math.abs(lum[y * sW + x] - lum[(y - 1) * sW + x]);
+            groundGradSum += (gx + gy);
+            groundSamples++;
+            if (x < 40) leftGroundLum += lum[y * sW + x];
+            else rightGroundLum += lum[y * sW + x];
+          }
+        }
+        const avgGroundRoughness = groundSamples > 0 ? (groundGradSum / groundSamples) : 0;
+        const hasHoleOrStairs = (rawDetections || []).some(d => d.isDepthHole || d.isStairs) || extraObjs.some(d => d.isDepthHole || d.isStairs);
+        const rollAngle = Math.abs(deviceTiltGamma || 0);
+
+        if (hasHoleOrStairs || avgGroundRoughness > 36 || recentAccelJitter > 3.2) {
+          currentGroundSurfaceState = {
+            status: 'Uneven',
+            slopeDeg: parseFloat(rollAngle.toFixed(1)),
+            roughnessScore: parseFloat(avgGroundRoughness.toFixed(1)),
+            detail: hasHoleOrStairs
+              ? 'Ground surface ahead has elevation changes or drop-offs — step carefully.'
+              : 'Ground surface ahead is uneven or rough pavement.'
+          };
+        } else if (rollAngle >= 7.5) {
+          currentGroundSurfaceState = {
+            status: 'Tilted',
+            slopeDeg: parseFloat(rollAngle.toFixed(1)),
+            roughnessScore: parseFloat(avgGroundRoughness.toFixed(1)),
+            detail: `Ground surface is tilted (${rollAngle.toFixed(1)}° lateral/forward slope).`
+          };
+        } else {
+          currentGroundSurfaceState = {
+            status: 'Flat',
+            slopeDeg: parseFloat(rollAngle.toFixed(1)),
+            roughnessScore: parseFloat(avgGroundRoughness.toFixed(1)),
+            detail: 'Ground surface ahead is flat and level.'
+          };
+        }
+      } catch (err) {
+        console.warn('[YOLO TrafficLight/Stairs/Pole/Ground Detector] Notice:', err);
+      }
+      return extraObjs;
     }
 
     async function runYoloPerceptionCycle() {
@@ -4117,7 +4771,7 @@
       let activeObjects = [];
       const now = Date.now();
 
-      // Real Camera + COCO-SSD Neural Object Detection + Standing People + Depth Hole & Tunnel + Zebra Crossing + Road Signs
+      // Real Camera + COCO-SSD Neural Object Detection + Standing/Moving People + Traffic Lights + Stairs & Poles + Depth Hole & Tunnel + Zebra Crossing + Road Signs
       if (isRealCameraActive && video && video.readyState >= 2 && !isDetectingFrame) {
         isDetectingFrame = true;
         try {
@@ -4157,7 +4811,7 @@
 
             const lane = centerX < cW * 0.35 ? 'left' : (centerX > cW * 0.65 ? 'right' : 'center');
 
-            return {
+            return computeObjectMetricDimensions({
               label: p.class.charAt(0).toUpperCase() + p.class.slice(1),
               rawClass: p.class.toLowerCase(),
               icon: getObjectIcon(p.class),
@@ -4168,28 +4822,34 @@
               conf: p.score,
               distance: estimatedDist,
               lane: lane
-            };
+            });
           });
 
-          // Classify People Around User & Standing People (🧍 Person Standing vs 🚶 Person Walking)
+          // Classify People Around User: Walking Toward (🚶⬆️), Moving Away (🚶⬇️), Crossing Path (🚶↔️), or Standing (🧍)
           classifyPeopleAndStandingStatus(rawDetections, cW, cH, now);
 
           // Execute dedicated Zebra Stripe & Crossing Path Spatial Detector on live camera frame
           const crossingObj = detectCrossingPathInFrame(video, cW, cH, rawDetections);
           if (crossingObj) {
-            rawDetections.push(crossingObj);
+            rawDetections.push(computeObjectMetricDimensions(crossingObj));
           }
 
           // Execute dedicated Riga Road Signs & Sidewalk Tree Detector on live camera frame
           const signAndTreeObjs = detectSignsAndTreesInFrame(video, cW, cH, rawDetections);
           if (signAndTreeObjs && signAndTreeObjs.length > 0) {
-            signAndTreeObjs.forEach(item => rawDetections.push(item));
+            signAndTreeObjs.forEach(item => rawDetections.push(computeObjectMetricDimensions(item)));
           }
 
           // Execute Ground Depth Hole / Drop-off & Underpass Tunnel Detector on live camera frame
           const holeAndTunnelObjs = detectDepthHoleAndTunnelInFrame(video, cW, cH, rawDetections);
           if (holeAndTunnelObjs && holeAndTunnelObjs.length > 0) {
-            holeAndTunnelObjs.forEach(item => rawDetections.push(item));
+            holeAndTunnelObjs.forEach(item => rawDetections.push(computeObjectMetricDimensions(item)));
+          }
+
+          // Execute Traffic Lights (RED/YELLOW/GREEN), Stairs, Poles & Ground Surface State (Flat/Tilted/Uneven) Detector
+          const infraObjs = detectTrafficLightsStairsPolesAndGroundInFrame(video, cW, cH, rawDetections);
+          if (infraObjs && infraObjs.length > 0) {
+            infraObjs.forEach(item => rawDetections.push(computeObjectMetricDimensions(item)));
           }
 
           // Temporal Exponential Moving Average (EMA) smoothing using IoU tracking
@@ -4212,16 +4872,16 @@
             });
 
             if (bestMatch) {
-              smoothedObjects.push({
+              smoothedObjects.push(computeObjectMetricDimensions({
                 ...raw,
                 x: bestMatch.x * (1 - alpha) + raw.x * alpha,
                 y: bestMatch.y * (1 - alpha) + raw.y * alpha,
                 w: bestMatch.w * (1 - alpha) + raw.w * alpha,
                 h: bestMatch.h * (1 - alpha) + raw.h * alpha,
                 distance: parseFloat((bestMatch.distance * (1 - alpha) + raw.distance * alpha).toFixed(1))
-              });
+              }));
             } else {
-              smoothedObjects.push(raw);
+              smoothedObjects.push(computeObjectMetricDimensions(raw));
             }
           });
 
@@ -4242,6 +4902,7 @@
 
       // Render Ultra-High Visibility AR YOLO Bounding Boxes & High-Contrast Badges
       activeObjects.forEach(obj => {
+        computeObjectMetricDimensions(obj);
         // Color Matrix calibrated for direct outdoor sunlight & low vision visibility
         let neonColor = '#00F59B'; // Ultra-vivid neon emerald
         let tintFill = 'rgba(0, 245, 155, 0.12)';
@@ -4251,10 +4912,18 @@
           neonColor = '#FF0055'; // High-alert magenta-crimson for ground depth hole / drop-off
           tintFill = 'rgba(255, 0, 85, 0.24)';
           badgeSectorBg = '#BE123C';
+        } else if (obj.isTrafficLight || obj.rawClass === 'traffic light') {
+          neonColor = obj.signalColor === 'RED' ? '#FF1E44' : (obj.signalColor === 'YELLOW' ? '#FACC15' : '#00F59B');
+          tintFill = obj.signalColor === 'RED' ? 'rgba(255, 30, 68, 0.22)' : 'rgba(0, 245, 155, 0.18)';
+          badgeSectorBg = obj.signalColor === 'RED' ? '#DC2626' : '#059669';
         } else if (obj.isTunnelDown || obj.rawClass === 'tunnel going down') {
           neonColor = '#38BDF8'; // Electric sky-blue for tunnel going down
           tintFill = 'rgba(56, 189, 248, 0.18)';
           badgeSectorBg = '#0369A1';
+        } else if (obj.isPersonCrossing || obj.isPersonApproaching) {
+          neonColor = '#FF1E44'; // High-alert crimson for pedestrian crossing or walking toward user
+          tintFill = 'rgba(255, 30, 68, 0.22)';
+          badgeSectorBg = '#DC2626';
         } else if (obj.isPersonStanding) {
           neonColor = obj.distance < 2.2 ? '#FF1E44' : '#FB923C'; // High-contrast orange/red for stationary person
           tintFill = obj.distance < 2.2 ? 'rgba(255, 30, 68, 0.20)' : 'rgba(251, 146, 60, 0.18)';
@@ -4373,14 +5042,14 @@
           ctx.stroke();
         });
 
-        // 5. High-Contrast Sunlight-Legible HUD Badge Pill
+        // 5. High-Contrast Sunlight-Legible HUD Badge Pill (includes Distance + Width × Height)
         const distStr = `${obj.distance.toFixed(1)}m`;
-        const confPct = Math.round((obj.conf || 0.92) * 100);
-        const pillText = `${obj.icon} ${obj.label} • ${distStr} (${confPct}%)`;
+        const dimStr = `${obj.widthM || 0.6}×${obj.heightM || 1.5}m`;
+        const pillText = `${obj.icon} ${obj.label} • ${distStr} [${dimStr}]`;
 
-        ctx.font = 'bold 13px system-ui, -apple-system, sans-serif';
+        ctx.font = 'bold 12px system-ui, -apple-system, sans-serif';
         const labelWidth = ctx.measureText(pillText).width;
-        const pillW = Math.max(130, labelWidth + 28);
+        const pillW = Math.max(135, labelWidth + 28);
         const pillH = 26;
         const pillX = Math.max(6, Math.min(canvas.width - pillW - 6, obj.x));
         const pillY = Math.max(8, obj.y - pillH - 6);
@@ -4410,11 +5079,11 @@
         ctx.fill();
 
         ctx.fillStyle = '#FFFFFF';
-        ctx.font = 'bold 12px system-ui, -apple-system, sans-serif';
-        ctx.fillText(pillText, pillX + 22, pillY + 17);
+        ctx.font = 'bold 11.5px system-ui, -apple-system, sans-serif';
+        ctx.fillText(pillText, pillX + 20, pillY + 17);
       });
 
-      // Multi-Lane Corridor, People Around, Standing People, Depth Hole & Dual-Move Analysis
+      // Multi-Lane Corridor, People Around (Toward/Away/Crossing/Standing), Traffic Lights, Stairs/Poles, Ground State & Dual-Move Analysis
       let minLeftDist = 5.0;
       let minCenterDist = 5.0;
       let minRightDist = 5.0;
@@ -4424,11 +5093,21 @@
       let detectedTree = null;
       let detectedDepthHole = null;
       let detectedTunnelDown = null;
+      let detectedTrafficLight = null;
+      let detectedStairs = null;
+      let detectedPole = null;
       const peopleAround = [];
       const standingPeople = [];
+      const approachingOrCrossingPeople = [];
       const solidObstacles = [];
 
       activeObjects.forEach(obj => {
+        if (obj.isTrafficLight || obj.rawClass === 'traffic light') {
+          if (!detectedTrafficLight || obj.distance < detectedTrafficLight.distance) {
+            detectedTrafficLight = obj;
+          }
+          return;
+        }
         if (obj.isCrossingPath || obj.rawClass === 'crossing path' || obj.rawClass === 'crosswalk') {
           if (!detectedCrossing || obj.distance < detectedCrossing.distance) {
             detectedCrossing = obj;
@@ -4452,10 +5131,23 @@
             detectedDepthHole = obj;
           }
         }
+        if (obj.isStairs || obj.rawClass === 'stairs') {
+          if (!detectedStairs || obj.distance < detectedStairs.distance) {
+            detectedStairs = obj;
+          }
+        }
+        if (obj.isPole || obj.rawClass === 'pole') {
+          if (!detectedPole || obj.distance < detectedPole.distance) {
+            detectedPole = obj;
+          }
+        }
         if (obj.isPerson || obj.rawClass.includes('person')) {
           peopleAround.push(obj);
           if (obj.isPersonStanding) {
             standingPeople.push(obj);
+          }
+          if (obj.isPersonApproaching || obj.isPersonCrossing) {
+            approachingOrCrossingPeople.push(obj);
           }
         }
         if (obj.isTree || obj.rawClass === 'tree') {
@@ -4482,10 +5174,14 @@
       currentLidarDepthLeft = minLeftDist;
       currentLidarDepthRight = minRightDist;
 
-      // Update Dual-Move & People Around / Ground Depth Badges
+      // Update Dual-Move & People Around / Ground Surface / Traffic Light Badges
       const peopleBadge = document.getElementById('nav-people-around-badge');
       if (peopleBadge) {
-        if (peopleAround.length > 0) {
+        if (approachingOrCrossingPeople.length > 0) {
+          const p0 = approachingOrCrossingPeople[0];
+          peopleBadge.innerText = `${p0.icon || '🚶⬆️'} ${peopleAround.length} (${p0.pedestrianMotion === 'crossing_path' ? 'Crossing' : 'Toward'})`;
+          peopleBadge.className = 'px-1.5 py-0.5 rounded-full text-[9px] font-mono font-bold bg-rose-500/35 text-rose-200 border border-rose-400';
+        } else if (peopleAround.length > 0) {
           peopleBadge.innerText = standingPeople.length > 0
             ? `🧍 ${peopleAround.length} (${standingPeople.length} Standing)`
             : `👥 ${peopleAround.length} Around`;
@@ -4498,16 +5194,52 @@
         }
       }
 
+      const tlBadge = document.getElementById('nav-traffic-light-badge');
+      if (tlBadge) {
+        if (currentTrafficLightSignal && currentTrafficLightSignal.detected && currentTrafficLightSignal.color !== 'NONE') {
+          const c = currentTrafficLightSignal.color;
+          tlBadge.innerText = c === 'RED' ? '🔴 Signal: RED' : (c === 'YELLOW' ? '🟡 Signal: YELLOW' : '🟢 Signal: GREEN');
+          tlBadge.className = c === 'RED'
+            ? 'px-1.5 py-0.5 rounded-full text-[9px] font-mono font-bold bg-red-600/40 text-red-200 border border-red-400 animate-pulse'
+            : (c === 'YELLOW'
+                ? 'px-1.5 py-0.5 rounded-full text-[9px] font-mono font-bold bg-amber-500/40 text-amber-200 border border-amber-400'
+                : 'px-1.5 py-0.5 rounded-full text-[9px] font-mono font-bold bg-emerald-600/40 text-emerald-200 border border-emerald-400');
+        } else {
+          tlBadge.innerText = '🚦 Signal: None';
+          tlBadge.className = 'px-1.5 py-0.5 rounded-full text-[9px] font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30';
+        }
+      }
+
+      const cwSignalPill = document.getElementById('crosswalk-traffic-signal-pill');
+      if (cwSignalPill && currentTrafficLightSignal) {
+        if (currentTrafficLightSignal.detected && currentTrafficLightSignal.color !== 'NONE') {
+          const c = currentTrafficLightSignal.color;
+          cwSignalPill.innerText = `🚦 Signal: ${c} — ${currentTrafficLightSignal.guidance}`;
+          cwSignalPill.className = c === 'RED'
+            ? 'px-3 py-1 rounded-full text-[11px] font-extrabold bg-red-600 text-white border border-red-300 mb-2 shadow-sm animate-pulse'
+            : (c === 'YELLOW'
+                ? 'px-3 py-1 rounded-full text-[11px] font-extrabold bg-amber-500 text-slate-950 border border-amber-300 mb-2 shadow-sm'
+                : 'px-3 py-1 rounded-full text-[11px] font-extrabold bg-emerald-600 text-white border border-emerald-300 mb-2 shadow-sm');
+        }
+      }
+
       const depthHoleBadge = document.getElementById('nav-depth-hole-badge');
       if (depthHoleBadge) {
+        const gStat = currentGroundSurfaceState ? currentGroundSurfaceState.status : 'Flat';
         if (detectedDepthHole) {
           depthHoleBadge.innerText = `🕳️ Hole ${detectedDepthHole.distance.toFixed(1)}m`;
           depthHoleBadge.className = 'px-1.5 py-0.5 rounded-full text-[9px] font-mono font-bold bg-rose-600/40 text-rose-200 border border-rose-400 animate-pulse';
         } else if (detectedTunnelDown || activeDualMovePath === 'tunnel_down') {
           depthHoleBadge.innerText = '🚇 Tunnel Down';
           depthHoleBadge.className = 'px-1.5 py-0.5 rounded-full text-[9px] font-mono font-bold bg-cyan-500/30 text-cyan-200 border border-cyan-400';
+        } else if (gStat === 'Uneven') {
+          depthHoleBadge.innerText = 'Ground: Uneven';
+          depthHoleBadge.className = 'px-1.5 py-0.5 rounded-full text-[9px] font-mono font-bold bg-amber-500/35 text-amber-200 border border-amber-400';
+        } else if (gStat === 'Tilted') {
+          depthHoleBadge.innerText = `Ground: Tilted (${currentGroundSurfaceState.slopeDeg}°)`;
+          depthHoleBadge.className = 'px-1.5 py-0.5 rounded-full text-[9px] font-mono font-bold bg-yellow-500/30 text-yellow-200 border border-yellow-400';
         } else {
-          depthHoleBadge.innerText = 'Ground: Level';
+          depthHoleBadge.innerText = 'Ground: Flat';
           depthHoleBadge.className = 'px-1.5 py-0.5 rounded-full text-[9px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30';
         }
       }
@@ -4516,8 +5248,9 @@
         ['car', 'bus', 'truck', 'motorcycle', 'bicycle'].includes(o.rawClass) && o.distance < 5.0
       );
 
-      // Find closest standing person in or near walking path (so user never bumps into someone standing still)
+      // Find closest standing or approaching/crossing person in or near walking path
       const closestStandingPerson = standingPeople.sort((a, b) => a.distance - b.distance)[0] || null;
+      const closestApproachingOrCrossingPerson = approachingOrCrossingPeople.sort((a, b) => a.distance - b.distance)[0] || null;
       const closestPersonAny = peopleAround.sort((a, b) => a.distance - b.distance)[0] || null;
 
       // Intelligent Spatial Direction Decision (WHERE TO WALK)
@@ -4538,6 +5271,26 @@
         guidanceSpoken = `Danger! Ground depth hole or drop-off detected ${detectedDepthHole.distance.toFixed(1)} meters ahead on your ${detectedDepthHole.lane === 'center' ? 'center path' : detectedDepthHole.lane}. Step ${safeSide.toLowerCase()} to avoid it.`;
         guidanceKey = `depth_hole_${detectedDepthHole.lane}`;
         guidanceDist = detectedDepthHole.distance;
+      } else if (detectedTrafficLight && detectedTrafficLight.signalColor === 'RED' && detectedTrafficLight.distance <= 4.5) {
+        directionStatus = `RED TRAFFIC LIGHT (${detectedTrafficLight.distance.toFixed(1)}m) • STOP AT CURB`;
+        directionArrow = '🔴';
+        statusClass = 'text-red-400 font-extrabold animate-pulse';
+        borderClass = 'border-red-500';
+        guidanceSpoken = `Stop at curb! Red traffic light ahead at ${detectedTrafficLight.distance.toFixed(1)} meters.`;
+        guidanceKey = 'traffic_light_red';
+        guidanceDist = detectedTrafficLight.distance;
+      } else if (closestApproachingOrCrossingPerson && closestApproachingOrCrossingPerson.distance <= 3.8) {
+        const p = closestApproachingOrCrossingPerson;
+        const avoidDir = p.lane === 'left' ? 'RIGHT' : (p.lane === 'right' ? 'LEFT' : (minLeftDist >= minRightDist ? 'LEFT' : 'RIGHT'));
+        directionStatus = p.isPersonCrossing
+          ? `PERSON CROSSING PATH (${p.distance.toFixed(1)}m) • YIELD / STEP ${avoidDir}`
+          : `PERSON WALKING TOWARD YOU (${p.distance.toFixed(1)}m ${p.lane.toUpperCase()}) • KEEP ${avoidDir}`;
+        directionArrow = p.icon || '🚶⬆️';
+        statusClass = 'text-rose-300 font-extrabold';
+        borderClass = 'border-rose-400';
+        guidanceSpoken = p.spokenGuidance || `Caution: ${p.label} at ${p.distance.toFixed(1)} meters. Keep ${avoidDir.toLowerCase()}.`;
+        guidanceKey = `person_motion_${p.pedestrianMotion}_${p.lane}`;
+        guidanceDist = p.distance;
       } else if (closestStandingPerson && closestStandingPerson.distance <= 3.2) {
         const avoidDir = closestStandingPerson.lane === 'left' ? 'RIGHT' : (closestStandingPerson.lane === 'right' ? 'LEFT' : (minLeftDist >= minRightDist ? 'LEFT' : 'RIGHT'));
         const posPhrase = closestStandingPerson.lane === 'center' ? 'ahead in your path' : `on your ${closestStandingPerson.lane}`;
@@ -4548,15 +5301,40 @@
         guidanceSpoken = `Caution: A person is standing still ${closestStandingPerson.distance.toFixed(1)} meters ${posPhrase}. Step ${avoidDir.toLowerCase()} so you do not bump into them.`;
         guidanceKey = `person_standing_${closestStandingPerson.lane}`;
         guidanceDist = closestStandingPerson.distance;
+      } else if (detectedStairs && detectedStairs.distance <= 3.4) {
+        directionStatus = `STAIRS AHEAD (${detectedStairs.distance.toFixed(1)}m • ${detectedStairs.widthM}×${detectedStairs.heightM}m)`;
+        directionArrow = '🪜';
+        statusClass = 'text-amber-300 font-extrabold';
+        borderClass = 'border-amber-400';
+        guidanceSpoken = detectedStairs.spokenGuidance || `Caution: Stairs detected ${detectedStairs.distance.toFixed(1)} meters ahead.`;
+        guidanceKey = 'stairs_ahead';
+        guidanceDist = detectedStairs.distance;
+      } else if (detectedPole && detectedPole.distance <= 2.8) {
+        const avoidDir = detectedPole.lane === 'left' ? 'RIGHT' : 'LEFT';
+        directionStatus = `POLE AHEAD (${detectedPole.distance.toFixed(1)}m ${detectedPole.lane.toUpperCase()}) • STEP ${avoidDir}`;
+        directionArrow = '💈';
+        statusClass = 'text-amber-300 font-bold';
+        borderClass = 'border-amber-400';
+        guidanceSpoken = detectedPole.spokenGuidance || `Caution: Pole ahead at ${detectedPole.distance.toFixed(1)} meters on your ${detectedPole.lane}. Step ${avoidDir.toLowerCase()}.`;
+        guidanceKey = `pole_${detectedPole.lane}`;
+        guidanceDist = detectedPole.distance;
       } else if (closestPersonAny && closestPersonAny.distance <= 4.0) {
         const posPhrase = closestPersonAny.lane === 'center' ? 'ahead' : `on your ${closestPersonAny.lane}`;
-        directionStatus = `PERSON AROUND (${closestPersonAny.distance.toFixed(1)}m ${closestPersonAny.lane.toUpperCase()}) • KEEP CLEAR`;
-        directionArrow = '🚶';
+        directionStatus = `${closestPersonAny.label.toUpperCase()} (${closestPersonAny.distance.toFixed(1)}m ${closestPersonAny.lane.toUpperCase()})`;
+        directionArrow = closestPersonAny.icon || '🚶';
         statusClass = 'text-sky-300 font-bold';
         borderClass = 'border-sky-400';
-        guidanceSpoken = `Person detected ${closestPersonAny.distance.toFixed(1)} meters ${posPhrase}.`;
+        guidanceSpoken = closestPersonAny.spokenGuidance || `${closestPersonAny.label} detected ${closestPersonAny.distance.toFixed(1)} meters ${posPhrase}.`;
         guidanceKey = `person_around_${closestPersonAny.lane}`;
         guidanceDist = closestPersonAny.distance;
+      } else if (detectedTrafficLight && detectedTrafficLight.signalColor === 'GREEN' && detectedTrafficLight.distance <= 4.5) {
+        directionStatus = `GREEN TRAFFIC LIGHT (${detectedTrafficLight.distance.toFixed(1)}m) • SAFE TO ALIGN`;
+        directionArrow = '🟢';
+        statusClass = 'text-emerald-300 font-extrabold';
+        borderClass = 'border-emerald-400';
+        guidanceSpoken = detectedTrafficLight.spokenGuidance;
+        guidanceKey = 'traffic_light_green';
+        guidanceDist = detectedTrafficLight.distance;
       } else if (detectedTunnelDown && minCenterDist >= 1.2) {
         directionStatus = `TWO MOVES: 1) WALK TO BUS STOP • 2) TUNNEL DOWN (${detectedTunnelDown.distance.toFixed(1)}m)`;
         directionArrow = '🚇';
@@ -4662,16 +5440,19 @@
       if (depthEl) {
         depthEl.innerText = detectedDepthHole
           ? (detectedDepthHole.distance.toFixed(1) + 'm 🕳️')
-          : (closestStandingPerson
-              ? (closestStandingPerson.distance.toFixed(1) + 'm 🧍')
-              : (detectedCrossing
-                  ? (detectedCrossing.distance.toFixed(1) + 'm 🚸')
-                  : (detectedRoadSign ? (detectedRoadSign.distance.toFixed(1) + 'm 🪧') : (solidObstacles.length > 0 ? (minCenterDist.toFixed(1) + 'm') : 'Clear (>3m)'))));
+          : (detectedTrafficLight
+              ? (`${detectedTrafficLight.distance.toFixed(1)}m ${detectedTrafficLight.icon}`)
+              : (closestStandingPerson
+                  ? (closestStandingPerson.distance.toFixed(1) + 'm 🧍')
+                  : (detectedCrossing
+                      ? (detectedCrossing.distance.toFixed(1) + 'm 🚸')
+                      : (detectedRoadSign ? (detectedRoadSign.distance.toFixed(1) + 'm 🪧') : (solidObstacles.length > 0 ? (minCenterDist.toFixed(1) + 'm') : 'Clear (>3m)')))));
       }
       if (lanesEl) {
+        const gStat = currentGroundSurfaceState ? currentGroundSurfaceState.status : 'Flat';
         lanesEl.innerText = activeObjects.length > 0 
-          ? `${activeObjects.length} visible: ${activeObjects.map(o => o.label).slice(0, 2).join(', ')}${activeObjects.length > 2 ? '...' : ''}`
-          : 'Corridor: Clear Ahead';
+          ? `${activeObjects.length} visible (${activeObjects[0].label} ${activeObjects[0].widthM}×${activeObjects[0].heightM}m) • Ground: ${gStat}`
+          : `Corridor: Clear • Ground: ${gStat}`;
       }
       if (hudEl) hudEl.className = `w-full mt-2 py-2 px-3 rounded-2xl bg-black/85 backdrop-blur-md border ${borderClass} text-white shadow-xl flex items-center justify-between`;
 
@@ -4682,14 +5463,20 @@
 
       if (yoloCount) {
         yoloCount.innerText = activeObjects.length > 0 
-          ? `YOLO AR: ${activeObjects.length} tracked (${activeObjects[0].label} ${activeObjects[0].distance.toFixed(1)}m)` 
-          : `YOLO AR: Active • Pathway Clear`;
+          ? `YOLO AR: ${activeObjects.length} tracked (${activeObjects[0].label} ${activeObjects[0].distance.toFixed(1)}m [${activeObjects[0].widthM}×${activeObjects[0].heightM}m])` 
+          : `YOLO AR: Active • Ground: ${currentGroundSurfaceState ? currentGroundSurfaceState.status : 'Flat'}`;
       }
 
       if (badge && pathText) {
         if (detectedDepthHole) {
           badge.className = "w-full mt-2 py-1.5 px-3 rounded-xl bg-rose-100 border border-rose-400 text-rose-950 text-[11px] font-extrabold flex items-center justify-between";
           pathText.innerText = `🕳️ Depth Hole / Drop-off (${detectedDepthHole.distance.toFixed(1)}m ${detectedDepthHole.lane})`;
+        } else if (detectedTrafficLight && detectedTrafficLight.signalColor === 'RED') {
+          badge.className = "w-full mt-2 py-1.5 px-3 rounded-xl bg-red-100 border border-red-400 text-red-950 text-[11px] font-extrabold flex items-center justify-between";
+          pathText.innerText = `🔴 Traffic Light: RED (${detectedTrafficLight.distance.toFixed(1)}m) • Stop at Curb`;
+        } else if (closestApproachingOrCrossingPerson && closestApproachingOrCrossingPerson.distance <= 3.8) {
+          badge.className = "w-full mt-2 py-1.5 px-3 rounded-xl bg-rose-100 border border-rose-400 text-rose-950 text-[11px] font-extrabold flex items-center justify-between";
+          pathText.innerText = `${closestApproachingOrCrossingPerson.icon} ${closestApproachingOrCrossingPerson.label} (${closestApproachingOrCrossingPerson.distance.toFixed(1)}m ${closestApproachingOrCrossingPerson.lane})`;
         } else if (closestStandingPerson && closestStandingPerson.distance <= 3.2) {
           badge.className = "w-full mt-2 py-1.5 px-3 rounded-xl bg-orange-100 border border-orange-400 text-orange-950 text-[11px] font-extrabold flex items-center justify-between";
           pathText.innerText = `🧍 Person Standing (${closestStandingPerson.distance.toFixed(1)}m ${closestStandingPerson.lane}) • Step Around`;
@@ -4704,13 +5491,13 @@
           pathText.innerText = `${detectedRoadSign.icon || '🪧'} ${detectedRoadSign.label} (${detectedRoadSign.distance.toFixed(1)}m)`;
         } else if (closestCenter && closestCenter.distance < 1.5) {
           badge.className = "w-full mt-2 py-1.5 px-3 rounded-xl bg-red-100 border border-red-300 text-red-900 text-[11px] font-semibold flex items-center justify-between";
-          pathText.innerText = `Hazard: ${closestCenter.label} (${closestCenter.distance.toFixed(1)}m)`;
+          pathText.innerText = `Hazard: ${closestCenter.label} (${closestCenter.distance.toFixed(1)}m • ${closestCenter.widthM}×${closestCenter.heightM}m)`;
         } else if (closestCenter && closestCenter.distance < 2.5) {
           badge.className = "w-full mt-2 py-1.5 px-3 rounded-xl bg-amber-100 border border-amber-300 text-amber-900 text-[11px] font-semibold flex items-center justify-between";
-          pathText.innerText = `Caution: ${closestCenter.label} (${closestCenter.distance.toFixed(1)}m)`;
+          pathText.innerText = `Caution: ${closestCenter.label} (${closestCenter.distance.toFixed(1)}m • ${closestCenter.widthM}×${closestCenter.heightM}m)`;
         } else {
           badge.className = "w-full mt-2 py-1.5 px-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-[11px] font-semibold flex items-center justify-between";
-          pathText.innerText = "Clear pathway ahead";
+          pathText.innerText = `Clear pathway ahead • Ground: ${currentGroundSurfaceState ? currentGroundSurfaceState.status : 'Flat'}`;
         }
       }
 
@@ -5089,6 +5876,58 @@
       }
     }
 
+    function buildLiveVoiceContext() {
+      const objects = (lastLiveDetections || []).map(o => {
+        computeObjectMetricDimensions(o);
+        return {
+          label: o.label,
+          rawClass: o.rawClass,
+          distance: o.distance,
+          widthM: o.widthM,
+          heightM: o.heightM,
+          lane: o.lane,
+          pedestrianMotion: o.pedestrianMotion || (o.isPersonStanding ? 'standing' : null),
+          signalColor: o.signalColor || null
+        };
+      });
+      return {
+        objects,
+        groundState: currentGroundSurfaceState || { status: 'Flat', slopeDeg: 0, detail: 'Ground surface ahead is flat and level.' },
+        trafficLightSignal: currentTrafficLightSignal || { detected: false, color: 'NONE' },
+        gps: {
+          lat: userGps.lat,
+          lon: userGps.lon,
+          street: userGps.street,
+          city: userGps.city,
+          heading: userGps.heading,
+          headingCardinal: userGps.headingCardinal
+        },
+        navigation: {
+          activeRoute,
+          destination: currentDestinationTitle,
+          remainingMeters: currentDistance,
+          currentInstruction: (currentWaypoints && currentWaypoints[currentWaypointIdx]) ? currentWaypoints[currentWaypointIdx].instruction : ''
+        }
+      };
+    }
+
+    function captureActiveVideoSnapshotBase64() {
+      try {
+        const videoIds = ['nav-live-video', 'describe-live-video', 'crosswalk-live-video', 'obstacle-live-video'];
+        for (const id of videoIds) {
+          const v = document.getElementById(id);
+          if (v && v.readyState >= 2 && v.videoWidth > 0 && !v.paused) {
+            const snap = document.createElement('canvas');
+            snap.width = 480;
+            snap.height = 270;
+            snap.getContext('2d').drawImage(v, 0, 0, snap.width, snap.height);
+            return snap.toDataURL('image/jpeg', 0.72);
+          }
+        }
+      } catch (e) {}
+      return null;
+    }
+
     function parseVoiceIntentLocalFallback(rawTranscript) {
       const cleaned = (rawTranscript || "").toLowerCase().replace(/[\?\!\.,;:]/g, "").trim();
 
@@ -5097,18 +5936,104 @@
         return { intent: "click_button", target_button: "start_navigation", action: "click_button", spoken_response: "Starting navigation.", confidence: 0.99 };
       }
       if (/^(where am i|where i am|what is my location|my location|current location|where are we)$/i.test(cleaned)) {
-        return { intent: "click_button", target_button: "where_am_i", action: "click_button", spoken_response: "Checking current location and orientation.", confidence: 0.99 };
+        const street = userGps.street || "your current street";
+        const city = userGps.city || "your area";
+        return {
+          intent: "click_button",
+          target_button: "where_am_i",
+          action: "click_button",
+          spoken_response: `You are on ${street} in ${city}, facing ${userGps.headingCardinal || 'North'}.`,
+          confidence: 0.99
+        };
       }
-      if (/^(describe|describe what('s| is) around me|describe around me|what do you see|what('s| is) around|look around|see around)$/i.test(cleaned)) {
-        return { intent: "click_button", target_button: "describe_around", action: "click_button", spoken_response: "Scanning surroundings with camera.", confidence: 0.99 };
+      if (/^(describe|describe what('s| is) around me|describe around me|what do you see|what('s| is) around( me)?|look around|see around|tell me what('s| is) around( me)?|scan surroundings|describe scene)$/i.test(cleaned)) {
+        const liveSummary = buildLiveSurroundingsSummary();
+        return {
+          intent: "click_button",
+          target_button: "describe_around",
+          action: "click_button",
+          spoken_response: liveSummary,
+          confidence: 0.99
+        };
       }
       if (/^(read signs?|read signboards?|detect signs?|detect road signs?|what does the sign say|what sign is (this|ahead|there)|is there a (road )?sign|look for signs?|sign boards?|road signs?|traffic signs?)$/i.test(cleaned)) {
         return { intent: "click_button", target_button: "detect_signs", action: "click_button", spoken_response: "Scanning for Riga road signs, traffic boards, and street signs.", confidence: 0.99 };
       }
+
+      // Traffic Light & Signal Color Query
+      if (/(traffic light|traffic signal|signal color|light red|light green|light yellow|what color is the (traffic )?light|pedestrian signal|walk signal)/i.test(cleaned)) {
+        const tlObj = lastLiveDetections.find(o => o.isTrafficLight || o.rawClass === 'traffic light');
+        const sig = (tlObj && tlObj.signalColor) || (currentTrafficLightSignal && currentTrafficLightSignal.detected ? currentTrafficLightSignal.color : 'NONE');
+        let spoken = "No traffic light signal is currently detected in camera view. Point your phone toward the intersection ahead to scan.";
+        if (sig && sig !== 'NONE') {
+          const dist = tlObj ? tlObj.distance.toFixed(1) : (currentTrafficLightSignal.distance || 3.0);
+          spoken = sig === 'RED'
+            ? `The traffic light ahead at ${dist} meters is RED. Stop at the curb and wait.`
+            : (sig === 'GREEN'
+                ? `The traffic light ahead at ${dist} meters is GREEN. Check for turning vehicles and proceed across.`
+                : `The traffic light ahead at ${dist} meters is YELLOW. Wait on the curb for the next green cycle.`);
+        }
+        return { intent: "traffic_light_query", action: "traffic_light_query", spoken_response: spoken, confidence: 0.99 };
+      }
+
+      // Ground Surface State Query (Flat, Tilted, Uneven)
+      if (/(ground|surface|sidewalk|pavement|floor).*(flat|tilted|uneven|level|slope|sloped|condition|rough|smooth)/i.test(cleaned) ||
+          /(is it flat|is it tilted|is it uneven|is there a slope|ground condition|surface condition)/i.test(cleaned)) {
+        const gStatus = currentGroundSurfaceState ? currentGroundSurfaceState.status : 'Flat';
+        const gDetail = currentGroundSurfaceState ? currentGroundSurfaceState.detail : 'Ground surface ahead is flat and level.';
+        const holeObj = lastLiveDetections.find(o => o.isDepthHole || o.rawClass === 'depth hole');
+        const spoken = holeObj
+          ? `Warning: Ground is uneven with a depth hole or drop-off ${holeObj.distance.toFixed(1)} meters ahead on your ${holeObj.lane}. Step around carefully.`
+          : `Ground surface condition is ${gStatus.toLowerCase()}. ${gDetail}`;
+        return { intent: "ground_surface_query", action: "ground_surface_query", spoken_response: spoken, confidence: 0.99 };
+      }
+
+      // Object Width, Height & Distance Dimensions Query
+      if (/(how big|how wide|how tall|width|height|dimensions|what size|size of)/i.test(cleaned)) {
+        let spoken = "";
+        if (lastLiveDetections && lastLiveDetections.length > 0) {
+          const dimList = lastLiveDetections.slice(0, 3).map(o => {
+            computeObjectMetricDimensions(o);
+            return `${o.label} at ${o.distance.toFixed(1)} meters is approximately ${o.widthM} meters wide by ${o.heightM} meters tall`;
+          });
+          spoken = dimList.join('. ') + '.';
+        } else {
+          spoken = "No obstacles are currently in your path to measure. Forward corridor is clear.";
+        }
+        return { intent: "object_dimensions_query", action: "object_dimensions_query", spoken_response: spoken, confidence: 0.99 };
+      }
+
+      // Pedestrian Motion / Trajectory Query (Walking Toward, Moving Away, Crossing Path, Standing)
+      if (/(walking toward|moving away|crossing (my |the )?path|pedestrian(s)? (moving|walking|crossing)|what are (the )?people doing|which way (is|are) (the )?(person|people) (walking|going|moving))/i.test(cleaned)) {
+        const peopleList = lastLiveDetections.filter(o => o.isPerson || o.rawClass.includes('person'));
+        let spoken = "No pedestrians detected in immediate camera view.";
+        if (peopleList.length > 0) {
+          const details = peopleList.map(p => {
+            const pos = p.lane === 'center' ? 'ahead' : `on your ${p.lane}`;
+            if (p.pedestrianMotion === 'walking_toward') return `a person walking toward you at ${p.distance.toFixed(1)} meters ${pos}`;
+            if (p.pedestrianMotion === 'moving_away') return `a person moving away from you at ${p.distance.toFixed(1)} meters ${pos}`;
+            if (p.pedestrianMotion === 'crossing_path') return `a person crossing your path at ${p.distance.toFixed(1)} meters ${pos}`;
+            if (p.isPersonStanding || p.pedestrianMotion === 'standing') return `a person standing still at ${p.distance.toFixed(1)} meters ${pos}`;
+            return `a person walking at ${p.distance.toFixed(1)} meters ${pos}`;
+          });
+          spoken = `I detect ${peopleList.length} ${peopleList.length === 1 ? 'pedestrian' : 'pedestrians'}: ${details.join(', ')}.`;
+        }
+        return { intent: "pedestrian_motion_query", action: "pedestrian_motion_query", spoken_response: spoken, confidence: 0.99 };
+      }
+
+      // Pole Detection Query
+      if (/(is there a pole|any poles?|pole ahead|watch for poles?|utility pole|lamp post|sign post)/i.test(cleaned)) {
+        const poleObj = lastLiveDetections.find(o => o.isPole || o.rawClass === 'pole' || o.label.toLowerCase().includes('pole'));
+        const spoken = poleObj
+          ? `Caution: Pole detected ${poleObj.distance.toFixed(1)} meters ahead on your ${poleObj.lane} (approximately ${poleObj.widthM || 0.2} meters wide by ${poleObj.heightM || 2.2} meters tall).`
+          : "No poles detected in your immediate walking corridor.";
+        return { intent: "pole_query", action: "pole_query", spoken_response: spoken, confidence: 0.99 };
+      }
+
       if (/^(is there a tree|are there trees|tree ahead|watch for trees|detect tree|detect trees|any trees|trees in my way|branches ahead|tree branch)$/i.test(cleaned)) {
         const treeObj = lastLiveDetections.find(o => o.isTree || o.rawClass === 'tree' || o.label.toLowerCase().includes('tree'));
         const spoken = treeObj
-          ? `Tree detected ${treeObj.distance.toFixed(1)} meters ahead on your ${treeObj.lane}. Watch for tree trunk and low branches.`
+          ? `Tree detected ${treeObj.distance.toFixed(1)} meters ahead on your ${treeObj.lane} (${treeObj.widthM || 1.1}m wide by ${treeObj.heightM || 2.6}m tall). Watch for tree trunk and low branches.`
           : "Scanning sidewalk ahead for tree trunks, root grates, and low-hanging branches.";
         return { intent: "tree_query", action: "tree_query", spoken_response: spoken, confidence: 0.99 };
       }
@@ -5171,29 +6096,31 @@
         };
       }
 
-      if (/^(where do i go|where to go|where should i go|which way|which direction|where to walk|guide me|navigate me)$/i.test(cleaned)) {
-        const dir = currentSteeringDirection || 'WALK STRAIGHT';
-        const depth = currentLidarDepthAhead ? `${currentLidarDepthAhead.toFixed(1)} meters` : 'path is clear';
+      if (/^(where do i go|where to go|where should i go|which way|which direction|where to walk|guide me|navigate me|what is my next turn|next turn)$/i.test(cleaned)) {
+        const wpInstruction = (currentWaypoints && currentWaypoints[currentWaypointIdx]) ? currentWaypoints[currentWaypointIdx].instruction : 'Walk straight along pathway';
+        const depth = currentLidarDepthAhead ? `${currentLidarDepthAhead.toFixed(1)} meters` : 'clear';
+        const gStatus = currentGroundSurfaceState ? currentGroundSurfaceState.status.toLowerCase() : 'flat';
         return {
           intent: "guidance_query",
           action: "guidance_query",
-          spoken_response: `${dir}. Forward clearance is ${depth}.`,
+          spoken_response: `${wpInstruction} (${currentDistance || 0} meters remaining). Forward clearance is ${depth}, ground is ${gStatus}.`,
           confidence: 0.99
         };
       }
-      if (/^(is there anything in my way|is the path clear|is there an obstacle|what('s| is) in my way|what('s| is) ahead|any obstacles)$/i.test(cleaned)) {
+      if (/^(is there anything in my way|is the path clear|is there an obstacle|what('s| is) in my way|what('s| is) ahead|any obstacles|can i walk forward)$/i.test(cleaned)) {
+        const gStatus = currentGroundSurfaceState ? currentGroundSurfaceState.status.toLowerCase() : 'flat';
         return {
           intent: "obstacle_query",
           action: "obstacle_query",
-          spoken_response: (activeObjects && activeObjects.length > 0)
-            ? `Detected ${activeObjects.map(o => `${o.label} ${o.distance.toFixed(1)} meters on ${o.lane}`).join(', ')}.`
-            : "Pathway is completely clear ahead for over 4 meters.",
+          spoken_response: (lastLiveDetections && lastLiveDetections.length > 0)
+            ? `Detected ${lastLiveDetections.map(o => `${o.label} at ${o.distance.toFixed(1)} meters on ${o.lane} (${o.widthM || 0.6}m by ${o.heightM || 1.5}m)`).join(', ')}. Ground is ${gStatus}.`
+            : `Pathway is completely clear ahead for over 4 meters. Ground surface is ${gStatus}.`,
           confidence: 0.99
         };
       }
       // Distance remaining query
       if (/^(how far am i|how far|distance left|how many meters|remaining distance|how much distance|how far to go)$/i.test(cleaned)) {
-        const distStr = currentDistance ? `${currentDistance} meters remaining on current route step.` : "Route active. Keep walking along pathway.";
+        const distStr = currentDistance ? `${currentDistance} meters remaining on current route step to ${currentDestinationTitle}.` : "Route active. Keep walking along pathway.";
         return {
           intent: "distance_query",
           action: "distance_query",
@@ -5204,7 +6131,7 @@
 
       // Current street query
       if (/^(what street is this|which street|what street am i on|current street|name of street|where is this street)$/i.test(cleaned)) {
-        const stStr = userGps.street ? `You are on ${userGps.street}, ${userGps.city || ''}.` : "Detecting street name via GPS.";
+        const stStr = userGps.street ? `You are on ${userGps.street}, ${userGps.city || ''}, facing ${userGps.headingCardinal || 'East'}.` : "Detecting street name via GPS.";
         return {
           intent: "street_query",
           action: "street_query",
@@ -5233,13 +6160,13 @@
           intent: "click_button",
           target_button: "crosswalk_mode",
           action: "crosswalk_mode",
-          spoken_response: "Entering crosswalk quiet mode. Listening for traffic sounds.",
+          spoken_response: "Entering crosswalk quiet mode. Checking traffic light signal and listening for vehicles.",
           confidence: 0.99
         };
       }
 
-      // People Around & Standing Person Collision-Prevention Query
-      if (/^(are there people around( me)?|is anyone standing( ahead| there| near me)?|is someone standing( ahead| there| in front of me)?|is there a person standing|people around( me)?|who is around( me)?|anyone standing still)$/i.test(cleaned)) {
+      // People Around & Standing/Moving Person Collision-Prevention Query
+      if (/^(are there people around( me)?|is anyone standing( ahead| there| near me)?|is someone standing( ahead| there| in front of me)?|is there a person standing|people around( me)?|who is around( me)?|anyone standing still|how many people)$/i.test(cleaned)) {
         const peopleList = lastLiveDetections.filter(o => o.isPerson || o.rawClass.includes('person'));
         const standingList = peopleList.filter(o => o.isPersonStanding);
         let spoken = "No people detected in immediate camera view around you.";
@@ -5260,9 +6187,10 @@
       // Ground Depth Hole / Pothole / Drop-off Query
       if (/^(is there a( depth)? hole|any( depth)? holes?|depth hole|ground hole|pothole|drop off( ahead)?|is the ground level|check ground depth)$/i.test(cleaned)) {
         const holeObj = lastLiveDetections.find(o => o.isDepthHole || o.rawClass === 'depth hole');
+        const gStatus = currentGroundSurfaceState ? currentGroundSurfaceState.status : 'Flat';
         const spoken = holeObj
           ? `Danger: Ground depth hole or drop-off detected ${holeObj.distance.toFixed(1)} meters ahead in ${holeObj.lane} path. Step around carefully.`
-          : "No ground depth holes or drop-offs detected in immediate walking corridor. Ground level is clear.";
+          : `No ground depth holes or drop-offs detected in immediate walking corridor. Ground surface is ${gStatus.toLowerCase()}.`;
         return {
           intent: "depth_hole_query",
           action: "depth_hole_query",
@@ -5293,8 +6221,10 @@
 
       // Stairs / Steps query
       if (/^(is there stairs|are there stairs|are there steps|any stairs|staircase)$/i.test(cleaned)) {
-        const stairsObj = lastLiveDetections.find(o => o.label.toLowerCase().includes('stair') || o.isTunnelDown);
-        const spoken = stairsObj ? `Warning: ${stairsObj.label} detected directly ahead, ${stairsObj.distance.toFixed(1)} meters.` : "No stairs detected in immediate camera view. Ground level is clear.";
+        const stairsObj = lastLiveDetections.find(o => o.isStairs || o.label.toLowerCase().includes('stair') || o.isTunnelDown);
+        const spoken = stairsObj
+          ? `Warning: ${stairsObj.label} detected directly ahead at ${stairsObj.distance.toFixed(1)} meters (approx ${stairsObj.widthM || 1.6}m wide by ${stairsObj.heightM || 1.5}m high).`
+          : "No stairs detected in immediate camera view. Ground surface is clear.";
         return {
           intent: "stairs_query",
           action: "stairs_query",
@@ -5327,10 +6257,13 @@
 
       // Crosswalk Traffic Acoustic Query
       if (/^(is it quiet|traffic level|is traffic clear|crosswalk sound|traffic noise|can i walk across)$/i.test(cleaned)) {
+        const sigPart = (currentTrafficLightSignal && currentTrafficLightSignal.detected && currentTrafficLightSignal.color !== 'NONE')
+          ? ` Traffic light signal is ${currentTrafficLightSignal.color}.`
+          : '';
         return {
           intent: "traffic_query",
           action: "traffic_query",
-          spoken_response: `Crosswalk acoustic analyzer active. Ambient quietness index is ${Math.round(crosswalkTrafficQuietness)} percent. Low frequencies clear.`,
+          spoken_response: `Crosswalk acoustic analyzer active. Ambient quietness index is ${Math.round(crosswalkTrafficQuietness)} percent.${sigPart}`,
           confidence: 0.99
         };
       }
@@ -5368,15 +6301,16 @@
         return {
           intent: "where_am_i",
           destination: null,
-          spoken_response: userGps.street ? `You are on ${userGps.street}, in ${userGps.city}.` : "Checking your current location and orientation.",
+          spoken_response: userGps.street ? `You are on ${userGps.street}, in ${userGps.city}, facing ${userGps.headingCardinal || 'North'}.` : "Checking your current location and orientation.",
           confidence: 0.98
         };
       }
-      if (/^(what('s| is) in front of me|what('s| is) in front|describe|what do you see|what('s| is) around|look around|see around)/i.test(lowered)) {
+      if (/^(what('s| is) in front of me|what('s| is) in front|describe|what do you see|what('s| is) around|look around|see around)/i.test(lowered) ||
+          /(around me|in front of me|surroundings|what do you see|tell me about)/i.test(lowered)) {
         return {
           intent: "describe_environment",
           destination: null,
-          spoken_response: getLidarSceneDescription(),
+          spoken_response: buildLiveSurroundingsSummary(),
           confidence: 0.97
         };
       }
@@ -5832,24 +6766,6 @@
       }, 12000);
     }
 
-    function handleOrientationEvent(e) {
-      let heading = null;
-      if (e.webkitCompassHeading !== undefined) {
-        heading = e.webkitCompassHeading;
-      } else if (e.alpha !== null) {
-        heading = (360 - e.alpha) % 360;
-      }
-
-      if (heading !== null) {
-        currentCompassHeading = heading;
-      }
-
-      // Check if user is actively turning phone in response to a directional query
-      if (activeDirectionalWatch && !activeDirectionalWatch.fulfilled) {
-        checkPhoneTurnedResponse(e, heading);
-      }
-    }
-
     function checkPhoneTurnedResponse(e, heading) {
       if (!activeDirectionalWatch || activeDirectionalWatch.fulfilled) return;
       if (Date.now() - activeDirectionalWatch.armedAt < 500) return;
@@ -5892,13 +6808,16 @@
       let reply = "";
       if (persons.length > 0) {
         const closest = persons[0];
-        const stateText = closest.isPersonStanding ? 'standing still' : 'walking';
-        reply = `Phone pointed ${dir}: Person ${stateText} detected ${closest.distance.toFixed(1)} meters ahead in camera view.`;
+        const motionDesc = closest.personMotion === 'walking_toward' ? 'walking toward you' :
+                           (closest.personMotion === 'moving_away' ? 'moving away' :
+                           (closest.personMotion === 'crossing_path' ? 'crossing your path' :
+                           (closest.isPersonStanding ? 'standing still' : 'walking')));
+        reply = `Phone pointed ${dir}: Person ${motionDesc} detected ${closest.distance.toFixed(1)} meters ahead (approx ${closest.widthM || 0.5}m wide by ${closest.heightM || 1.7}m tall).`;
       } else if (otherObjects.length > 0) {
         const obj = otherObjects[0];
-        reply = `Phone pointed ${dir}: ${obj.label} detected ${obj.distance.toFixed(1)} meters ahead.`;
+        reply = `Phone pointed ${dir}: ${obj.label} detected ${obj.distance.toFixed(1)} meters ahead (approx ${obj.widthM || 0.5}m wide by ${obj.heightM || 1.0}m tall).`;
       } else {
-        reply = `Phone pointed ${dir}: Area to your ${dir} is completely clear. No obstacles or persons detected.`;
+        reply = `Phone pointed ${dir}: Area to your ${dir} is completely clear. Ground is ${currentGroundSurfaceState.toLowerCase()}.`;
       }
 
       showUniversalVoiceHUD(`Turned ${dir.toUpperCase()}`, reply, false);
@@ -5911,10 +6830,6 @@
         if (cArrow) cArrow.innerText = '⬆️';
         hideUniversalVoiceHUD();
       }, 5000);
-    }
-
-    if (window.DeviceOrientationEvent) {
-      window.addEventListener('deviceorientation', handleOrientationEvent, true);
     }
 
     // Voice recognition & Intent Handling
@@ -5972,17 +6887,26 @@
     async function handleVoiceInput(rawText) {
       if (!rawText || !rawText.trim()) return;
       const trimmed = rawText.trim();
-      document.getElementById('live-transcript').innerText = '“' + trimmed + '”';
-      document.getElementById('listening-title').innerText = "Gemini is analyzing...";
-      announceToScreenReader(`Voice input: "${trimmed}". Analyzing with Gemini AI.`);
+      const liveTransEl = document.getElementById('live-transcript');
+      if (liveTransEl) liveTransEl.innerText = '“' + trimmed + '”';
+      const listenTitleEl = document.getElementById('listening-title');
+      if (listenTitleEl) listenTitleEl.innerText = "Gemini is analyzing...";
+      announceToScreenReader(`Voice input: "${trimmed}". Analyzing with Gemini AI and live camera sensors.`);
       triggerHaptic([30]);
+
+      const liveContext = buildLiveVoiceContext();
+      const imageBase64 = captureActiveVideoSnapshotBase64();
 
       let result = null;
       try {
         const resp = await fetch('/api/v1/voice/intent', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ transcript: trimmed })
+          body: JSON.stringify({
+            transcript: trimmed,
+            liveContext: liveContext,
+            imageBase64: imageBase64
+          })
         });
         if (resp.ok) {
           const json = await resp.json();
@@ -5991,10 +6915,10 @@
           }
         }
       } catch (err) {
-        console.warn("[Voice] Server fetch error, using local Gemini model fallback:", err);
+        console.warn("[Voice] Server fetch error, using local live-sensor voice engine fallback:", err);
       }
 
-      // Offline or network fallback
+      // Offline or network fallback with live sensor context
       if (!result) {
         result = parseVoiceIntentLocalFallback(trimmed);
       }
@@ -6010,7 +6934,6 @@
         return;
       }
 
-      // 2. Automated GPS Navigation Trigger: ANY spoken destination or start navigation command!
       // 2. Directional Perception Query: "is someone coming from my right?", "what is on my left?"
       if (result.intent === 'directional_query' || result.action === 'directional_query' || result.direction) {
         handleDirectionalQuery(result.direction || 'right', result.target || 'person', rawText);
@@ -6020,23 +6943,125 @@
       // 3. Heading & Compass Audio Guidepost Alignment
       if (result.intent === 'heading_query' || result.action === 'check_heading') {
         const headingCheck = checkAudioCompassHeadingAlignment(true);
-        showUniversalVoiceHUD('Heading Guidepost', headingCheck.text, false);
-        speakText(headingCheck.text);
+        const text = result.spoken_response || headingCheck.text;
+        showUniversalVoiceHUD('Heading Guidepost', text, false);
+        speakText(text);
         triggerHaptic([60, 40]);
         return;
       }
 
-      // 3b. Extended Natural Query Dialogs (Distance, Street, Stairs)
+      // 3b. Traffic Light Signal Query
+      if (result.intent === 'traffic_light_query' || result.action === 'traffic_light_query') {
+        const tlObj = lastLiveDetections.find(o => o.isTrafficLight || o.rawClass === 'traffic light');
+        const sig = (tlObj && tlObj.trafficLightColor) ? tlObj.trafficLightColor : currentTrafficLightSignal;
+        let text = result.spoken_response;
+        if (!text) {
+          if (sig === 'RED') {
+            text = `Traffic light signal is RED${tlObj ? ' at ' + tlObj.distance.toFixed(1) + ' meters ahead' : ''}. Stop at the curb and do not cross.`;
+          } else if (sig === 'YELLOW') {
+            text = `Traffic light signal is YELLOW${tlObj ? ' at ' + tlObj.distance.toFixed(1) + ' meters ahead' : ''}. Caution, signal is changing. Wait on the sidewalk.`;
+          } else if (sig === 'GREEN') {
+            text = `Traffic light signal is GREEN${tlObj ? ' at ' + tlObj.distance.toFixed(1) + ' meters ahead' : ''}. Check for turning vehicles and proceed across the crosswalk.`;
+          } else {
+            text = 'No active traffic light signal detected in the current camera view. Point your phone toward the intersection.';
+          }
+        }
+        showUniversalVoiceHUD(`Traffic Light: ${sig || 'SCANNING'}`, text, false);
+        speakText(text);
+        triggerHaptic([60, 40]);
+        return;
+      }
+
+      // 3c. Ground Surface State Query (Flat, Tilted, Uneven)
+      if (result.intent === 'ground_surface_query' || result.action === 'ground_surface_query') {
+        const holeObj = lastLiveDetections.find(o => o.isDepthHole || o.rawClass === 'depth hole');
+        const stairsObj = lastLiveDetections.find(o => o.isStairs || o.rawClass === 'stairs');
+        let text = result.spoken_response;
+        if (!text) {
+          text = `The ground ahead is ${currentGroundSurfaceState.toLowerCase()}. Forward clearance is ${currentLidarDepthAhead.toFixed(1)} meters.`;
+          if (holeObj) text += ` Warning: depth hole or drop-off at ${holeObj.distance.toFixed(1)} meters.`;
+          if (stairsObj) text += ` Stairs detected at ${stairsObj.distance.toFixed(1)} meters.`;
+        }
+        showUniversalVoiceHUD(`Ground: ${currentGroundSurfaceState.toUpperCase()}`, text, false);
+        speakText(text);
+        triggerHaptic([50]);
+        return;
+      }
+
+      // 3d. Object Distance, Width & Height Dimensions Query
+      if (result.intent === 'object_dimensions_query' || result.action === 'object_dimensions_query') {
+        let text = result.spoken_response;
+        if (!text) {
+          if (lastLiveDetections.length > 0) {
+            const details = lastLiveDetections.slice(0, 3).map(o => {
+              const dims = computeObjectMetricDimensions(o);
+              return `${o.label} at ${o.distance.toFixed(1)}m (width ${dims.widthM}m, height ${dims.heightM}m)`;
+            }).join('; ');
+            text = `Object distance and dimensions: ${details}. Ground surface is ${currentGroundSurfaceState.toLowerCase()}.`;
+          } else {
+            text = `Forward path is clear up to ${currentLidarDepthAhead.toFixed(1)} meters. Ground is ${currentGroundSurfaceState.toLowerCase()}.`;
+          }
+        }
+        showUniversalVoiceHUD('Distance & Size (W×H)', text, false);
+        speakText(text);
+        triggerHaptic([50]);
+        return;
+      }
+
+      // 3e. Pedestrian Motion & Trajectory Query (Toward, Away, Crossing, Standing)
+      if (result.intent === 'pedestrian_motion_query' || result.action === 'pedestrian_motion_query' || result.intent === 'people_around_query' || result.action === 'people_around_query') {
+        const peopleList = lastLiveDetections.filter(o => o.isPerson || (o.rawClass && o.rawClass.includes('person')));
+        let text = result.spoken_response;
+        if (!text) {
+          if (peopleList.length > 0) {
+            const pDescs = peopleList.slice(0, 3).map(p => {
+              const motion = p.personMotion === 'walking_toward' ? 'walking toward you' :
+                             (p.personMotion === 'moving_away' ? 'moving away from you' :
+                             (p.personMotion === 'crossing_path' ? 'crossing your path' :
+                             (p.isPersonStanding ? 'standing still' : 'walking')));
+              const dims = computeObjectMetricDimensions(p);
+              return `person ${motion} at ${p.distance.toFixed(1)}m on your ${p.lane} (${dims.widthM}m wide, ${dims.heightM}m tall)`;
+            }).join('; ');
+            text = `${peopleList.length} ${peopleList.length === 1 ? 'person' : 'people'} detected: ${pDescs}.`;
+          } else {
+            text = 'No pedestrians detected in your immediate camera corridor.';
+          }
+        }
+        showUniversalVoiceHUD('Pedestrian Tracking', text, false);
+        speakText(text);
+        triggerHaptic([60, 40]);
+        return;
+      }
+
+      // 3f. Pole / Bollard Detection Query
+      if (result.intent === 'pole_query' || result.action === 'pole_query') {
+        const poleObj = lastLiveDetections.find(o => o.isPole || o.rawClass === 'pole');
+        let text = result.spoken_response;
+        if (!text) {
+          if (poleObj) {
+            const dims = computeObjectMetricDimensions(poleObj);
+            text = `Utility pole or bollard detected at ${poleObj.distance.toFixed(1)} meters on your ${poleObj.lane} (approx ${dims.widthM}m wide by ${dims.heightM}m tall). Step around carefully.`;
+          } else {
+            text = 'No poles or bollards detected in your immediate path ahead.';
+          }
+        }
+        showUniversalVoiceHUD('Pole & Bollard Check', text, false);
+        speakText(text);
+        triggerHaptic([50]);
+        return;
+      }
+
+      // 3g. Extended Natural Query Dialogs (Distance, Street, Crossing, Trees, Holes, Stairs, Steps, SOS, Traffic)
       if (result.intent === 'distance_query' || result.action === 'distance_query') {
-        const distStr = currentDistance ? `${currentDistance} meters remaining on current route step.` : 'Route active. Keep walking along pathway.';
+        const distStr = currentDistance ? `${currentDistance} meters remaining on current route step to ${currentDestinationTitle}.` : `Forward clearance is ${currentLidarDepthAhead.toFixed(1)} meters. Ground is ${currentGroundSurfaceState.toLowerCase()}.`;
         const text = result.spoken_response || distStr;
-        showUniversalVoiceHUD('Distance Remaining', text, false);
+        showUniversalVoiceHUD('Distance Check', text, false);
         speakText(text);
         triggerHaptic([50]);
         return;
       }
       if (result.intent === 'street_query' || result.action === 'street_query') {
-        const stStr = userGps.street ? `You are on ${userGps.street}, ${userGps.city || ''}` : 'Detecting current street location via GPS.';
+        const stStr = userGps.street ? `You are on ${userGps.street}, ${userGps.city || ''}.` : 'Detecting current street location via live GPS.';
         const text = result.spoken_response || stStr;
         showUniversalVoiceHUD('Current Street', text, false);
         speakText(text);
@@ -6045,9 +7070,10 @@
       }
       if (result.intent === 'crossing_path_query' || result.action === 'crossing_path_query') {
         const crossObj = lastLiveDetections.find(o => o.isCrossingPath || o.label.toLowerCase().includes('crossing') || o.label.toLowerCase().includes('crosswalk'));
+        const sigStr = currentTrafficLightSignal ? ` Traffic signal is ${currentTrafficLightSignal}.` : '';
         const text = crossObj
-          ? `Crossing path detected ${crossObj.distance.toFixed(1)} meters ahead in ${crossObj.lane} lane. Align straight to cross.`
-          : (result.spoken_response || 'Scanning road surface ahead for zebra crossing path stripes and pedestrian signals.');
+          ? `Crossing path detected ${crossObj.distance.toFixed(1)} meters ahead in ${crossObj.lane} lane.${sigStr} Align straight to cross.`
+          : (result.spoken_response || `No zebra crossing stripes detected right now.${sigStr} Point camera toward the road intersection.`);
         showUniversalVoiceHUD('Crossing Path Detection', text, false);
         speakText(text);
         triggerHaptic([60, 40, 60]);
@@ -6056,24 +7082,9 @@
       if (result.intent === 'tree_query' || result.action === 'tree_query') {
         const treeObj = lastLiveDetections.find(o => o.isTree || o.rawClass === 'tree' || o.label.toLowerCase().includes('tree'));
         const text = treeObj
-          ? `Tree detected ${treeObj.distance.toFixed(1)} meters ahead on your ${treeObj.lane}. Watch for tree trunk and low-hanging branches.`
-          : (result.spoken_response || 'Scanning sidewalk ahead for tree trunks, root grates, and low-hanging branches.');
+          ? `Tree detected ${treeObj.distance.toFixed(1)} meters ahead on your ${treeObj.lane} (approx ${treeObj.widthM || 0.9}m wide by ${treeObj.heightM || 2.8}m tall). Watch for trunk and branches.`
+          : (result.spoken_response || 'No sidewalk trees or overhanging branches detected in your immediate path.');
         showUniversalVoiceHUD('Sidewalk Tree Detection', text, false);
-        speakText(text);
-        triggerHaptic([60, 40]);
-        return;
-      }
-      if (result.intent === 'people_around_query' || result.action === 'people_around_query') {
-        const peopleList = lastLiveDetections.filter(o => o.isPerson || o.rawClass.includes('person'));
-        const standingList = peopleList.filter(o => o.isPersonStanding);
-        let text = result.spoken_response || 'Scanning around you for people and stationary pedestrians.';
-        if (standingList.length > 0) {
-          const s = standingList[0];
-          text = `Caution: A person is standing still ${s.distance.toFixed(1)} meters ${s.lane === 'center' ? 'ahead in your path' : 'on your ' + s.lane}. Total ${peopleList.length} ${peopleList.length === 1 ? 'person' : 'people'} around you.`;
-        } else if (peopleList.length > 0) {
-          text = `${peopleList.length} ${peopleList.length === 1 ? 'person' : 'people'} detected around you: ` + peopleList.map(p => `${p.label} at ${p.distance.toFixed(1)} meters (${p.lane})`).join(', ') + '.';
-        }
-        showUniversalVoiceHUD('People & Standing Check', text, false);
         speakText(text);
         triggerHaptic([60, 40]);
         return;
@@ -6081,9 +7092,9 @@
       if (result.intent === 'depth_hole_query' || result.action === 'depth_hole_query') {
         const holeObj = lastLiveDetections.find(o => o.isDepthHole || o.rawClass === 'depth hole');
         const text = holeObj
-          ? `Danger: Ground depth hole or drop-off detected ${holeObj.distance.toFixed(1)} meters ahead in ${holeObj.lane} path. Step around carefully.`
-          : (result.spoken_response || 'Scanning ground corridor ahead for depth holes, potholes, and drop-offs.');
-        showUniversalVoiceHUD('Ground Depth Hole Check', text, false);
+          ? `Danger: Ground depth hole or drop-off detected ${holeObj.distance.toFixed(1)} meters ahead in ${holeObj.lane} path. Ground is ${currentGroundSurfaceState.toLowerCase()}. Step around carefully.`
+          : (result.spoken_response || `No depth holes or potholes detected. Ground surface ahead is ${currentGroundSurfaceState.toLowerCase()}.`);
+        showUniversalVoiceHUD('Ground Depth & Surface Check', text, false);
         speakText(text);
         triggerHaptic([80, 40, 80]);
         return;
@@ -6097,7 +7108,10 @@
         return;
       }
       if (result.intent === 'stairs_query' || result.action === 'stairs_query') {
-        const text = result.spoken_response || 'Scanning path ahead for stairs or elevation changes.';
+        const stairsObj = lastLiveDetections.find(o => o.isStairs || o.rawClass === 'stairs');
+        const text = stairsObj
+          ? `Stairs detected at ${stairsObj.distance.toFixed(1)} meters ahead on your ${stairsObj.lane} (approx ${stairsObj.widthM || 1.4}m wide, ${stairsObj.heightM || 1.2}m high). Use handrail.`
+          : (result.spoken_response || `No stairs detected ahead. Ground surface is ${currentGroundSurfaceState.toLowerCase()}.`);
         showUniversalVoiceHUD('Stairs / Elevation Check', text, false);
         speakText(text);
         triggerHaptic([50]);
@@ -6116,8 +7130,9 @@
         return;
       }
       if (result.intent === 'traffic_query' || result.action === 'traffic_query') {
-        const text = result.spoken_response || `Crosswalk acoustic analyzer active. Ambient quietness index is ${Math.round(crosswalkTrafficQuietness)} percent. Low frequencies clear.`;
-        showUniversalVoiceHUD('Traffic Quietness', text, false);
+        const sigStr = currentTrafficLightSignal ? ` Traffic light is ${currentTrafficLightSignal}.` : '';
+        const text = result.spoken_response || `Crosswalk acoustic analyzer active. Ambient quietness index is ${Math.round(crosswalkTrafficQuietness)} percent.${sigStr}`;
+        showUniversalVoiceHUD('Traffic & Signal Check', text, false);
         speakText(text);
         triggerHaptic([50]);
         return;
@@ -6130,52 +7145,72 @@
         return;
       }
 
-      const intent = result.intent || 'start_navigation';
+      const intent = result.intent || 'describe_environment';
 
       if (intent === 'affirmative') {
         if (activeRoute === 'obstacleAlert') {
           acknowledgeObstacle();
         } else {
-          speakText(result.spoken_response || "Path is clear. Continue straight.");
+          const msg = result.spoken_response || `Path is clear (${currentLidarDepthAhead.toFixed(1)}m). Ground is ${currentGroundSurfaceState.toLowerCase()}. Continue straight.`;
+          showUniversalVoiceHUD('Confirmed', msg, false);
+          speakText(msg);
           triggerHaptic([40]);
         }
       } else if (intent === 'negative') {
-        speakText(result.spoken_response || "Holding position. Let me know when you are ready to continue.");
+        const msg = result.spoken_response || "Holding position. Tap the microphone whenever you are ready to continue.";
+        showUniversalVoiceHUD('Holding Position', msg, false);
+        speakText(msg);
         triggerHaptic([60, 40]);
       } else if (intent === 'guidance_query') {
         const dir = currentSteeringDirection || 'WALK STRAIGHT';
         const depth = currentLidarDepthAhead ? `${currentLidarDepthAhead.toFixed(1)} meters` : 'clear';
-        speakText(result.spoken_response || `${dir}. Forward clearance is ${depth}.`);
+        const msg = result.spoken_response || `${dir}. Forward clearance is ${depth}. Ground is ${currentGroundSurfaceState.toLowerCase()}.`;
+        showUniversalVoiceHUD('Live Guidance', msg, false);
+        speakText(msg);
         triggerHaptic([50]);
       } else if (intent === 'obstacle_query') {
-        speakText(result.spoken_response || "Scanning ahead. Pathway is clear.");
+        const msg = result.spoken_response || buildLiveSurroundingsSummary(lastLiveDetections);
+        showUniversalVoiceHUD('Obstacle & Depth Scan', msg, false);
+        speakText(msg);
         triggerHaptic([50]);
       } else if (intent === 'start_navigation') {
         handleAutoGpsNavigation(result.destination, result.spoken_response);
       } else if (intent === 'clarification_needed') {
-        const clarifPrompt = result.clarification_prompt || "Where would you like to go? Speak any destination or place.";
-        document.getElementById('listening-title').innerText = "Where would you like to go?";
-        document.getElementById('live-transcript').innerText = `“${clarifPrompt}”`;
-        speakText(result.spoken_response || clarifPrompt);
+        const clarifPrompt = result.clarification_prompt || result.spoken_response || "Ask me about objects around you, traffic lights, people, ground flatness, or speak any destination.";
+        const lTitle = document.getElementById('listening-title');
+        if (lTitle) lTitle.innerText = "How can Blind AI help?";
+        const lTrans = document.getElementById('live-transcript');
+        if (lTrans) lTrans.innerText = `“${clarifPrompt}”`;
+        showUniversalVoiceHUD('Blind AI Assistant', clarifPrompt, false);
+        speakText(clarifPrompt);
         announceToScreenReader(clarifPrompt);
         triggerHaptic([60, 40]);
       } else if (intent === 'where_am_i') {
-        document.getElementById('listening-title').innerText = "Checking location...";
-        speakText(result.spoken_response || "Checking your current location and orientation.");
+        const msg = result.spoken_response || `You are on ${userGps.street || 'your current street'}, ${userGps.city || ''}, heading ${userGps.heading || 0} degrees.`;
+        showUniversalVoiceHUD('Where Am I', msg, false);
+        speakText(msg);
         triggerHaptic([60]);
-        setTimeout(() => navigateTo('whereAmI'), 700);
+        if (activeRoute !== 'whereAmI') {
+          setTimeout(() => navigateTo('whereAmI'), 600);
+        }
       } else if (intent === 'describe_environment') {
-        document.getElementById('listening-title').innerText = "Scanning environment...";
-        speakText(result.spoken_response || "Scanning surroundings with camera.");
+        const liveMsg = result.spoken_response || buildLiveSurroundingsSummary(lastLiveDetections);
+        showUniversalVoiceHUD('Live Surroundings', liveMsg, false);
+        speakText(liveMsg);
         triggerHaptic([60]);
-        setTimeout(() => navigateTo('describeAround'), 700);
+        if (activeRoute !== 'activeNavigation' && activeRoute !== 'describeAround') {
+          setTimeout(() => navigateTo('describeAround'), 600);
+        } else if (activeRoute === 'describeAround') {
+          triggerDescribeAround();
+        }
       } else if (intent === 'stop') {
         stopNavigationRoute();
       } else if (intent === 'repeat') {
         repeatCurrentStep();
       } else {
-        speakText(result.spoken_response || ("I heard: " + rawText));
-        setTimeout(() => navigateTo('home'), 1500);
+        const fallbackMsg = result.spoken_response || buildLiveSurroundingsSummary(lastLiveDetections);
+        showUniversalVoiceHUD('Blind AI Assistant', fallbackMsg, false);
+        speakText(fallbackMsg);
       }
     }
 
@@ -6229,7 +7264,7 @@
     function repeatCurrentStep() {
       triggerHaptic([40]);
       const wp = currentWaypoints[currentWaypointIdx] || { instruction: 'Continue along pathway' };
-      speakText(`${wp.instruction}. ${currentDistance} meters remaining.`);
+      speakText(`${wp.instruction}. ${currentDistance} meters remaining. Ground is ${currentGroundSurfaceState.toLowerCase()}.`);
     }
 
     function stopNavigationRoute() {
@@ -6249,19 +7284,35 @@
 
     function speakRouteOverview() {
       triggerHaptic([40]);
-      speakText(`Route overview to ${currentDestinationTitle}. ${currentDestinationSub}. Sidewalk condition is clear.`);
+      const firstStep = currentWaypoints && currentWaypoints.length > 0 ? currentWaypoints[0].instruction : 'Walk along pedestrian pathway';
+      const totalSteps = currentWaypoints ? currentWaypoints.length : 1;
+      const msg = `Walking route to ${currentDestinationTitle}. ${currentDestinationSub} across ${totalSteps} turn-by-turn steps. First step: ${firstStep}. Ground surface is ${currentGroundSurfaceState.toLowerCase()}.`;
+      showUniversalVoiceHUD('Route Overview', msg, false);
+      speakText(msg);
     }
 
     // Safety Screen Actions
     function repeatSceneDescription() {
       triggerHaptic([40]);
-      speakText(getLidarSceneDescription());
+      const sceneText = buildLiveSurroundingsSummary(lastLiveDetections);
+      const descEl = document.getElementById('describe-scene-text');
+      if (descEl) descEl.innerText = sceneText;
+      showUniversalVoiceHUD('Scene Description', sceneText, false);
+      speakText(sceneText);
     }
 
     function repeatObstacleWarning() {
       triggerHaptic([40]);
+      const primaryObj = lastLiveDetections.length > 0 ? lastLiveDetections[0] : null;
+      let dimStr = '';
+      if (primaryObj) {
+        const dims = computeObjectMetricDimensions(primaryObj);
+        dimStr = ` Size: approximately ${dims.widthM} meters wide by ${dims.heightM} meters tall.`;
+      }
       const evalResult = evaluateLidarDanger(currentLidarDistance, currentLidarLane, currentLidarObject);
-      speakText(evalResult.spoken || `Warning: ${currentLidarObject} ahead, ${currentLidarDistance.toFixed(1)} meters.`);
+      const msg = (evalResult.spoken || `Warning: ${currentLidarObject} ahead, ${currentLidarDistance.toFixed(1)} meters.`) + dimStr + ` Ground is ${currentGroundSurfaceState.toLowerCase()}.`;
+      showUniversalVoiceHUD('Obstacle Details', msg, false);
+      speakText(msg);
     }
 
     function acknowledgeObstacle() {
@@ -6285,6 +7336,64 @@
       setTimeout(() => {
         navigateTo('activeNavigation');
       }, 400);
+    }
+
+    function checkCrosswalkSignalAndTrafficNow() {
+      triggerHaptic([60, 40]);
+      const tlObj = lastLiveDetections.find(o => o.isTrafficLight || o.rawClass === 'traffic light');
+      const crossObj = lastLiveDetections.find(o => o.isCrossingPath || o.rawClass === 'crossing path');
+      const vehicleObj = lastLiveDetections.find(o => ['car', 'bus', 'truck', 'motorcycle', 'bicycle'].includes(o.rawClass));
+      const sig = (tlObj && tlObj.trafficLightColor) ? tlObj.trafficLightColor : currentTrafficLightSignal;
+
+      const sigPill = document.getElementById('crosswalk-traffic-signal-pill');
+      const titleEl = document.getElementById('crosswalk-status-title');
+      const descEl = document.getElementById('crosswalk-status-desc');
+
+      let msg = '';
+      if (sig === 'RED') {
+        if (sigPill) {
+          sigPill.className = 'px-3 py-1 rounded-full text-xs font-extrabold bg-red-600 text-white border border-red-300 mb-2';
+          sigPill.innerText = 'Traffic Signal: 🔴 RED — DO NOT CROSS';
+        }
+        if (titleEl) titleEl.innerText = 'STOP — RED SIGNAL';
+        msg = `Traffic light is RED${tlObj ? ' at ' + tlObj.distance.toFixed(1) + ' meters' : ''}. Do not cross. Wait at the curb.`;
+      } else if (sig === 'YELLOW') {
+        if (sigPill) {
+          sigPill.className = 'px-3 py-1 rounded-full text-xs font-extrabold bg-amber-500 text-black border border-amber-300 mb-2';
+          sigPill.innerText = 'Traffic Signal: 🟡 YELLOW — WAIT ON CURB';
+        }
+        if (titleEl) titleEl.innerText = 'WAIT — YELLOW SIGNAL';
+        msg = `Traffic light is YELLOW${tlObj ? ' at ' + tlObj.distance.toFixed(1) + ' meters' : ''}. Signal is changing. Stay on the curb.`;
+      } else if (sig === 'GREEN') {
+        if (sigPill) {
+          sigPill.className = 'px-3 py-1 rounded-full text-xs font-extrabold bg-emerald-600 text-white border border-emerald-300 mb-2';
+          sigPill.innerText = 'Traffic Signal: 🟢 GREEN — SAFE TO CROSS';
+        }
+        if (titleEl) titleEl.innerText = 'GREEN SIGNAL — PROCEED CAREFULLY';
+        msg = `Traffic light is GREEN${tlObj ? ' at ' + tlObj.distance.toFixed(1) + ' meters' : ''}. `;
+        if (vehicleObj && vehicleObj.distance < 8.0) {
+          msg += `Caution: ${vehicleObj.label} detected at ${vehicleObj.distance.toFixed(1)} meters on your ${vehicleObj.lane}.`;
+        } else {
+          msg += `No approaching vehicles detected. Acoustic quietness is ${Math.round(crosswalkTrafficQuietness)} percent. Proceed straight across.`;
+        }
+      } else {
+        if (sigPill) {
+          sigPill.className = 'px-3 py-1 rounded-full text-xs font-extrabold bg-slate-800 text-white border border-slate-600 mb-2';
+          sigPill.innerText = `Traffic Signal: Scanning • Quietness ${Math.round(crosswalkTrafficQuietness)}%`;
+        }
+        msg = `Scanning intersection. `;
+        if (crossObj) msg += `Zebra crossing path detected at ${crossObj.distance.toFixed(1)} meters ahead. `;
+        if (vehicleObj) {
+          msg += `Warning: ${vehicleObj.label} detected at ${vehicleObj.distance.toFixed(1)} meters on your ${vehicleObj.lane}. `;
+        } else {
+          msg += `No vehicles in camera view. Acoustic quietness is ${Math.round(crosswalkTrafficQuietness)} percent. `;
+        }
+        msg += `Ground surface is ${currentGroundSurfaceState.toLowerCase()}.`;
+      }
+
+      if (descEl) descEl.innerText = msg;
+      showUniversalVoiceHUD('Crosswalk & Signal Check', msg, false);
+      speakText(msg);
     }
 
     function confirmCrossed() {
