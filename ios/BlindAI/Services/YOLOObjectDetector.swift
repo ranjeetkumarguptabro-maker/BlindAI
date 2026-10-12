@@ -20,7 +20,20 @@ import UIKit
 public final class YOLOObstacleDetector: @unchecked Sendable {
     public static let shared = YOLOObstacleDetector()
     public static let inputResolution = CGSize(width: 640, height: 640)
-    public static let supportedModelBundleNames = ["yolov8n", "BlindAI_YOLOv8n", "yolov8s"]
+    public static let roboflowInputResolution = CGSize(width: 512, height: 512)
+    public static let supportedModelBundleNames = ["yolov8n", "BlindAI_YOLOv8n", "yolov8s", "blind-ai-street-obstacles"]
+    public static var roboflowApiKey: String {
+        ProcessInfo.processInfo.environment["ROBOFLOW_API_KEY"] ?? (Bundle.main.object(forInfoDictionaryKey: "ROBOFLOW_API_KEY") as? String ?? "")
+    }
+    public static let roboflowWorkspace = "ranjeet-gupta-s-workspace"
+    public static let roboflowProjects = ["blind-ai-street-obstacles", "blind-ai-expanded-labeling-sampl"]
+    public static let roboflowClasses: [String] = [
+        "person", "cyclist", "car", "bicycle", "e_scooter", "tram",
+        "traffic_light", "traffic_sign", "pedestrian_crossing", "tram_rail",
+        "bus_tram_stop", "stairs", "curb", "pothole", "crack",
+        "uneven_pavement", "path_obstacle", "tree", "pole", "bollard",
+        "bench", "parked_scooter", "planter"
+    ]
     
     #if canImport(Vision) && canImport(CoreML)
     private var model: VNCoreMLModel?

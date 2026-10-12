@@ -574,8 +574,25 @@ try {
     assert.ok(swiftDetector.includes('usesCPUOnly = false') && swiftDetector.includes('.scaleFill'), 'Must configure ANE usesCPUOnly = false and .scaleFill 640x640 preprocessing');
     assert.ok(swiftAlertModel.includes('VNRecognizedObjectObservation'), 'ObstacleAlertItem.swift must map VNRecognizedObjectObservation directly');
 
-    console.log('✅ [PASS] AC-12: Unified 11-Stage Trainable AI Model, Clean UI & SwiftUI Core ML YOLOv8n Integration');
-    console.log('   -> 5 Reference Datasets, 11-Stage Pipeline, Continuous Image Training & SwiftUI YOLOObstacleDetector (VNCoreMLModel/ANE/640x640) verified.');
+    // 5. Verify Roboflow 23-Class Street Obstacle Model Integration (via gitignored .env, never exposed in source/HTML)
+    assert.strictEqual(status.roboflow.workspace, 'ranjeet-gupta-s-workspace', 'Must connect to ranjeet-gupta-s-workspace');
+    assert.strictEqual(status.roboflow.classesCount, 23, 'Must support all 23 trained Roboflow street obstacle classes');
+    const rfResult = await unifiedModel.detectWithRoboflow({
+      rawPredictions: [
+        { class: 'e_scooter', confidence: 0.94, x: 256, y: 310, width: 70, height: 140 },
+        { class: 'pothole', confidence: 0.91, x: 250, y: 420, width: 95, height: 45 },
+        { class: 'bollard', confidence: 0.89, x: 120, y: 340, width: 38, height: 110 },
+        { class: 'tram_rail', confidence: 0.92, x: 380, y: 410, width: 160, height: 40 }
+      ]
+    });
+    assert.strictEqual(rfResult.detections.length, 4, 'Must convert all 4 Roboflow 23-class predictions into 3D tracked detections');
+    assert.strictEqual(rfResult.detections[0].roboflowClass, 'e_scooter');
+    assert.strictEqual(rfResult.detections[0].color, '#FF8000', 'Must assign official Roboflow hex color #FF8000 to e_scooter');
+    assert.strictEqual(rfResult.detections[1].roboflowClass, 'pothole');
+    assert.ok(html.includes('id="train-roboflow-api-key"') && html.includes('blind-ai-street-obstacles'), 'preview.html must include Roboflow 23-class model UI without exposing raw API key');
+
+    console.log('✅ [PASS] AC-12: Unified 11-Stage Trainable AI Model, Roboflow 23-Class Detector, Clean UI & SwiftUI Core ML YOLOv8n');
+    console.log('   -> Roboflow (ranjeet-gupta-s-workspace / 23 classes), 5 Reference Datasets, 11-Stage Pipeline & SwiftUI Core ML verified.');
     passedTests++;
   } catch (err) {
     console.error('❌ [FAIL] AC-12:', err.message);

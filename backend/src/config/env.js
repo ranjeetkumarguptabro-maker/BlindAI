@@ -38,6 +38,12 @@ const env = {
   port: parseInt(process.env.PORT || "3000", 10),
   environment: process.env.ENVIRONMENT || "development",
   geminiApiKey: process.env.GEMINI_API_KEY || "",
+  roboflowApiKey: process.env.ROBOFLOW_API_KEY || "",
+  roboflowWorkspace: process.env.ROBOFLOW_WORKSPACE || "ranjeet-gupta-s-workspace",
+  roboflowProjects: [
+    "blind-ai-street-obstacles",
+    "blind-ai-expanded-labeling-sampl"
+  ],
   supabaseKey: process.env.SUPABASE_KEY || process.env.SUPABASE_ANON_KEY || "",
   supabaseUrl: process.env.SUPABASE_URL || "",
   defaultProvider: process.env.DEFAULT_AI_PROVIDER || "gemini",

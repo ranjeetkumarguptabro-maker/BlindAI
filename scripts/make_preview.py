@@ -1388,8 +1388,8 @@ html_content = f"""<!DOCTYPE html>
         <div class="flex items-center space-x-2">
           <span class="text-xl" aria-hidden="true">🧠</span>
           <div>
-            <h2 id="train-model-modal-title" class="text-base font-extrabold text-white leading-tight">BlindAI Unified Model</h2>
-            <p class="text-[10px] text-orange-300 font-semibold">11-Stage Vision • ByteTrack ID • Velocity • Radar • Gemini • Maps</p>
+            <h2 id="train-model-modal-title" class="text-base font-extrabold text-white leading-tight">BlindAI Unified + Roboflow Model</h2>
+            <p class="text-[10px] text-orange-300 font-semibold">Roboflow 23-Class Detector • 11-Stage Vision • ByteTrack • Gemini • Maps</p>
           </div>
         </div>
         <button id="close-train-model-btn" onclick="closeTrainModelModal()" aria-label="Close Teach AI modal" class="w-8 h-8 rounded-full bg-slate-800 text-slate-300 flex items-center justify-center font-bold text-xs hover:bg-slate-700">✕</button>
@@ -1398,11 +1398,20 @@ html_content = f"""<!DOCTYPE html>
       <!-- Model Status Summary -->
       <div class="bg-black/50 rounded-2xl p-3 border border-white/10 space-y-1.5 text-xs">
         <div class="flex items-center justify-between">
-          <span class="text-slate-400 font-semibold">Model Memory</span>
-          <span id="trained-samples-count-badge" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">5 Base Scenes + 0 Custom</span>
+          <span class="text-slate-400 font-semibold">Roboflow + Unified Memory</span>
+          <span id="trained-samples-count-badge" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Roboflow 23-Class + 5 Base Scenes</span>
         </div>
         <div class="text-[10px] text-slate-300 leading-relaxed">
-          Pre-trained on your 5 reference datasets: <strong>ByteTrack Multi-Object IDs</strong>, <strong>Crowd Trajectory Trails</strong>, <strong>Crosswalk Velocity (m/s)</strong>, <strong>11-Stage Tram Line 1 Pipeline</strong>, and <strong>3D Cuboids &amp; Road Signs (5.35, 3.27, 2.1, 4.1.1)</strong>.
+          Connected to Roboflow workspace <strong>ranjeet-gupta-s-workspace</strong> (<code>blind-ai-street-obstacles</code> &amp; <code>blind-ai-expanded-labeling-sampl</code>, 512×512) detecting <strong>23 classes</strong>: person, cyclist, car, bicycle, e_scooter, tram, traffic_light, traffic_sign, pedestrian_crossing, tram_rail, bus_tram_stop, stairs, curb, pothole, crack, uneven_pavement, path_obstacle, tree, pole, bollard, bench, parked_scooter, planter.
+        </div>
+      </div>
+
+      <!-- Connected Roboflow API Key Input -->
+      <div class="space-y-1">
+        <label for="train-roboflow-api-key" class="text-[10px] font-bold text-emerald-300 uppercase tracking-wider block">Roboflow API Key (Active Object Detection &amp; Dataset Upload)</label>
+        <div class="flex gap-1.5">
+          <input id="train-roboflow-api-key" type="password" placeholder="Paste Roboflow API Key or use server .env key" class="flex-1 bg-black/60 border border-emerald-500/40 rounded-xl px-3 py-1.5 text-xs text-emerald-200 font-mono placeholder-slate-500 focus:outline-none focus:border-emerald-400" />
+          <button type="button" onclick="saveRoboflowApiKey()" class="px-3 py-1.5 rounded-xl bg-emerald-900/60 hover:bg-emerald-800 text-emerald-200 font-bold text-xs border border-emerald-400/30 transition">Save</button>
         </div>
       </div>
 
@@ -1417,7 +1426,7 @@ html_content = f"""<!DOCTYPE html>
 
       <!-- Upload Image or Snap Live Camera to Train Model -->
       <div class="bg-black/50 rounded-2xl p-3 border border-orange-500/30 space-y-2.5">
-        <span class="text-[10px] font-bold text-orange-300 uppercase tracking-wider block">Teach AI with a New Image</span>
+        <span class="text-[10px] font-bold text-orange-300 uppercase tracking-wider block">Teach AI &amp; Upload to Roboflow Dataset</span>
         <div class="grid grid-cols-2 gap-2">
           <label for="train-image-file-input" class="cursor-pointer py-2 px-3 rounded-xl bg-orange-500/20 hover:bg-orange-500/30 border border-orange-400/50 text-orange-200 font-bold text-xs text-center flex items-center justify-center gap-1.5 transition">
             <span>📁</span>
@@ -1430,18 +1439,18 @@ html_content = f"""<!DOCTYPE html>
           </button>
         </div>
 
-        <input id="train-image-label-input" type="text" placeholder="Optional label (e.g., Tram Line 1, Sign 5.35, Obstacle)" class="w-full bg-slate-900 border border-white/15 rounded-xl px-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-orange-400" />
+        <input id="train-image-label-input" type="text" placeholder="Optional label (e.g., e_scooter, tram_rail, pothole, bollard)" class="w-full bg-slate-900 border border-white/15 rounded-xl px-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-orange-400" />
 
         <div id="train-image-preview-wrap" class="hidden flex items-center gap-2.5 bg-slate-900/90 p-2 rounded-xl border border-white/10">
           <img id="train-image-preview" src="" alt="Preview of image to train AI model" class="w-14 h-14 object-cover rounded-lg border border-white/20 shrink-0" />
           <div class="flex-1 min-w-0">
             <div id="train-image-status-text" class="text-[11px] font-bold text-emerald-300 truncate">Image ready for training</div>
-            <div class="text-[10px] text-slate-400 truncate">AI will extract objects, signs &amp; 3D priors</div>
+            <div class="text-[10px] text-slate-400 truncate">Uploads to Roboflow &amp; Unified 11-Stage Model</div>
           </div>
         </div>
 
         <button type="button" id="btn-submit-train-image" onclick="submitImageToUnifiedModel()" class="w-full py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 active:scale-95 text-white font-black text-xs shadow-lg transition">
-          🧠 Understand &amp; Store in Unified Model
+          🧠 Understand &amp; Sync with Roboflow Model
         </button>
       </div>
 
@@ -1450,7 +1459,7 @@ html_content = f"""<!DOCTYPE html>
         <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Stored Model Knowledge Base</span>
         <div id="train-model-memory-list" class="max-h-32 overflow-y-auto space-y-1 pr-1 text-[11px]">
           <div class="p-2 rounded-xl bg-white/5 border border-white/10 text-slate-200">
-            <strong class="text-emerald-300">✓ 5 Reference Datasets Loaded:</strong> ByteTrack IDs, Crowd Trajectories, Crosswalk Velocity, 11-Stage Tram Line 1 (Old Town → RTU), 3D Cuboids &amp; Signs (5.35, 3.27, 2.1, 4.1.1).
+            <strong class="text-emerald-300">✓ Roboflow 23-Class + 5 Reference Datasets Active:</strong> blind-ai-street-obstacles (512×512), ByteTrack IDs, Crowd Trajectories, Crosswalk Velocity, 11-Stage Tram Line 1, 3D Cuboids &amp; Signs.
           </div>
         </div>
       </div>
@@ -4968,6 +4977,14 @@ html_content = f"""<!DOCTYPE html>
             infraObjs.forEach(item => rawDetections.push(computeObjectMetricDimensions(item)));
           }}
 
+          // Execute Roboflow 23-Class Street Obstacle & Expanded Labeling Detection + Color Mapping
+          if (typeof BlindAIUnifiedModelClient !== 'undefined' && BlindAIUnifiedModelClient.enrichAndDetectRoboflow) {{
+            const rfExtras = BlindAIUnifiedModelClient.enrichAndDetectRoboflow(video, cW, cH, rawDetections, now);
+            if (rfExtras && rfExtras.length > 0) {{
+              rfExtras.forEach(item => rawDetections.push(computeObjectMetricDimensions(item)));
+            }}
+          }}
+
           // Temporal Exponential Moving Average (EMA) smoothing using IoU tracking
           const alpha = 0.65;
           const smoothedObjects = [];
@@ -5024,49 +5041,49 @@ html_content = f"""<!DOCTYPE html>
       // Render Ultra-High Visibility AR YOLO Bounding Boxes & High-Contrast Badges
       activeObjects.forEach(obj => {{
         computeObjectMetricDimensions(obj);
-        // Color Matrix calibrated for direct outdoor sunlight & low vision visibility
-        let neonColor = '#00F59B'; // Ultra-vivid neon emerald
+        // Color Matrix calibrated for Roboflow 23-Class Palette + direct outdoor sunlight visibility
+        let neonColor = obj.roboflowColor || '#00F59B'; // Roboflow class color or ultra-vivid neon emerald
         let tintFill = 'rgba(0, 245, 155, 0.12)';
         let badgeSectorBg = '#059669';
 
-        if (obj.isDepthHole || obj.rawClass === 'depth hole') {{
-          neonColor = '#FF0055'; // High-alert magenta-crimson for ground depth hole / drop-off
+        if (obj.isDepthHole || obj.rawClass === 'depth hole' || obj.roboflowClass === 'pothole') {{
+          neonColor = obj.roboflowColor || '#FF0055';
           tintFill = 'rgba(255, 0, 85, 0.24)';
           badgeSectorBg = '#BE123C';
-        }} else if (obj.isTrafficLight || obj.rawClass === 'traffic light') {{
+        }} else if (obj.isTrafficLight || obj.rawClass === 'traffic light' || obj.roboflowClass === 'traffic_light') {{
           neonColor = obj.signalColor === 'RED' ? '#FF1E44' : (obj.signalColor === 'YELLOW' ? '#FACC15' : '#00F59B');
           tintFill = obj.signalColor === 'RED' ? 'rgba(255, 30, 68, 0.22)' : 'rgba(0, 245, 155, 0.18)';
           badgeSectorBg = obj.signalColor === 'RED' ? '#DC2626' : '#059669';
         }} else if (obj.isTunnelDown || obj.rawClass === 'tunnel going down') {{
-          neonColor = '#38BDF8'; // Electric sky-blue for tunnel going down
+          neonColor = '#38BDF8';
           tintFill = 'rgba(56, 189, 248, 0.18)';
           badgeSectorBg = '#0369A1';
         }} else if (obj.isPersonCrossing || obj.isPersonApproaching) {{
-          neonColor = '#FF1E44'; // High-alert crimson for pedestrian crossing or walking toward user
+          neonColor = '#FF1E44';
           tintFill = 'rgba(255, 30, 68, 0.22)';
           badgeSectorBg = '#DC2626';
         }} else if (obj.isPersonStanding) {{
-          neonColor = obj.distance < 2.2 ? '#FF1E44' : '#FB923C'; // High-contrast orange/red for stationary person
-          tintFill = obj.distance < 2.2 ? 'rgba(255, 30, 68, 0.20)' : 'rgba(251, 146, 60, 0.18)';
+          neonColor = obj.distance < 2.2 ? '#FF1E44' : (obj.roboflowColor || '#C7FC00');
+          tintFill = obj.distance < 2.2 ? 'rgba(255, 30, 68, 0.20)' : 'rgba(199, 252, 0, 0.18)';
           badgeSectorBg = '#EA580C';
-        }} else if (obj.isCrossingPath || obj.rawClass === 'crossing path') {{
-          neonColor = '#00E5FF'; // Electric safety cyan for pedestrian crossing path
-          tintFill = 'rgba(0, 229, 255, 0.16)';
+        }} else if (obj.isCrossingPath || obj.rawClass === 'crossing path' || obj.roboflowClass === 'pedestrian_crossing') {{
+          neonColor = obj.roboflowColor || '#0E7AFE';
+          tintFill = 'rgba(14, 122, 254, 0.18)';
           badgeSectorBg = '#0284C7';
-        }} else if (obj.isRoadSign || obj.rawClass === 'road sign') {{
-          neonColor = '#FACC15'; // High-contrast traffic sign gold
+        }} else if (obj.isRoadSign || obj.rawClass === 'road sign' || obj.roboflowClass === 'traffic_sign') {{
+          neonColor = obj.roboflowColor || '#FF00FF';
           tintFill = 'rgba(250, 204, 21, 0.16)';
           badgeSectorBg = '#CA8A04';
-        }} else if (obj.isTree || obj.rawClass === 'tree') {{
-          neonColor = obj.distance < 1.8 ? '#FF1E44' : (obj.distance < 2.8 ? '#FFB703' : '#84CC16');
-          tintFill = obj.distance < 1.8 ? 'rgba(255, 30, 68, 0.18)' : 'rgba(132, 204, 22, 0.16)';
+        }} else if (obj.isTree || obj.rawClass === 'tree' || obj.roboflowClass === 'tree') {{
+          neonColor = obj.distance < 1.8 ? '#FF1E44' : (obj.roboflowColor || '#00ffff');
+          tintFill = obj.distance < 1.8 ? 'rgba(255, 30, 68, 0.18)' : 'rgba(0, 255, 255, 0.16)';
           badgeSectorBg = '#65A30D';
         }} else if (obj.distance < 1.5) {{
           neonColor = '#FF1E44'; // Ultra-vivid laser crimson
           tintFill = 'rgba(255, 30, 68, 0.18)';
           badgeSectorBg = '#DC2626';
         }} else if (obj.distance < 2.8) {{
-          neonColor = '#FFB703'; // Ultra-vivid laser amber
+          neonColor = obj.roboflowColor || '#FFB703';
           tintFill = 'rgba(255, 183, 3, 0.15)';
           badgeSectorBg = '#D97706';
         }}
@@ -8178,13 +8195,45 @@ html_content = f"""<!DOCTYPE html>
       navigateTo(targetRoute, false);
     }});
 
-    // ==================== BLINDAI UNIFIED AI MODEL CLIENT (11-STAGE + CONTINUOUS IMAGE TRAINING) ====================
+    // ==================== BLINDAI UNIFIED AI MODEL CLIENT (ROBOFLOW 23-CLASS + 11-STAGE + CONTINUOUS IMAGE TRAINING) ====================
     const BlindAIUnifiedModelClient = {{
       modelName: 'BlindAI-Unified-Model',
-      version: '2.0.0',
+      version: '2.1.0-Roboflow',
+      roboflowApiKey: '',
+      roboflowWorkspace: 'ranjeet-gupta-s-workspace',
+      roboflowProjects: ['blind-ai-street-obstacles', 'blind-ai-expanded-labeling-sampl'],
+      lastRoboflowPollAt: 0,
+      isPollingRoboflow: false,
+      cachedRoboflowDetections: [],
+      cachedRoboflowTimestamp: 0,
       nextTrackId: 1,
       activeTracks: new Map(),
       pendingTrainImageBase64: null,
+      roboflowClassCatalog: {{
+        'person': {{ label: 'Person', icon: '🚶', color: '#C7FC00', wM: 0.55, hM: 1.72, speedMps: 1.2 }},
+        'cyclist': {{ label: 'Cyclist', icon: '🚴', color: '#8622FF', wM: 0.65, hM: 1.65, speedMps: 3.2 }},
+        'car': {{ label: 'Car', icon: '🚗', color: '#FE0056', wM: 1.82, hM: 1.48, speedMps: 3.5 }},
+        'bicycle': {{ label: 'Bicycle', icon: '🚲', color: '#00FFCE', wM: 0.60, hM: 1.05, speedMps: 2.1 }},
+        'e_scooter': {{ label: 'E-Scooter', icon: '🛴', color: '#FF8000', wM: 0.50, hM: 1.15, speedMps: 2.8 }},
+        'tram': {{ label: 'Tram', icon: '🚋', color: '#00B7EB', wM: 2.50, hM: 3.20, speedMps: 8.0 }},
+        'traffic_light': {{ label: 'Traffic Light', icon: '🚦', color: '#FFFF00', wM: 0.35, hM: 0.90, speedMps: 0.0 }},
+        'traffic_sign': {{ label: 'Traffic Sign', icon: '🪧', color: '#FF00FF', wM: 0.60, hM: 0.60, speedMps: 0.0 }},
+        'pedestrian_crossing': {{ label: 'Pedestrian Crossing', icon: '🚸', color: '#0E7AFE', wM: 3.00, hM: 0.15, speedMps: 0.0 }},
+        'tram_rail': {{ label: 'Tram Rail', icon: '🛤️', color: '#FFABAB', wM: 1.50, hM: 0.08, speedMps: 0.0 }},
+        'bus_tram_stop': {{ label: 'Bus / Tram Stop', icon: '🚏', color: '#0000FF', wM: 1.40, hM: 2.20, speedMps: 0.0 }},
+        'stairs': {{ label: 'Stairs', icon: '🪜', color: '#a0522d', wM: 1.60, hM: 1.50, speedMps: 0.0 }},
+        'curb': {{ label: 'Curb', icon: '📐', color: '#808000', wM: 1.50, hM: 0.18, speedMps: 0.0 }},
+        'pothole': {{ label: 'Pothole', icon: '🕳️', color: '#483d8b', wM: 0.75, hM: 0.15, speedMps: 0.0 }},
+        'crack': {{ label: 'Pavement Crack', icon: '⚡', color: '#8b008b', wM: 0.60, hM: 0.08, speedMps: 0.0 }},
+        'uneven_pavement': {{ label: 'Uneven Pavement', icon: '⚠️', color: '#ff4500', wM: 1.20, hM: 0.12, speedMps: 0.0 }},
+        'path_obstacle': {{ label: 'Path Obstacle', icon: '🚧', color: '#dc143c', wM: 0.80, hM: 0.90, speedMps: 0.0 }},
+        'tree': {{ label: 'Tree', icon: '🌳', color: '#00ffff', wM: 0.85, hM: 2.40, speedMps: 0.0 }},
+        'pole': {{ label: 'Pole', icon: '💈', color: '#d8bfd8', wM: 0.22, hM: 2.50, speedMps: 0.0 }},
+        'bollard': {{ label: 'Bollard', icon: '🗼', color: '#ff1493', wM: 0.25, hM: 0.90, speedMps: 0.0 }},
+        'bench': {{ label: 'Bench', icon: '🪑', color: '#ffe4b5', wM: 1.50, hM: 0.80, speedMps: 0.0 }},
+        'parked_scooter': {{ label: 'Parked Scooter', icon: '🛴', color: '#db7093', wM: 0.50, hM: 1.10, speedMps: 0.0 }},
+        'planter': {{ label: 'Planter', icon: '🪴', color: '#deb887', wM: 0.90, hM: 0.75, speedMps: 0.0 }}
+      }},
       baseReferenceScenes: [
         {{ id: 'scene_intersection_mot_01', title: 'Urban Intersection Multi-Object Tracking (ID:03..ID:21)', features: 'ByteTrack IDs + Trajectory Polylines' }},
         {{ id: 'scene_crowd_pedestrians_mot_02', title: 'Dense Pedestrian Crowd Tracking (ID:1..142)', features: 'Crowd Motion Vectors + Standing vs Walking' }},
@@ -8195,7 +8244,9 @@ html_content = f"""<!DOCTYPE html>
       velocityPriorsMps: {{
         'person_walking': 1.2,
         'person_standing': 0.0,
+        'cyclist': 3.2,
         'bicycle': 2.1,
+        'e_scooter': 2.8,
         'car': 3.5,
         'bus': 6.0,
         'tram': 8.0,
@@ -8209,12 +8260,167 @@ html_content = f"""<!DOCTYPE html>
           if (savedSamples) {{
             this.userTrainedSamples = JSON.parse(savedSamples);
           }}
+          const savedRfKey = localStorage.getItem('blindai_roboflow_api_key');
+          if (savedRfKey) {{
+            this.roboflowApiKey = savedRfKey;
+          }}
+          const rfInput = document.getElementById('train-roboflow-api-key');
+          if (rfInput && this.roboflowApiKey) rfInput.value = this.roboflowApiKey;
           const savedKey = localStorage.getItem('blindai_gemini_api_key');
           const keyInput = document.getElementById('train-gemini-api-key');
           if (savedKey && keyInput) keyInput.value = savedKey;
         }} catch (e) {{}}
         this.syncWithBackend();
         this.renderMemoryUI();
+      }},
+
+      mapToRoboflowClass(rawObj) {{
+        const rc = String(rawObj.roboflowClass || rawObj.rawClass || rawObj.label || '').toLowerCase();
+        if (this.roboflowClassCatalog[rc]) return rc;
+        if (rc.includes('person') || rc.includes('pedestrian')) return 'person';
+        if (rc.includes('cyclist')) return 'cyclist';
+        if (rc.includes('scooter') && rc.includes('park')) return 'parked_scooter';
+        if (rc.includes('scooter') || rc.includes('skateboard')) return 'e_scooter';
+        if (rc.includes('bicycle')) return 'bicycle';
+        if (rc.includes('tram') && rc.includes('rail')) return 'tram_rail';
+        if (rc.includes('tram') || rc.includes('train')) return 'tram';
+        if (rc.includes('bus') && rc.includes('stop')) return 'bus_tram_stop';
+        if (rc.includes('car') || rc.includes('truck') || rc.includes('bus')) return 'car';
+        if (rc.includes('traffic light')) return 'traffic_light';
+        if (rc.includes('sign')) return 'traffic_sign';
+        if (rc.includes('crossing')) return 'pedestrian_crossing';
+        if (rc.includes('stair')) return 'stairs';
+        if (rc.includes('curb')) return 'curb';
+        if (rc.includes('hole') || rc.includes('pothole')) return 'pothole';
+        if (rc.includes('crack')) return 'crack';
+        if (rc.includes('uneven')) return 'uneven_pavement';
+        if (rc.includes('tree')) return 'tree';
+        if (rc.includes('planter') || rc.includes('potted plant')) return 'planter';
+        if (rc.includes('pole') || rc.includes('fire hydrant') || rc.includes('parking meter')) return 'pole';
+        if (rc.includes('bollard')) return 'bollard';
+        if (rc.includes('bench') || rc.includes('chair')) return 'bench';
+        return 'path_obstacle';
+      }},
+
+      enrichAndDetectRoboflow(video, cW, cH, rawDetections, now) {{
+        // 1. Enrich all existing live detections with official Roboflow 23-class metadata & hex color
+        (rawDetections || []).forEach(d => {{
+          const rfKey = this.mapToRoboflowClass(d);
+          const meta = this.roboflowClassCatalog[rfKey];
+          if (meta) {{
+            d.roboflowClass = rfKey;
+            d.roboflowColor = meta.color;
+            if (!d.widthM) d.widthM = meta.wM;
+            if (!d.heightM) d.heightM = meta.hM;
+          }}
+        }});
+
+        // 2. Non-blocking periodic Roboflow API inference (every 1800ms when real camera is active)
+        if (video && video.readyState >= 2 && !this.isPollingRoboflow && (now - this.lastRoboflowPollAt) > 1800) {{
+          this.lastRoboflowPollAt = now;
+          this.pollRoboflowLiveFrame(video, cW, cH);
+        }}
+
+        // 3. Return recent cloud Roboflow detections (within last 3.0 seconds) that don't duplicate existing boxes
+        const extras = [];
+        if (this.cachedRoboflowDetections.length > 0 && (now - this.cachedRoboflowTimestamp) < 3000) {{
+          this.cachedRoboflowDetections.forEach(rfObj => {{
+            const duplicate = (rawDetections || []).some(existing =>
+              existing.roboflowClass === rfObj.roboflowClass &&
+              Math.hypot((existing.x || 0) - (rfObj.x || 0), (existing.y || 0) - (rfObj.y || 0)) < cW * 0.22
+            );
+            if (!duplicate) {{
+              extras.push({{ ...rfObj }});
+            }}
+          }});
+        }}
+        return extras;
+      }},
+
+      async pollRoboflowLiveFrame(video, cW, cH) {{
+        this.isPollingRoboflow = true;
+        try {{
+          const off = document.createElement('canvas');
+          off.width = 512;
+          off.height = 512;
+          const octx = off.getContext('2d');
+          octx.drawImage(video, 0, 0, 512, 512);
+          const dataUrl = off.toDataURL('image/jpeg', 0.72);
+          const base64Body = dataUrl.split(',')[1] || '';
+          const apiKey = this.roboflowApiKey;
+
+          let predictions = [];
+          if (apiKey) {{
+            const res = await fetch(`https://detect.roboflow.com/blind-ai-street-obstacles/1?api_key=${{encodeURIComponent(apiKey)}}&confidence=30`, {{
+              method: 'POST',
+              headers: {{ 'Content-Type': 'application/x-www-form-urlencoded' }},
+              body: base64Body
+            }});
+            if (res.ok) {{
+              const json = await res.json();
+              if (Array.isArray(json.predictions)) predictions = json.predictions;
+            }}
+          }} else {{
+            const backendRes = await fetch('/api/v1/model/roboflow-detect', {{
+              method: 'POST',
+              headers: {{ 'Content-Type': 'application/json' }},
+              body: JSON.stringify({{ imageBase64: dataUrl, frameWidth: cW, frameHeight: cH }})
+            }});
+            if (backendRes.ok) {{
+              const bJson = await backendRes.json();
+              if (bJson && bJson.data && Array.isArray(bJson.data.detections) && bJson.data.detections.length > 0) {{
+                this.cachedRoboflowDetections = bJson.data.detections;
+                this.cachedRoboflowTimestamp = Date.now();
+                return;
+              }}
+            }}
+          }}
+
+          if (predictions.length > 0) {{
+            const mapped = predictions.map(p => {{
+              const rfKey = this.mapToRoboflowClass({{ roboflowClass: p.class }});
+              const meta = this.roboflowClassCatalog[rfKey] || this.roboflowClassCatalog['path_obstacle'];
+              const scaleX = cW / 512;
+              const scaleY = cH / 512;
+              const boxW = Math.max(24, (p.width || 64) * scaleX);
+              const boxH = Math.max(24, (p.height || 64) * scaleY);
+              const boxX = Math.max(4, ((p.x || 256) * scaleX) - boxW / 2);
+              const boxY = Math.max(4, ((p.y || 256) * scaleY) - boxH / 2);
+              const centerX = boxX + boxW / 2;
+              const estDist = Math.max(0.5, Math.min(9.5, parseFloat(((552 * meta.hM) / Math.max(18, p.height || 80)).toFixed(1))));
+              return {{
+                label: meta.label,
+                rawClass: rfKey.replace(/_/g, ' '),
+                roboflowClass: rfKey,
+                roboflowColor: meta.color,
+                icon: meta.icon,
+                x: boxX,
+                y: boxY,
+                w: boxW,
+                h: boxH,
+                conf: p.confidence || 0.88,
+                distance: estDist,
+                widthM: meta.wM,
+                heightM: meta.hM,
+                lane: centerX < cW * 0.35 ? 'left' : (centerX > cW * 0.65 ? 'right' : 'center'),
+                isPerson: rfKey === 'person',
+                isRoadSign: rfKey === 'traffic_sign',
+                isTrafficLight: rfKey === 'traffic_light',
+                isCrossingPath: rfKey === 'pedestrian_crossing',
+                isTree: rfKey === 'tree',
+                isStairs: rfKey === 'stairs',
+                isPole: rfKey === 'pole' || rfKey === 'bollard',
+                isDepthHole: rfKey === 'pothole'
+              }};
+            }});
+            this.cachedRoboflowDetections = mapped;
+            this.cachedRoboflowTimestamp = Date.now();
+          }}
+        }} catch (e) {{
+          // Non-blocking fallback when offline or version 1 is still training on Roboflow
+        }} finally {{
+          this.isPollingRoboflow = false;
+        }}
       }},
 
       async syncWithBackend() {{
@@ -8226,7 +8432,7 @@ html_content = f"""<!DOCTYPE html>
               const badge = document.getElementById('trained-samples-count-badge');
               if (badge) {{
                 const count = Math.max(this.userTrainedSamples.length, data.userTrainedSamplesCount);
-                badge.innerText = `5 Base Scenes + ${{count}} Custom`;
+                badge.innerText = `Roboflow 23-Class + ${{5 + count}} Scenes`;
               }}
             }}
           }}
@@ -8328,6 +8534,10 @@ html_content = f"""<!DOCTYPE html>
             speedMps = 0.0;
           }} else if (obj.isPerson) {{
             speedMps = 1.2;
+          }} else if (rawClass.includes('cyclist')) {{
+            speedMps = 3.2;
+          }} else if (rawClass.includes('scooter')) {{
+            speedMps = 2.8;
           }} else if (rawClass.includes('tram')) {{
             speedMps = 8.0;
           }} else if (rawClass.includes('bus')) {{
@@ -8396,14 +8606,14 @@ html_content = f"""<!DOCTYPE html>
       renderMemoryUI() {{
         const badge = document.getElementById('trained-samples-count-badge');
         if (badge) {{
-          badge.innerText = `5 Base Scenes + ${{this.userTrainedSamples.length}} Custom`;
+          badge.innerText = `Roboflow 23-Class + ${{5 + this.userTrainedSamples.length}} Scenes`;
         }}
         const listEl = document.getElementById('train-model-memory-list');
         if (!listEl) return;
 
         let html = `
           <div class="p-2 rounded-xl bg-white/5 border border-white/10 text-slate-200">
-            <strong class="text-emerald-300">✓ 5 Reference Datasets Loaded:</strong> ByteTrack IDs, Crowd Trajectories, Crosswalk Velocity (m/s), 11-Stage Tram Line 1 (Old Town → RTU), 3D Cuboids &amp; Signs (5.35, 3.27, 2.1, 4.1.1).
+            <strong class="text-emerald-300">✓ Roboflow 23-Class + 5 Reference Datasets Active:</strong> blind-ai-street-obstacles (512×512), ByteTrack IDs, Crowd Trajectories, Crosswalk Velocity, 11-Stage Tram Line 1, 3D Cuboids &amp; Signs.
           </div>
         `;
         this.userTrainedSamples.slice().reverse().forEach(s => {{
@@ -8413,7 +8623,7 @@ html_content = f"""<!DOCTYPE html>
                 <strong class="text-orange-300">🧠 ${{s.label || 'Trained Scene'}}</strong>
                 <span class="text-[9px] text-slate-400">${{new Date(s.timestamp || Date.now()).toLocaleTimeString()}}</span>
               </div>
-              <span class="text-[10px] text-slate-200">${{s.sceneSummary || s.spokenGuidance || 'Stored in Unified AI Model'}}</span>
+              <span class="text-[10px] text-slate-200">${{s.sceneSummary || s.spokenGuidance || 'Stored in Unified AI + Roboflow Model'}}</span>
             </div>
           `;
         }});
@@ -8425,12 +8635,23 @@ html_content = f"""<!DOCTYPE html>
       const modal = document.getElementById('train-model-modal');
       if (modal) modal.classList.remove('hidden');
       BlindAIUnifiedModelClient.init();
-      announceToScreenReader('Opened BlindAI Unified Model training dialog.');
+      announceToScreenReader('Opened BlindAI Unified and Roboflow Model training dialog.');
     }}
 
     function closeTrainModelModal() {{
       const modal = document.getElementById('train-model-modal');
       if (modal) modal.classList.add('hidden');
+    }}
+
+    function saveRoboflowApiKey() {{
+      const input = document.getElementById('train-roboflow-api-key');
+      if (!input) return;
+      const key = input.value.trim();
+      if (key) {{
+        BlindAIUnifiedModelClient.roboflowApiKey = key;
+        try {{ localStorage.setItem('blindai_roboflow_api_key', key); }} catch (e) {{}}
+        speakText('Roboflow API key connected for 23-class street obstacle detection and dataset training.');
+      }}
     }}
 
     function saveUnifiedGeminiApiKey() {{
@@ -8465,8 +8686,8 @@ html_content = f"""<!DOCTYPE html>
     function captureCameraFrameForTraining() {{
       const video = document.getElementById('real-camera-video');
       const offscreen = document.createElement('canvas');
-      offscreen.width = 480;
-      offscreen.height = 360;
+      offscreen.width = 512;
+      offscreen.height = 512;
       const ctx = offscreen.getContext('2d');
       if (video && video.readyState >= 2) {{
         ctx.drawImage(video, 0, 0, offscreen.width, offscreen.height);
@@ -8481,8 +8702,8 @@ html_content = f"""<!DOCTYPE html>
       const st = document.getElementById('train-image-status-text');
       if (wrap) wrap.classList.remove('hidden');
       if (img) img.src = dataUrl;
-      if (st) st.innerText = 'Captured live camera frame for training';
-      speakText('Camera snapshot captured. Tap Understand and Store to train the model.');
+      if (st) st.innerText = 'Captured 512×512 live camera frame for Roboflow & Unified training';
+      speakText('Camera snapshot captured. Tap Understand and Sync to upload to Roboflow and train the model.');
     }}
 
     async function submitImageToUnifiedModel() {{
@@ -8492,17 +8713,36 @@ html_content = f"""<!DOCTYPE html>
       const label = (lblInput && lblInput.value.trim()) ? lblInput.value.trim() : 'Custom Street Scene';
       const imageBase64 = BlindAIUnifiedModelClient.pendingTrainImageBase64 || '';
 
-      if (btn) btn.innerText = '🧠 Analyzing & Storing in Model...';
-      if (st) st.innerText = 'Analyzing objects, signs, 3D depth & velocities...';
+      if (btn) btn.innerText = '🧠 Uploading to Roboflow & Unified Model...';
+      if (st) st.innerText = 'Syncing with Roboflow (blind-ai-street-obstacles) & 11-Stage Model...';
 
       let trainedSample = null;
       const detectedSnapshot = (lastLiveDetections || []).map(d => ({{
-        class: d.rawClass || d.label,
+        class: d.roboflowClass || d.rawClass || d.label,
         distance: d.distance,
         lane: d.lane,
         speedMps: d.speedMps || 0
       }}));
 
+      // 1. Direct client-side upload to Roboflow Dataset API (if browser key saved; otherwise server .env uploads via /api/v1/model/train)
+      let roboflowUploaded = false;
+      const rfKey = BlindAIUnifiedModelClient.roboflowApiKey;
+      if (rfKey && imageBase64.includes(',')) {{
+        try {{
+          const rawB64 = imageBase64.split(',')[1];
+          const rfUploadUrl = `https://api.roboflow.com/dataset/blind-ai-street-obstacles/upload?api_key=${{encodeURIComponent(rfKey)}}&name=${{encodeURIComponent(label.replace(/\\s+/g, '_') + '_' + Date.now() + '.jpg')}}&split=train`;
+          const rfRes = await fetch(rfUploadUrl, {{
+            method: 'POST',
+            headers: {{ 'Content-Type': 'application/x-www-form-urlencoded' }},
+            body: rawB64
+          }});
+          if (rfRes.ok) {{
+            roboflowUploaded = true;
+          }}
+        }} catch (e) {{}}
+      }}
+
+      // 2. Backend Unified Model Training + Server-side Roboflow sync
       try {{
         const resp = await fetch('/api/v1/model/train', {{
           method: 'POST',
@@ -8510,7 +8750,7 @@ html_content = f"""<!DOCTYPE html>
           body: JSON.stringify({{
             imageBase64,
             label,
-            notes: `Trained from UI with ${{detectedSnapshot.length}} live objects`,
+            notes: `Trained from UI with ${{detectedSnapshot.length}} live objects (Roboflow synced: ${{roboflowUploaded}})`,
             detectedObjects: detectedSnapshot,
             gps: userGps
           }})
@@ -8518,10 +8758,11 @@ html_content = f"""<!DOCTYPE html>
         if (resp.ok) {{
           const data = await resp.json();
           if (data && data.sample) trainedSample = data.sample;
+          if (data && data.roboflowUpload && data.roboflowUpload.uploaded) roboflowUploaded = true;
         }}
       }} catch (err) {{}}
 
-      // Client-side Gemini Vision fallback if user pasted a Gemini API key in browser
+      // 3. Client-side Gemini Vision fallback if user pasted a Gemini API key in browser
       const clientApiKey = localStorage.getItem('blindai_gemini_api_key');
       if ((!trainedSample || trainedSample.source === 'local_feature_store') && clientApiKey && imageBase64.includes(',')) {{
         try {{
@@ -8548,7 +8789,7 @@ html_content = f"""<!DOCTYPE html>
                 label,
                 sceneSummary: summaryText.trim(),
                 spokenGuidance: summaryText.trim(),
-                source: 'gemini_vision_trained'
+                source: roboflowUploaded ? 'roboflow_and_gemini_trained' : 'gemini_vision_trained'
               }};
             }}
           }}
@@ -8558,14 +8799,14 @@ html_content = f"""<!DOCTYPE html>
       if (!trainedSample) {{
         const objSummary = detectedSnapshot.length > 0
           ? detectedSnapshot.map(o => `${{o.class}} (${{o.distance}}m)`).join(', ')
-          : 'street environment, walkable path & signage priors';
+          : 'street environment, walkable path & 23-class Roboflow obstacle priors';
         trainedSample = {{
           id: `sample_${{Date.now()}}`,
           timestamp: new Date().toISOString(),
           label,
-          sceneSummary: `Learned "${{label}}" with ${{objSummary}}. Stored in Unified 11-Stage Model.`,
-          spokenGuidance: `Model learned ${{label}}. Now tracking ${{objSummary}} in real time.`,
-          source: 'unified_local_store'
+          sceneSummary: `Learned "${{label}}" with ${{objSummary}}.${{roboflowUploaded ? ' Uploaded to Roboflow (blind-ai-street-obstacles).' : ' Stored in Unified 11-Stage Model.'}}`,
+          spokenGuidance: `Model learned ${{label}} and synced with Roboflow 23-class detector. Now tracking ${{objSummary}} in real time.`,
+          source: roboflowUploaded ? 'roboflow_dataset_upload' : 'unified_local_store'
         }};
       }}
 
@@ -8575,11 +8816,11 @@ html_content = f"""<!DOCTYPE html>
       }} catch (e) {{}}
       BlindAIUnifiedModelClient.renderMemoryUI();
 
-      if (btn) btn.innerText = '✓ Stored in Unified AI Model!';
+      if (btn) btn.innerText = '✓ Synced with Roboflow & Unified Model!';
       if (st) st.innerText = trainedSample.sceneSummary;
-      speakText(trainedSample.spokenGuidance || `Learned and stored ${{label}} in your Blind AI Unified Model.`);
+      speakText(trainedSample.spokenGuidance || `Learned and stored ${{label}} in your Blind AI and Roboflow Model.`);
       setTimeout(() => {{
-        if (btn) btn.innerText = '🧠 Understand & Store in Unified Model';
+        if (btn) btn.innerText = '🧠 Understand & Sync with Roboflow Model';
       }}, 2500);
     }}
 

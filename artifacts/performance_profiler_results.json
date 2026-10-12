@@ -1,16 +1,16 @@
 {
-  "timestamp": "2026-10-12T22:50:46.676Z",
+  "timestamp": "2026-10-12T23:51:07.318Z",
   "framesProfiled": 100,
   "latency": {
     "minMs": 0,
     "meanMs": 0,
     "p50Ms": 0,
     "p90Ms": 0,
-    "p99Ms": 0.1,
-    "maxMs": 0.1
+    "p99Ms": 0.05,
+    "maxMs": 0.05
   },
-  "throughputFps": 426885.2,
-  "memoryHeapDeltaMb": 0.81,
+  "throughputFps": 559819.5,
+  "memoryHeapDeltaMb": 0.82,
   "batteryThermal": {
     "estimatedBatteryDrainPerHourPct": 0,
     "thermalProfile": "Nominal (Cool)"

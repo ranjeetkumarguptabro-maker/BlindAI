@@ -311,52 +311,90 @@
       ]
     }
   ],
+  "roboflowModelConfig": {
+    "provider": "Roboflow",
+    "workspace": "ranjeet-gupta-s-workspace",
+    "workspaceId": "HpXugCrHhHXL76EsIJWS7bmIYe93",
+    "projects": [
+      {
+        "id": "ranjeet-gupta-s-workspace/blind-ai-street-obstacles",
+        "slug": "blind-ai-street-obstacles",
+        "name": "Blind AI Street Obstacles",
+        "type": "object-detection",
+        "inputSize": 512
+      },
+      {
+        "id": "ranjeet-gupta-s-workspace/blind-ai-expanded-labeling-sampl",
+        "slug": "blind-ai-expanded-labeling-sampl",
+        "name": "Blind AI Expanded Labeling Sampl",
+        "type": "object-detection",
+        "inputSize": 512
+      }
+    ],
+    "classes": [
+      "person",
+      "cyclist",
+      "car",
+      "bicycle",
+      "e_scooter",
+      "tram",
+      "traffic_light",
+      "traffic_sign",
+      "pedestrian_crossing",
+      "tram_rail",
+      "bus_tram_stop",
+      "stairs",
+      "curb",
+      "pothole",
+      "crack",
+      "uneven_pavement",
+      "path_obstacle",
+      "tree",
+      "pole",
+      "bollard",
+      "bench",
+      "parked_scooter",
+      "planter"
+    ],
+    "colors": {
+      "person": "#C7FC00",
+      "cyclist": "#8622FF",
+      "car": "#FE0056",
+      "bicycle": "#00FFCE",
+      "e_scooter": "#FF8000",
+      "tram": "#00B7EB",
+      "traffic_light": "#FFFF00",
+      "traffic_sign": "#FF00FF",
+      "pedestrian_crossing": "#0E7AFE",
+      "tram_rail": "#FFABAB",
+      "bus_tram_stop": "#0000FF",
+      "stairs": "#a0522d",
+      "curb": "#808000",
+      "pothole": "#483d8b",
+      "crack": "#8b008b",
+      "uneven_pavement": "#ff4500",
+      "path_obstacle": "#dc143c",
+      "tree": "#00ffff",
+      "pole": "#d8bfd8",
+      "bollard": "#ff1493",
+      "bench": "#ffe4b5",
+      "parked_scooter": "#db7093",
+      "planter": "#deb887"
+    }
+  },
   "velocityPriorsMps": {
     "person_standing": 0,
     "person_walking": 1.2,
+    "person": 1.2,
     "bicycle": 2.1,
-    "cyclist": 2.1,
+    "cyclist": 2.4,
+    "e_scooter": 3.2,
+    "parked_scooter": 0,
     "car": 3.5,
     "bus": 4.5,
     "trolleybus": 4.5,
     "tram": 8,
     "truck": 3.2
   },
-  "userTrainedSamples": [
-    {
-      "id": "trained_1791845425789",
-      "trainedAt": "2026-10-12T22:50:25.789Z",
-      "label": "Pedestrian crossing",
-      "notes": "Verification test sample",
-      "gps": {
-        "lat": 56.9515,
-        "lon": 24.0812
-      },
-      "matchedRoadSign": {
-        "id": "info_pedestrian_crossing",
-        "name": "Pedestrian crossing Sign",
-        "latvianName": "Gājēju pāreja",
-        "category": "Information Signs",
-        "categoryLatvian": "Informācijas zīmes",
-        "shape": "square_blue",
-        "icon": "🚸",
-        "pedestrianGuidance": "Pedestrian Crossing (Gājēju pāreja) sign detected! Zebra crossing path is right here.",
-        "keywords": [
-          "pedestrian crossing",
-          "gajeju pareja",
-          "crosswalk sign",
-          "zebra sign"
-        ]
-      },
-      "learnedObjects": [
-        {
-          "class": "road sign",
-          "distanceMeters": 3,
-          "velocityMps": 1.2,
-          "lane": "right"
-        }
-      ],
-      "spokenGuidanceRule": "Learned Pedestrian crossing: Blind AI will now detect and announce \"Pedestrian crossing\" during live camera navigation."
-    }
-  ]
+  "userTrainedSamples": []
 }

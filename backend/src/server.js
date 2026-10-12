@@ -285,6 +285,16 @@ const requestHandler = async (req, res) => {
       });
     }
 
+    // 9. Roboflow 23-Class Street Obstacle & Expanded Labeling Detection
+    if (pathname === "/api/v1/model/roboflow-detect" && req.method === "POST") {
+      const body = await readBody();
+      const result = await blindAiUnifiedModel.detectWithRoboflow(body);
+      return sendJson(200, {
+        status: "success",
+        data: result
+      });
+    }
+
     // 404 Fallback
     return sendJson(404, {
       status: "error",
