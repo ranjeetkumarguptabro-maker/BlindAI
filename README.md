@@ -20,7 +20,7 @@ The Blind AI local backend server is running and ready. Click any of the links b
 | :--- | :--- | :--- |
 | 📱 **Main Mobile App** | **[http://localhost:3000](http://localhost:3000)** | Default full-screen mobile app with live rear camera, real-time YOLO object detection & natural voice navigation |
 | 🛠️ **Developer Simulator** | **[http://localhost:3000/?simulator=true](http://localhost:3000/?simulator=true)** | Edge device simulator with LiDAR depth slider, hazard presets & developer tools |
-| 🖼️ **All 9 Screens Gallery** | **[http://localhost:3000/preview](http://localhost:3000/preview)** | Side-by-side synchronized device showcase of all 9 application workflow screens |
+| 🖼️ **All 9 Screens Gallery ** | **[http://localhost:3000/preview](http://localhost:3000/preview)** | Side-by-side synchronized device showcase of all 9 application workflow screens |
 | 🗺️ **Screen 4: Route Preview** | **[http://localhost:3000/routePreview](http://localhost:3000/routePreview)** | Real-world interactive Leaflet.js map with dynamic GPS polyline routing & steps |
 | 🚶 **Screen 5: Active Navigation** | **[http://localhost:3000/activeNavigation](http://localhost:3000/activeNavigation)** | Continuous always-open rear camera stream, live YOLO neural bounding boxes & OCR signboards |
 | 📍 **Screen 6: Where Am I?** | **[http://localhost:3000/whereAmI](http://localhost:3000/whereAmI)** | Real-time GPS coordinates, reverse-geocoded street address & live compass heading |
