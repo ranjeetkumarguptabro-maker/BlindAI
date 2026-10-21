@@ -8,7 +8,7 @@
 [![Node.js](https://img.shields.io/badge/Node.js-20+-339933?logo=node.js&logoColor=white)](https://nodejs.org)
 [![WCAG 2.2](https://img.shields.io/badge/Accessibility-WCAG%202.2%20AAA-34C759)](https://www.w3.org/WAI/standards-guidelines/wcag/)
 
-**Blind AI** is a retrofit, real-time smart assistive navigation platform engineered specifically for blind and visually impaired pedestrians. It fuses **Apple ARKit LiDAR (`sceneDepth`)**, **Camera Vision object detection**, **Google Gemini multimodal intelligence**, and a **Danger Decision Engine** with synchronized  haptic and preemptive spatial audio feedback.
+**Blind AI** is a retrofit, real-time smart assistive navigation platform engineered specifically for blind and visually impaired pedestrians. It fuses **Apple ARKit LiDAR (`sceneDepth`)**, **Camera Vision object detection**, **Google Gemini multimodal intelligence**, and a **Danger Decision Engine** with synchronized  haptic and preemptive spatial audio feedback .
 
 ---
 
