@@ -12,7 +12,7 @@
 
 ---
 
-## 🔗 Instant Localhost Access Links
+## 🔗 Instant Localhost Access  Links
 
 The Blind AI local backend server  is  running  and ready.  Click any of the links below to launch the app, simulator, or specific screens in your browser:
 
